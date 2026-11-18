@@ -4,7 +4,7 @@
 <html lang="{{ idioma_actual }}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#4a1a6b">
   <title>{{ _('¡Gracias!') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
@@ -18,7 +18,7 @@
     <p>{{ _('Si has enviado una reflexión, aparecerá en la pantalla cuando se haya revisado.') }}</p>
     <a class="boton" href="{{ url_for('participa') }}">{{ _('Enviar otro mensaje') }}</a>
     {# T03: enlace para avisar de un mensaje inapropiado que haya salido en la pantalla #}
-    <p><a href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a></p>
+    <p><a class="enlace" href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a></p>
   </main>
 </body>
 </html>

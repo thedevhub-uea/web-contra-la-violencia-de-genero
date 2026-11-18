@@ -1,4 +1,17 @@
-/* T06 — Estilos del formulario público /participa y /gracias (mobile first, 360 px). */
+/* T06 — Estilos del formulario público /participa y /gracias.
+ *
+ * Mobile first: el público lo rellena en su móvil, en vertical, tras escanear el QR.
+ * Esta hoja es independiente de estilos.css (la pantalla proyectada 16:9); no se
+ * cargan nunca juntas, así que nada de aquí afecta a mural, vídeo ni foro.
+ * La usan también avisar.html y avisar_elemento.html (T03).
+ *
+ * Objetivos (pruebas en 360×640 y 414×896, Chrome Android y Safari iOS):
+ *  - Una sola columna desde 320–360 px, sin scroll horizontal.
+ *  - Zonas táctiles ≥ 44 px y letra de los campos ≥ 16 px (evita el zoom de iOS).
+ *  - Alturas con svh/dvh (la barra del navegador aparece y desaparece), con vh de respaldo.
+ *  - Muescas y barra de inicio: márgenes con env(safe-area-inset-*) (viewport-fit=cover).
+ *  - El botón de enviar se queda pegado abajo mientras se baja por el formulario.
+ */
 
 :root {
   --morado: #6a1b9a;
@@ -8,30 +21,61 @@
   --gris: #5c5066;
   --borde: #c9b3d9;
   --radio: 14px;
+  --tactil: 48px; /* alto mínimo de lo que se pulsa (≥ 44 px) */
+
+  /* Márgenes laterales que respetan la muesca en horizontal */
+  --lado-izq: max(16px, env(safe-area-inset-left));
+  --lado-der: max(16px, env(safe-area-inset-right));
+  --abajo: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: light; /* los colores son fijos: que el modo oscuro no oscurezca solo los campos */
 }
 
 * { box-sizing: border-box; }
 
+html {
+  /* iOS agranda el texto al girar a horizontal: se desactiva para que no se descuadre */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--morado-claro);
+}
+
 body {
   margin: 0;
+  /* Altura real visible: vh de respaldo, svh = con la barra del navegador visible
+     (no salta cuando la barra se esconde al hacer scroll) */
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 18px;
   line-height: 1.5;
   color: var(--texto);
   background: var(--morado-claro);
+  overflow-wrap: anywhere; /* palabras o enlaces muy largos no provocan scroll horizontal */
+  -webkit-tap-highlight-color: rgba(106, 27, 154, .15);
 }
+
+a, button, label, input, textarea { touch-action: manipulation; } /* sin espera del doble toque */
 
 /* --- Cabecera ------------------------------------------------------------ */
 .cabecera {
   background: var(--morado-osc);
   color: #fff;
-  padding: 24px 20px 20px;
+  padding: max(16px, env(safe-area-inset-top)) var(--lado-der) 14px var(--lado-izq);
   text-align: center;
 }
-.cabecera h1 { margin: 0 0 4px; font-size: 1.6rem; }
-.cabecera p { margin: 0; opacity: .9; font-size: 1rem; }
+.cabecera h1 { margin: 0 0 4px; font-size: clamp(1.35rem, 6vw, 1.75rem); line-height: 1.2; }
+.cabecera p { margin: 0; opacity: .9; font-size: clamp(.9rem, 4vw, 1rem); line-height: 1.35; }
 
-.contenido { max-width: 560px; margin: 0 auto; padding: 16px; }
+.contenido {
+  flex: 1 0 auto;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px var(--lado-der) 16px var(--lado-izq);
+}
 
 /* --- Selector de idioma (i18n, templates/_idioma.html) -------------------- */
 .selector-idioma {
@@ -58,6 +102,7 @@ body {
 /* --- Aviso de privacidad ------------------------------------------------- */
 .aviso {
   background: #fff;
+  line-height: 1.4;
   border-left: 5px solid var(--morado);
   border-radius: 8px;
   padding: 12px 14px;
@@ -80,19 +125,23 @@ body {
 .tab-radio { position: absolute; opacity: 0; pointer-events: none; }
 .pestanas { display: flex; gap: 8px; margin-bottom: 12px; }
 .pestanas label {
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   min-height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 10px;
+  padding: 8px 10px;
   border: 2px solid var(--morado);
   border-radius: var(--radio);
   background: #fff;
   color: var(--morado);
   font-weight: 700;
+  line-height: 1.2;
   cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
 }
 #tab-mural:checked ~ .pestanas label[for="tab-mural"],
 #tab-foro:checked ~ .pestanas label[for="tab-foro"] {
@@ -115,13 +164,17 @@ body {
   padding: 18px 16px;
   box-shadow: 0 2px 8px rgba(74, 26, 107, .1);
 }
-.formulario h2 { margin: 0 0 4px; font-size: 1.25rem; color: var(--morado-osc); }
+.formulario h2 { margin: 0 0 4px; font-size: 1.25rem; line-height: 1.25; color: var(--morado-osc); }
 .formulario .desc { margin: 0 0 14px; color: var(--gris); font-size: 1rem; }
 .campo { display: block; font-weight: 600; margin: 12px 0 6px; }
 
 .formulario input[type="text"],
 .formulario textarea {
+  display: block;
   width: 100%;
+  max-width: 100%;
+  min-height: var(--tactil);
+  margin: 0;
   font: inherit;
   font-size: 18px; /* ≥ 16 px: evita el zoom automático en iPhone */
   padding: 12px;
@@ -129,6 +182,8 @@ body {
   border-radius: 10px;
   background: #fff;
   color: var(--texto);
+  -webkit-appearance: none; /* iOS: sin sombra interior ni esquinas propias */
+  appearance: none;
 }
 .formulario input[type="text"]:focus,
 .formulario textarea:focus {
@@ -136,8 +191,11 @@ body {
   border-color: var(--morado);
   box-shadow: 0 0 0 3px rgba(106, 27, 154, .2);
 }
-.formulario textarea { resize: vertical; min-height: 120px; }
-#foro-texto { min-height: 200px; }
+.formulario textarea { resize: vertical; overflow-wrap: break-word; }
+/* Alto de los textos según la pantalla visible: cabe entero en 360×640 y no se queda
+   corto en 414×896. vh de respaldo para navegadores sin svh. */
+#mural-texto { min-height: clamp(96px, 16vh, 170px); min-height: clamp(96px, 16svh, 170px); }
+#foro-texto  { min-height: clamp(130px, 28vh, 280px); min-height: clamp(130px, 28svh, 280px); }
 
 .contador {
   text-align: right;
@@ -155,6 +213,18 @@ body {
   text-align: center;
 }
 
+/* Enlaces sueltos (Avísanos…): zona táctil de al menos 44 px de alto */
+.enlace {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 6px 4px;
+  color: var(--morado);
+  font-weight: 600;
+}
+.enlace:focus-visible { outline: 3px solid #000; outline-offset: 2px; border-radius: 4px; }
+
 /* --- Botones ------------------------------------------------------------- */
 .boton {
   display: flex;
@@ -163,6 +233,7 @@ body {
   width: 100%;
   min-height: 54px;
   margin-top: 16px;
+  padding: 8px 16px;
   border: 0;
   border-radius: var(--radio);
   background: var(--morado);
@@ -170,21 +241,44 @@ body {
   font: inherit;
   font-size: 1.1rem;
   font-weight: 700;
+  line-height: 1.2;
+  text-align: center;
   text-decoration: none;
   cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
 }
 .boton:active { background: var(--morado-osc); }
 .boton:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
 
-.pie { text-align: center; color: var(--gris); font-size: .9rem; padding: 8px 16px 24px; }
+/* Botón de enviar del formulario: se queda pegado abajo de la pantalla mientras se
+   baja por el formulario (sticky dentro de su <form>), así siempre está a mano.
+   Cuando se llega al final del formulario vuelve a su sitio. */
+.boton-enviar {
+  position: sticky;
+  bottom: calc(10px + var(--abajo));
+  z-index: 2;
+  box-shadow: 0 0 0 6px #fff, 0 6px 16px rgba(74, 26, 107, .3);
+}
+
+.pie {
+  text-align: center;
+  color: var(--gris);
+  font-size: .9rem;
+  padding: 8px var(--lado-der) calc(24px + var(--abajo)) var(--lado-izq);
+}
 
 /* --- Página /gracias ----------------------------------------------------- */
 .pagina-gracias {
   min-height: 100vh;
-  display: flex;
+  min-height: 100svh;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding:
+    max(20px, env(safe-area-inset-top))
+    var(--lado-der)
+    max(20px, env(safe-area-inset-bottom))
+    var(--lado-izq);
 }
 .tarjeta {
   width: 100%;
@@ -208,6 +302,30 @@ body {
   font-size: 2.4rem;
   font-weight: 700;
 }
-.tarjeta h1 { margin: 0 0 8px; font-size: 1.6rem; color: var(--morado-osc); }
+.tarjeta h1 { margin: 0 0 8px; font-size: clamp(1.4rem, 6.5vw, 1.75rem); line-height: 1.2; color: var(--morado-osc); }
 .tarjeta p { margin: 0 0 8px; color: var(--gris); }
-.tarjeta .boton { margin-top: 20px; }
+.tarjeta .boton { margin: 20px 0 8px; }
+.tarjeta p:last-child { margin-bottom: 0; }
+
+/* --- Móviles muy estrechos (iPhone SE 1.ª gen., 320 px) ------------------ */
+@media (max-width: 340px) {
+  body { font-size: 17px; }
+  .formulario { padding: 16px 12px; }
+  .pestanas label { padding: 8px 6px; }
+}
+
+/* --- Horizontal (poca altura): que no se rompa ---------------------------
+ * Con ~360 px de alto, un botón pegado abajo taparía media pantalla: vuelve a su
+ * sitio. La cabecera y los textos se compactan para que quepa más formulario. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .cabecera { padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: 10px; }
+  .cabecera h1 { font-size: 1.3rem; }
+  .cabecera p { font-size: .85rem; }
+  .boton-enviar { position: static; box-shadow: none; }
+  #mural-texto { min-height: 96px; }
+  #foro-texto  { min-height: 120px; }
+
+  .tarjeta { padding: 18px 20px; }
+  .icono { width: 52px; height: 52px; font-size: 1.8rem; margin-bottom: 8px; }
+  .tarjeta .boton { margin-top: 12px; }
+}

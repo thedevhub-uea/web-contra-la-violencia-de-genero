@@ -8,7 +8,7 @@
 <html lang="{{ idioma_actual }}">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#4a1a6b">
   <title>{{ _('Participa') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
@@ -45,7 +45,7 @@
         <textarea id="mural-texto" name="texto" maxlength="200" required
                   placeholder="{{ _('Escribe aquí tu mensaje…') }}" data-contador="cont-mural">{% if en_mural %}{{ request.form.get('texto', '') }}{% endif %}</textarea>
         <div class="contador" id="cont-mural" aria-live="polite"></div>
-        <button class="boton" type="submit">{{ _('Enviar mensaje') }}</button>
+        <button class="boton boton-enviar" type="submit">{{ _('Enviar mensaje') }}</button>
       </form>
     </section>
 
@@ -56,19 +56,20 @@
         <label class="campo" for="foro-titulo">{{ _('Título') }}</label>
         <input type="text" id="foro-titulo" name="titulo" maxlength="80" required
                placeholder="{{ _('Un título breve') }}" data-contador="cont-titulo"
+               autocomplete="off" autocapitalize="sentences" enterkeyhint="next"
                value="{% if en_foro %}{{ request.form.get('titulo', '') }}{% endif %}">
         <div class="contador" id="cont-titulo" aria-live="polite"></div>
         <label class="campo" for="foro-texto">{{ _('Tu reflexión') }}</label>
         <textarea id="foro-texto" name="texto" maxlength="1000" required
                   placeholder="{{ _('Escribe aquí tu reflexión…') }}" data-contador="cont-foro">{% if en_foro %}{{ request.form.get('texto', '') }}{% endif %}</textarea>
         <div class="contador" id="cont-foro" aria-live="polite"></div>
-        <button class="boton" type="submit">{{ _('Enviar reflexión') }}</button>
+        <button class="boton boton-enviar" type="submit">{{ _('Enviar reflexión') }}</button>
         <p class="nota">{{ _('Tu reflexión se mostrará tras ser revisada.') }}</p>
       </form>
     </section>
 
     {# T03: enlace para avisar de un mensaje inapropiado que haya salido en la pantalla #}
-    <p class="nota"><a href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a></p>
+    <p class="nota"><a class="enlace" href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a></p>
   </main>
 
   <footer class="pie">#25N · {{ _('Juntas contra la violencia de género') }}</footer>

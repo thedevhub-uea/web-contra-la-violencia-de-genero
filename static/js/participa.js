@@ -19,3 +19,15 @@ function abrirPestanaDelHash() {
 }
 abrirPestanaDelHash();
 window.addEventListener('hashchange', abrirPestanaDelHash);
+
+// En el título, «Intro» (tecla «Siguiente» del móvil) pasa al texto en vez de enviar
+// el formulario a medias.
+var titulo = document.getElementById('foro-titulo');
+if (titulo) {
+  titulo.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.isComposing) {
+      e.preventDefault();
+      document.getElementById('foro-texto').focus();
+    }
+  });
+}
