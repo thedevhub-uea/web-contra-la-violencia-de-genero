@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 25N VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-18 17:21+0100\n"
+"POT-Creation-Date: 2026-11-19 14:57+0100\n"
 "PO-Revision-Date: 2026-11-18 17:19+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -26,6 +26,22 @@ msgstr[1] "%(num)d reports:"
 
 msgid "(gratuito, 24 horas, no deja rastro en la factura)."
 msgstr "(free, 24 hours, does not appear on the phone bill)."
+
+msgid ""
+"0 = los mensajes no caducan (de 0 a 240). Cuenta desde que se envía el "
+"mensaje; al caducar deja de salir en el mural y en el foro, pero no se "
+"borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no "
+"caducan. Debe durar al menos un ciclo completo de la pantalla (mural 5 "
+"min + vídeo + foro 5 min, unos 16 min con el vídeo actual): si es menos, "
+"un mensaje puede caducar sin haberse visto. Para pruebas se permite 1."
+msgstr ""
+"0 = messages never expire (from 0 to 240). It counts from the moment the "
+"message is sent; once expired it stops showing on the wall and in the "
+"forum, but it is not deleted: it stays under “Posts” as “Expired”. "
+"Reflections do not expire. It must last at least one full screen cycle "
+"(wall 5 min + video + forum 5 min, about 16 min with the current video): "
+"if it is shorter, a message may expire without ever being seen. 1 is "
+"allowed for testing."
 
 msgid "Acceso restringido"
 msgstr "Restricted access"
@@ -118,6 +134,9 @@ msgstr "Search text…"
 #, python-format
 msgid "Búscalo aquí y pulsa %(boton)s. Es anónimo."
 msgstr "Find it here and tap %(boton)s. It is anonymous."
+
+msgid "Caducado"
+msgstr "Expired"
 
 msgid "Cancelar"
 msgstr "Cancel"
@@ -257,6 +276,14 @@ msgstr "Thank you for reporting it."
 msgid "Guardar ajustes"
 msgstr "Save settings"
 
+#, python-format
+msgid ""
+"Ha caducado: ya no sale en la pantalla (vida de los mensajes: %(min)s "
+"min). No está retirado por moderación."
+msgstr ""
+"It has expired: it no longer shows on the screen (message lifetime: "
+"%(min)s min). It has not been removed by moderation."
+
 msgid "Idioma"
 msgstr "Language"
 
@@ -340,6 +367,9 @@ msgstr "Bubble message"
 
 msgid "Mensajes del mural"
 msgstr "Wall messages"
+
+msgid "Minutos que un mensaje del mural sigue en pantalla:"
+msgstr "Minutes a wall message stays on screen:"
 
 msgid "Moderación"
 msgstr "Moderation"

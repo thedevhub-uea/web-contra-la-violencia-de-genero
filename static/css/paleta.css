@@ -1,0 +1,145 @@
+/* T13 — Paleta única de la web 25N (tema claro). Es el PRIMER css que se enlaza en
+ * pantalla.html, participa.html, gracias.html, avisar*.html y admin.html.
+ *
+ * Regla del equipo: ninguna hoja de estilos ni JS lleva colores sueltos (#hex, rgb(), hsl()):
+ * todo sale de aquí. Para poder poner transparencia (`rgb(var(--acento-rgb) / .5)`) los
+ * colores que lo necesitan se declaran como tripleta `--x-rgb: r g b` y el color completo
+ * (`--x`) se deriva de ella.
+ *
+ * Los pares texto/fondo que se usan de verdad se declaran abajo, en comentarios con la palabra
+ * «@par» seguida del color del texto, el del fondo y, si procede, «grande».
+ * `herramientas/comprobar_contraste.py` los lee y falla si algún
+ * par baja de 4,5:1 (3:1 si es «grande»: texto ≥ 24 px, o ≥ 18,66 px en negrita, o un trazo).
+ */
+:root {
+  color-scheme: light; /* los colores son fijos: que el modo oscuro no oscurezca solo los campos */
+
+  /* ---------- Fondos y superficies ---------- */
+  --fondo: #faf5fd;            /* fondo general */
+  --fondo-2: #efe2f8;          /* segundo tono del degradado de fondo */
+  --superficie: #ffffff;       /* tarjetas, paneles, campos */
+  --superficie-2: #f3e8fa;     /* superficie suave (fondo de /participa) */
+  --superficie-rgb: 255 255 255; /* para cristal translúcido */
+
+  /* ---------- Texto ---------- */
+  --texto: #1f1027;
+  --texto-sec: #5c5066;        /* texto secundario */
+  --texto-inverso: #ffffff;    /* sobre fondos de acento */
+  --texto-burbuja-claro: #ffffff;  /* texto de las burbujas del mural sobre colores oscuros */
+  --texto-burbuja-oscuro: #1f1027; /* ... y sobre colores claros (el JS elige por contraste) */
+
+  /* ---------- Acento 25N (morados) ---------- */
+  --acento-rgb: 106 27 154;
+  --acento: rgb(var(--acento-rgb));        /* color principal 25N */
+  --acento-osc-rgb: 74 26 107;
+  --acento-osc: rgb(var(--acento-osc-rgb));
+  --acento-vivo-rgb: 142 63 240;
+  --acento-vivo: rgb(var(--acento-vivo-rgb)); /* color por defecto de las burbujas */
+  --acento-claro: #e9d8fd;     /* lavanda: texto suave sobre fondos oscuros */
+  --borde: #c9b3d9;
+
+  /* ---------- Noche (barras y cabeceras oscuras del panel, letterbox del vídeo) ---------- */
+  --noche-rgb: 26 11 46;
+  --noche: rgb(var(--noche-rgb));
+  --letterbox: #1f1027;        /* franjas del vídeo (el vídeo es oscuro por naturaleza) */
+  --negro-rgb: 0 0 0;          /* solo para sombras */
+  --blanco-rgb: 255 255 255;   /* brillos y reflejos */
+
+  /* ---------- Estados ---------- */
+  --error: #b00020;
+  --error-fondo: #fff0f3;
+  --error-texto: #7a0016;
+  --contador-cerca: #b00060;
+  --ok: #17653a;
+  --foco: #ffb800;             /* foco del panel */
+  --foco-form: #000000;        /* foco de los formularios públicos */
+
+  /* ---------- Pantalla proyectada ---------- */
+  /* Manchas de color del fondo del mural y del vídeo (pasteles: el fondo es claro) */
+  --mancha-a-rgb: 214 178 245;
+  --mancha-b-rgb: 252 196 224;
+  --mancha-c-rgb: 196 178 247;
+  --mancha-d-rgb: 255 230 244;
+  --mancha-e-rgb: 226 204 248;
+  /* Burbujas del mural */
+  --burbuja-color: var(--acento-vivo);
+  --burbuja-alfa: .9;          /* opacidad del color: alta, para que no se lave sobre fondo claro */
+  --burbuja-iris-rosa-rgb: 255 160 230;  /* reflejos iridiscentes del borde */
+  --burbuja-iris-azul-rgb: 160 220 255;
+  /* Aro de tiempo del mural (T17): ≥ 3:1 sobre --fondo */
+  --aro-color: #7b2cbf;
+  --aro-grosor: 1.2vh;         /* ≥ ~1 vh: se lee a 3–4 m */
+  --aro-pista-rgb: 106 27 154; /* rastro tenue por donde va el aro (se usa con transparencia) */
+  /* Progreso del vídeo */
+  --progreso-a: #8e3ff0;
+  --progreso-b: #d6336c;
+
+  /* ---------- Panel /admin ---------- */
+  --adm-fondo: #f5f3f8;
+  --adm-panel: #ffffff;
+  --adm-borde: #e3dcea;
+  --adm-borde-fuerte: #c9bdd6;
+  --adm-texto: #1f1530;
+  --adm-suave: #5b4f6a;
+  --adm-ambar: #8f5200;
+  --adm-ambar-fondo: #fff6e5;
+  --adm-ambar-borde: #ebc27a;
+  --adm-verde: #17653a;
+  --adm-verde-fondo: #e4f4ea;
+  --adm-gris-fondo: #eceaf0;
+  --adm-rojo: #b00020;
+  --adm-rojo-fondo: #fdedef;
+  --adm-rojo-borde: #eab0b9;
+  --adm-rojo-borde-2: #e8b2ba;
+  --adm-rojo-osc: #8f001a;
+  --adm-rojo-texto: #8a0019;
+  --adm-ok-fondo: #14532d;
+  --adm-gris-texto: #4b4458;
+  --adm-gris-icono: #a497b3;
+  --adm-ambar-texto: #6b3d00;
+  --adm-aviso-fondo: #fde68a;
+  --adm-aviso-texto: #4a2a00;
+  --adm-suave-fondo: #faf8fc;
+  --adm-suave-fondo-2: #faf9fb;
+  --adm-hover: #f6f2fa;
+  --adm-resalte: #efe2f8;
+  --adm-resalte-2: #f7effc;
+  --adm-principal-hover: #57157f;
+
+  /* ---------- Pares texto/fondo que se comprueban ---------- */
+  /* @par --texto --fondo */
+  /* @par --texto --fondo-2 */
+  /* @par --texto --superficie */
+  /* @par --texto --superficie-2 */
+  /* @par --texto-sec --fondo */
+  /* @par --texto-sec --superficie */
+  /* @par --texto-sec --superficie-2 */
+  /* @par --acento --fondo */
+  /* @par --acento --superficie */
+  /* @par --acento-osc --fondo */
+  /* @par --acento-osc --superficie */
+  /* @par --texto-inverso --acento */
+  /* @par --texto-inverso --acento-osc */
+  /* @par --texto-inverso --acento-vivo grande */
+  /* @par --aro-color --fondo grande */
+  /* @par --aro-color --fondo-2 grande */
+  /* @par --error --superficie */
+  /* @par --error-texto --error-fondo */
+  /* @par --contador-cerca --superficie */
+  /* @par --ok --superficie */
+  /* @par --texto-inverso --error */
+  /* @par --acento-claro --noche */
+  /* @par --adm-texto --adm-fondo */
+  /* @par --adm-texto --adm-panel */
+  /* @par --adm-suave --adm-panel */
+  /* @par --adm-suave --adm-fondo */
+  /* @par --adm-ambar --adm-ambar-fondo */
+  /* @par --adm-ambar-texto --adm-ambar-fondo */
+  /* @par --adm-verde --adm-verde-fondo */
+  /* @par --adm-rojo --adm-rojo-fondo */
+  /* @par --adm-rojo-texto --adm-rojo-fondo */
+  /* @par --adm-gris-texto --adm-gris-fondo */
+  /* @par --texto-inverso --adm-ok-fondo */
+  /* @par --texto-inverso --adm-rojo-osc */
+  /* @par --adm-aviso-texto --adm-aviso-fondo */
+}

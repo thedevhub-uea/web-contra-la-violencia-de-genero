@@ -32,6 +32,7 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   └── pantalla.html       T04/T07/T08/T09/T10 · esqueleto común de la pantalla
 ├── static/
 │   ├── css/
+│   │   ├── paleta.css      T13 · paleta única de colores (se enlaza la primera en todas las páginas)
 │   │   ├── estilos.css     T10 · estilos de la pantalla
 │   │   ├── mural.css       T07 · mural de burbujas (lo carga mural.js)
 │   │   ├── video.css       T08 · vista de vídeo (lo carga video.js)
@@ -42,10 +43,10 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   │   ├── participa.js    T06 · contador de caracteres del formulario
 │   │   ├── admin.js        T03 · filtros, búsqueda, novedades y confirmación del panel
 │   │   ├── avisar.js       T03 · buscador de /avisar
-│   │   ├── pantalla.js     T04 · rotación de vistas y actualización
+│   │   ├── pantalla.js     T04/T16 · rotación de vistas, actualización y barra de vistas
 │   │   ├── mural.js        T07 · pintarMural(mensajes)
 │   │   ├── video.js        T08 · iniciarVideo() / pararVideo()
-│   │   └── foro.js         T09 · pintarForo(reflexiones)
+│   │   └── foro.js         T09/T14 · pintarForo(elementos): reflexiones y mensajes del mural
 │   ├── fonts/              T07 · fuentes del mural en local (woff2, OFL)
 │   ├── img/qr.png          T10 · QR de /participa
 │   └── video/video.mp4     T08 · vídeo de concienciación
@@ -57,7 +58,8 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   ├── t10/                T10 · vista previa de estilos.css y lista de pruebas en móviles
 │   └── DESPLIEGUE.md       T05 · guía de despliegue y checklist de PRs
 ├── herramientas/
-│   └── generar_qr.py       T10 · regenera static/img/qr.png (sin dependencias)
+│   ├── generar_qr.py       T10 · regenera static/img/qr.png (sin dependencias)
+│   └── comprobar_contraste.py  T13 · comprueba el contraste de los pares de paleta.css (sin dependencias)
 ├── datos/                  Se crea solo: aquí vive 25n.db (no se sube a git)
 ├── requirements.txt
 └── .env.example            Variables de entorno (copiar a .env)
@@ -120,6 +122,25 @@ Nombres de las rutas (el nombre de la función en `app.py` = endpoint de `url_fo
 Usuarios de HTTP Basic Auth: `admin` y `pantalla` (variables `ADMIN_USER`/`PANTALLA_USER` en `.env`),
 con las contraseñas `ADMIN_PASS` y `PANTALLA_PASS`.
 
+## Colores y contraste (T13)
+
+Toda la web usa un **tema claro** y todos los colores salen de [`static/css/paleta.css`](static/css/paleta.css),
+que es la primera hoja que se enlaza en `pantalla.html`, `participa.html`, `gracias.html`, `avisar*.html`
+y `admin.html`. **Ninguna hoja de estilos ni JS lleva colores sueltos** (`#hex`, `rgb()`…): se usa
+`var(--texto)`, `var(--acento)`… Para poner transparencia se usa la tripleta:
+`rgb(var(--acento-rgb) / .5)`.
+
+- **Mural:** las burbujas son de color vivo con opacidad alta (`--burbuja-alfa`). `mural.js` lee los colores
+  de la paleta y elige para cada burbuja el texto claro u oscuro que dé ≥ 4,5:1 (razón de contraste WCAG);
+  si ninguno llega, aclara u oscurece un poco la burbuja.
+- **Vídeo:** es oscuro por naturaleza; se enmarca sobre fondo claro y las franjas son `--letterbox`.
+- **Comprobar el contraste** (tras tocar `paleta.css`): `python herramientas/comprobar_contraste.py`
+  (`-v` para ver todos los pares). Lee los pares escritos en `paleta.css` con `@par --texto --fondo [grande]`
+  y falla si alguno baja de 4,5:1 (3:1 si es «grande»: texto ≥ 24 px, ≥ 18,66 px en negrita, o un trazo).
+  Si añades un color de texto o de fondo nuevo, añade su `@par`.
+- **Prueba en la sala real** (no se puede automatizar): con brillo máximo, la luz ambiente de la sala y el
+  proyector real, leer el mural, el foro y el QR desde 3–4 m.
+
 ## Moderación (T03)
 
 - **Foro:** por defecto las reflexiones **no salen hasta que moderación las aprueba** en `/admin`
@@ -151,6 +172,74 @@ pantalla obedece en unos segundos. Las órdenes se guardan en la tabla `ajustes`
 (`pantalla_fijada`, `pantalla_salto_vista`, `pantalla_salto_id`): si se recarga `/pantalla`
 respeta la vista fijada, pero no repite un salto antiguo. Si el vídeo está fijado y no se puede
 reproducir, la pantalla rota con normalidad para no quedarse en negro.
+
+## Foro con mensajes y reflexiones (T14)
+
+El foro de la pantalla muestra **reflexiones aprobadas y mensajes del mural visibles, mezclados**.
+`/api/foro` devuelve una sola lista (más recientes primero, máximo 60) con el campo `tipo`:
+
+```json
+[{"tipo": "mensaje",   "id": 5, "titulo": null,    "texto": "Te creo"},
+ {"tipo": "reflexion", "id": 5, "titulo": "Título", "texto": "…"}]
+```
+
+- Los **ids chocan entre tablas** (mural 5 y foro 5): en `foro.js` toda identidad es `tipo + ':' + id`.
+- La consulta es `db.listar_foro_mixto()` (`UNION ALL` de `mural` con `visible = 1` y `foro` con `aprobado = 1`).
+  `listar_foro()` se mantiene porque lo usa el panel. Los mensajes siguen saliendo también en el mural.
+- Tarjetas: `.foro-tarjeta--reflexion` (título + texto) y `.foro-tarjeta--mensaje` (corta, sin título, texto
+  grande y centrado). Siguen siendo 3 por página, cada 15 s.
+- Moderación: ocultar un mensaje o retirar una reflexión en `/admin` los quita del foro en el siguiente refresco.
+- Prueba sin API: `/pantalla?demo-foro` (o `?demo-foro=N`, mezcla; con `&tipo=mensajes` o `&tipo=reflexiones`
+  solo de un tipo). En modo demo los datos reales de la API no pisan los de prueba.
+
+## Caducidad de los mensajes (T15)
+
+Los **mensajes del mural** dejan de salir en pantalla pasado un tiempo (por defecto **15 min** desde que se
+envían). Las reflexiones **no caducan**. Caducar **no borra ni cambia ningún estado**: solo deja de mostrarse
+(en el mural y en el foro) y el mensaje sigue en `/admin`.
+
+- **Ajuste:** `mensajes_vida_min` en `/admin` → Ajustes (entero de 0 a 240; `0` = nunca caduca; para pruebas
+  vale 1). Debe ser al menos un ciclo completo de la pantalla (mural 5 min + vídeo + foro 5 min), porque si es
+  menor un mensaje puede caducar sin haberse visto.
+- **La edad la calcula el servidor** (`creado` es UTC sin zona; el navegador no lo interpreta):
+  `db.listar_mural(…, vida_min=)` y `db.listar_foro_mixto(…, vida_min=)` filtran en el `WHERE`, antes del
+  `LIMIT`. `/api/mural` y los mensajes de `/api/foro` añaden `caduca_en` (segundos que le quedan; `null` si no
+  caduca).
+- **`mural.js`:** guarda por burbuja `caduca = performance.now() + caduca_en·1000` (no depende del reloj del
+  navegador) y un único `setInterval` de 1 s retira la burbuja con su animación de salida, sin esperar al
+  siguiente refresco de 10 s. En los últimos 20 s la burbuja se atenúa (clase `caducando`). El intervalo solo
+  existe mientras haya burbujas que caduquen.
+- **Mural vacío:** sin ninguna burbuja sale el mensaje fijo «Escanea el QR y comparte tu mensaje / Scan the QR
+  and share your message»; desaparece al llegar la primera.
+- **Panel:** `listar_para_panel()` marca como `estado = 'caducado'` los mensajes publicados cuya edad supera la
+  vida. Tienen insignia ámbar «Caducado» y un filtro propio, distintos de «Retirado» (moderación, gris).
+
+## Barra de vistas de la pantalla (T16)
+
+`pantalla.js` crea arriba de `/pantalla` una barra **solo informativa** (no clicable) con las vistas de
+`CONFIG.secuencia` (Mural / Wall · Vídeo / Video · Foro / Forum) y marca la activa con la clase
+`barra-vista--activa` y `aria-current="page"`. Se actualiza dentro de `mostrarVista()`, así que también sigue
+los saltos y las vistas fijadas desde `/admin`. Para reservar su sitio, `--barra-alto` (en `estilos.css`) es el
+inset superior de las tres vistas (`.vista`, `#vista-mural.mural`, `#vista-video.video-vista`) y se descuenta en
+el cálculo del marco del vídeo. El botón de pantalla completa se movió arriba a la izquierda, dentro de la
+franja de la barra.
+
+## Aro de tiempo del mural (T17)
+
+Mientras dura el mural, un aro (un `<svg>` fijo que crea `pantalla.js`) va recorriendo el borde de la pantalla
+y se completa justo cuando termina: es el tiempo que queda hasta el vídeo. Se pinta con un `<rect pathLength="1">`
+y la animación CSS `stroke-dashoffset` (1 → 0, lineal), no con `conic-gradient`, para que avance por perímetro
+y no por ángulo en un rectángulo 16:9. Detalles:
+
+- **La fuente de verdad es `programarFin(nombre)`:** cuando programa el temporizador del mural, arranca el aro con
+  exactamente esa duración (`CONFIG.duracion.mural`, que ya respeta `?seg=`); cuando no hay temporizador (vídeo,
+  foro o **mural fijado desde `/admin`**) lo oculta, así que con el mural fijado el aro no se llena nunca. Fijar
+  o soltar el mural desde el panel lo oculta o lo reinicia.
+- El `viewBox` va en píxeles y se recalcula en `resize` y `fullscreenchange`, descontando medio grosor para que
+  el trazo no se recorte. Grosor y color: `--aro-grosor` y `--aro-color` en `paleta.css` (contraste ≥ 3:1).
+- Va por debajo de la barra de vistas y del QR. Las vistas, la barra y el botón de pantalla completa se
+  insertan `--aro-grosor` (`--vista-lado` / `--vista-top` en `estilos.css`) para que el aro no los pise.
+- Con `prefers-reduced-motion` el aro avanza a saltos del 1 % en vez de suavemente, pero sigue funcionando.
 
 ## Idiomas (i18n)
 

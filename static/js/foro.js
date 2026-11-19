@@ -1,11 +1,19 @@
-// T09 — pintarForo(reflexiones). Texto SIEMPRE con textContent, nunca innerHTML.
+// T09 — pintarForo(elementos). Texto SIEMPRE con textContent, nunca innerHTML.
+//
+// T14: el foro muestra reflexiones Y mensajes del mural, mezclados (los manda /api/foro):
+//   { tipo: "reflexion", id, titulo, texto }  → tarjeta con título (como antes)
+//   { tipo: "mensaje",   id, titulo: null, texto } → tarjeta corta, sin título, texto grande y centrado
+// Los ids se repiten entre tablas (mural 5 y foro 5): toda identidad es tipo + ":" + id.
 //
 // Uso (desde pantalla.js, T04):
-//   pintarForo([{ id: 1, titulo: "...", texto: "..." }, ...]);
+//   pintarForo([{ tipo: "reflexion", id: 1, titulo: "...", texto: "..." }, ...]);
 // Se puede llamar cada vez que lleguen datos nuevos de /api/foro: actualiza las
 // tarjetas sin reiniciar la rotación ni provocar parpadeos si nada ha cambiado.
 //
-// Prueba sin API: abrir /pantalla?demo-foro (o ?demo-foro=0, =1, =20 reflexiones).
+// Los estilos de la vista están en estilos.css (sección «Foro»); este archivo no inyecta ningún <style>.
+//
+// Prueba sin API: abrir /pantalla?demo-foro (o ?demo-foro=0, =1, =20 elementos mezclados).
+// Con &tipo=mensajes o &tipo=reflexiones se muestran solo de ese tipo (p. ej. ?demo-foro=7&tipo=mensajes).
 
 (function () {
   "use strict";
@@ -14,50 +22,16 @@
   var SEGUNDOS_POR_PAGINA = 15;
   var MAX_TITULO = 80;   // igual que el CHECK de bd/schema.sql
   var MAX_TEXTO = 280;   // lo que se lee bien a distancia; el resto se corta con «…»
-  var MENSAJE_VACIO = "Escanea el QR y comparte tu reflexión";
-  var MENSAJE_VACIO_EN = "Scan the QR and share your reflection";
+  var MAX_MENSAJE = 200; // igual que el límite del mural (bd/schema.sql)
+  var MENSAJE_VACIO = "Escanea el QR y comparte un mensaje o una reflexión";
+  var MENSAJE_VACIO_EN = "Scan the QR and share a message or a reflection";
 
   var estado = {
-    reflexiones: [],
+    elementos: [],
     firma: null,      // para saber si los datos han cambiado entre llamadas
     pagina: 0,
     temporizador: null
   };
-
-  // Estilos mínimos de la vista. Van aquí para no tocar estilos.css (T10);
-  // T10 puede sobrescribirlos usando las mismas clases .foro-*.
-  function ponerEstilos() {
-    if (document.getElementById("foro-estilos")) return;
-    var css =
-      "#vista-foro{box-sizing:border-box;min-height:100vh;padding:4vh 4vw 4vh;" +
-      "display:flex;flex-direction:column;gap:3vh;}" +
-      "#vista-foro .foro-cabecera{margin:0;font-size:clamp(28px,4vw,64px);font-weight:700;}" +
-      "#vista-foro .foro-tarjetas{flex:1;display:grid;gap:2.5vw;" +
-      "grid-template-columns:repeat(var(--foro-columnas,3),minmax(0,1fr));align-items:stretch;" +
-      "transition:opacity .6s ease;}" +
-      "#vista-foro .foro-tarjetas.foro-oculto{opacity:0;}" +
-      "#vista-foro .foro-tarjeta{box-sizing:border-box;padding:3vh 2vw;border-radius:24px;" +
-      "background:rgba(255,255,255,.95);color:#2b0a3d;border-top:10px solid #7b2cbf;" +
-      "box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:2vh;" +
-      "overflow:hidden;max-height:70vh;}" +
-      "#vista-foro .foro-titulo{margin:0;font-size:clamp(24px,2.6vw,48px);line-height:1.15;" +
-      "overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;" +
-      "-webkit-line-clamp:3;overflow:hidden;}" +
-      "#vista-foro .foro-texto{margin:0;font-size:clamp(20px,1.9vw,36px);line-height:1.35;" +
-      "overflow-wrap:anywhere;white-space:pre-line;display:-webkit-box;" +
-      "-webkit-box-orient:vertical;-webkit-line-clamp:8;overflow:hidden;}" +
-      "#vista-foro .foro-vacio{flex:1;display:flex;flex-direction:column;align-items:center;" +
-      "justify-content:center;text-align:center;gap:2vh;}" +
-      "#vista-foro .foro-vacio p{margin:0;font-size:clamp(32px,4.5vw,80px);font-weight:700;}" +
-      "#vista-foro .foro-vacio .foro-vacio-en{font-size:clamp(20px,2.5vw,44px);font-weight:400;opacity:.8;}" +
-      "#vista-foro .foro-puntos{display:flex;justify-content:center;gap:12px;min-height:16px;}" +
-      "#vista-foro .foro-punto{width:16px;height:16px;border-radius:50%;background:currentColor;opacity:.3;}" +
-      "#vista-foro .foro-punto.foro-activo{opacity:1;}";
-    var estilo = document.createElement("style");
-    estilo.id = "foro-estilos";
-    estilo.textContent = css;
-    document.head.appendChild(estilo);
-  }
 
   function recortar(texto, maximo) {
     var limpio = String(texto).replace(/\s+\n/g, "\n").trim();
@@ -68,23 +42,31 @@
     return corte.replace(/[\s.,;:!?¡¿-]+$/, "") + "…";
   }
 
-  // Acepta solo objetos con título y texto; ignora lo demás sin romper la pantalla.
-  function normalizar(reflexiones) {
-    if (!Array.isArray(reflexiones)) return [];
+  // Acepta solo objetos con texto (y título, si son reflexiones); ignora lo demás sin romper la
+  // pantalla. Sin «tipo» se trata como reflexión (así funcionaba antes de T14).
+  function normalizar(elementos) {
+    if (!Array.isArray(elementos)) return [];
     var limpias = [];
-    for (var i = 0; i < reflexiones.length; i++) {
-      var r = reflexiones[i];
-      if (!r || typeof r !== "object") continue;
-      var titulo = r.titulo == null ? "" : String(r.titulo).trim();
-      var texto = r.texto == null ? "" : String(r.texto).trim();
-      if (!titulo && !texto) continue;
-      limpias.push({ id: r.id, titulo: titulo, texto: texto });
+    var vistas = {};
+    for (var i = 0; i < elementos.length; i++) {
+      var e = elementos[i];
+      if (!e || typeof e !== "object") continue;
+      var tipo = e.tipo === "mensaje" ? "mensaje" : "reflexion";
+      var titulo = tipo === "mensaje" || e.titulo == null ? "" : String(e.titulo).trim();
+      var texto = e.texto == null ? "" : String(e.texto).trim();
+      if (tipo === "mensaje" ? !texto : (!titulo && !texto)) continue;
+      var clave = e.id == null ? null : tipo + ":" + e.id;
+      if (clave !== null) {
+        if (vistas[clave]) continue;   // la misma identidad dos veces: se queda la primera
+        vistas[clave] = true;
+      }
+      limpias.push({ clave: clave, tipo: tipo, titulo: titulo, texto: texto });
     }
     return limpias;
   }
 
   function totalPaginas() {
-    return Math.max(1, Math.ceil(estado.reflexiones.length / TARJETAS_POR_PAGINA));
+    return Math.max(1, Math.ceil(estado.elementos.length / TARJETAS_POR_PAGINA));
   }
 
   function contenedor() {
@@ -112,19 +94,27 @@
     return vista;
   }
 
-  function crearTarjeta(reflexion) {
+  function crearTarjeta(elemento) {
     var tarjeta = document.createElement("article");
-    tarjeta.className = "foro-tarjeta";
-    if (reflexion.id != null) tarjeta.dataset.id = reflexion.id;
-
-    var titulo = document.createElement("h3");
-    titulo.className = "foro-titulo";
-    titulo.textContent = recortar(reflexion.titulo, MAX_TITULO);
-    titulo.title = reflexion.titulo;
+    tarjeta.className = "foro-tarjeta foro-tarjeta--" + elemento.tipo;
+    if (elemento.clave != null) tarjeta.dataset.id = elemento.clave;
 
     var texto = document.createElement("p");
     texto.className = "foro-texto";
-    texto.textContent = recortar(reflexion.texto, MAX_TEXTO);
+
+    if (elemento.tipo === "mensaje") {
+      // Mensaje del mural: corto, sin título.
+      texto.textContent = recortar(elemento.texto, MAX_MENSAJE);
+      tarjeta.appendChild(texto);
+      return tarjeta;
+    }
+
+    var titulo = document.createElement("h3");
+    titulo.className = "foro-titulo";
+    titulo.textContent = recortar(elemento.titulo, MAX_TITULO);
+    titulo.title = elemento.titulo;
+    titulo.hidden = !elemento.titulo;
+    texto.textContent = recortar(elemento.texto, MAX_TEXTO);
 
     tarjeta.appendChild(titulo);
     tarjeta.appendChild(texto);
@@ -164,11 +154,11 @@
     var zona = vista.querySelector(".foro-tarjetas");
     zona.textContent = "";
 
-    if (estado.reflexiones.length === 0) {
+    if (estado.elementos.length === 0) {
       pintarVacio(zona);
     } else {
       var inicio = estado.pagina * TARJETAS_POR_PAGINA;
-      var visibles = estado.reflexiones.slice(inicio, inicio + TARJETAS_POR_PAGINA);
+      var visibles = estado.elementos.slice(inicio, inicio + TARJETAS_POR_PAGINA);
       zona.style.setProperty("--foro-columnas", visibles.length);
       for (var i = 0; i < visibles.length; i++) zona.appendChild(crearTarjeta(visibles[i]));
     }
@@ -199,9 +189,8 @@
     }
   }
 
-  function pintarForo(reflexiones) {
-    ponerEstilos();
-    var nuevas = normalizar(reflexiones);
+  function pintarForo(elementos) {
+    var nuevas = normalizar(elementos);
     var firma = JSON.stringify(nuevas);
 
     // Mismos datos que la última vez (refresco de T04 cada 10 s): no se toca nada.
@@ -209,7 +198,7 @@
       return;
     }
     estado.firma = firma;
-    estado.reflexiones = nuevas;
+    estado.elementos = nuevas;
 
     // Se mantiene la página actual si sigue existiendo; si no, se vuelve a la primera.
     if (estado.pagina >= totalPaginas()) estado.pagina = 0;
@@ -218,10 +207,17 @@
     ajustarRotacion();
   }
 
-  window.pintarForo = pintarForo;
+  var parametros = new URLSearchParams(window.location.search);
+  var modoDemo = parametros.has("demo-foro");
+
+  // En modo demo (?demo-foro) los datos reales que manda pantalla.js no pisan los de prueba.
+  window.pintarForo = function (elementos) {
+    if (!modoDemo) pintarForo(elementos);
+  };
 
   // ---- Datos de prueba (solo con ?demo-foro en la URL) ----------------------
-  function datosDePrueba(cuantas) {
+  var pintarForoDemo = pintarForo;   // la función real: window.pintarForo ignora llamadas en modo demo
+  function datosDePrueba(cuantas, tipo) {
     var ejemplos = [
       ["No estás sola", "Si te pasa a ti, habla. Hay gente dispuesta a escucharte y a ayudarte."],
       ["El silencio no protege", "Callar ante un comentario machista también es tomar partido. Hoy decido no callar."],
@@ -234,29 +230,43 @@
         "se resuelve con educación, con igualdad real y con el compromiso diario de cada persona de " +
         "no mirar hacia otro lado cuando ve algo que no está bien. <b>Esto no debe salir en negrita</b>."]
     ];
+    var mensajes = [
+      "Ni una menos", "Vivas, libres y sin miedo", "Te creo", "Si nos tocan a una, nos tocan a todas",
+      "Educar en igualdad es prevenir la violencia de género desde la infancia", "Nunca estás sola",
+      "Un mensaje muy largo para probar el recorte: la igualdad se construye cada día, en casa, en clase " +
+        "y en la calle, y nadie debería callar ante una injusticia. <i>Esto no debe salir en cursiva</i>."
+    ];
     var lista = [];
     for (var i = 0; i < cuantas; i++) {
-      var e = ejemplos[i % ejemplos.length];
-      lista.push({ id: i + 1, titulo: e[0] + (i >= ejemplos.length ? " (" + (i + 1) + ")" : ""), texto: e[1] });
+      // Mezcla: una reflexión de cada tres elementos... y el resto, mensajes (o solo un tipo con &tipo=).
+      var esMensaje = tipo === "mensajes" || (tipo !== "reflexiones" && i % 3 !== 0);
+      if (esMensaje) {
+        lista.push({ tipo: "mensaje", id: i + 1, titulo: null, texto: mensajes[i % mensajes.length] });
+      } else {
+        var e = ejemplos[i % ejemplos.length];
+        lista.push({ tipo: "reflexion", id: i + 1, titulo: e[0] + (i >= ejemplos.length ? " (" + (i + 1) + ")" : ""), texto: e[1] });
+      }
     }
     return lista;
   }
 
-  var parametros = new URLSearchParams(window.location.search);
-  if (parametros.has("demo-foro")) {
+  if (modoDemo) {
     document.addEventListener("DOMContentLoaded", function () {
       var vista = contenedor();
       if (!vista) return;
       document.querySelectorAll(".vista").forEach(function (v) { v.hidden = v !== vista; });
       var valor = parametros.get("demo-foro");
       var cuantas = valor === "" ? 20 : Math.max(0, parseInt(valor, 10) || 0);
-      pintarForo(datosDePrueba(cuantas));
-      // Simula el refresco de T04: mismos datos a los 10 s y una reflexión nueva a los 20 s.
-      setTimeout(function () { pintarForo(datosDePrueba(cuantas)); }, 10000);
+      var tipo = parametros.get("tipo");
+      pintarForoDemo(datosDePrueba(cuantas, tipo));
+      // Simula el refresco de T04: mismos datos a los 10 s y un elemento nuevo a los 20 s.
+      setTimeout(function () { pintarForoDemo(datosDePrueba(cuantas, tipo)); }, 10000);
       setTimeout(function () {
-        var nuevas = datosDePrueba(cuantas);
-        nuevas.unshift({ id: 999, titulo: "Reflexión nueva", texto: "Ha llegado mientras rotaba." });
-        pintarForo(nuevas);
+        var nuevas = datosDePrueba(cuantas, tipo);
+        nuevas.unshift(tipo === "mensajes"
+          ? { tipo: "mensaje", id: 999, titulo: null, texto: "Mensaje nuevo, ha llegado mientras rotaba." }
+          : { tipo: "reflexion", id: 999, titulo: "Reflexión nueva", texto: "Ha llegado mientras rotaba." });
+        pintarForoDemo(nuevas);
       }, 20000);
     });
   }

@@ -5,7 +5,7 @@
 //   pintarMural([{id: 1, texto: "..."}, ...])
 //
 // Cada mensaje puede traer, si se quiere, su propia personalización:
-//   color   cualquier color CSS ("#ff4d9d", "teal", "rgb(0 128 255)"). Por defecto, morado 25N.
+//   color   cualquier color CSS (un nombre como "teal", hexadecimal, rgb()…). Por defecto, --burbuja-color de paleta.css.
 //   fuente  una de las claves de FUENTES ("moderna", "manuscrita", "elegante"...).
 //   forma   una de las claves de FORMAS ("circulo", "corazon", "estrella"...).
 //   emoji   uno o varios emojis que se muestran grandes encima del texto.
@@ -14,7 +14,18 @@
 // Opcional: configurarMural({color, fuente, forma, maxBurbujas, velocidad}) cambia
 // los valores por defecto de todo el mural.
 //
+// Caducidad (T15): la API manda `caduca_en` (segundos que le quedan al mensaje, calculados en el
+// servidor; null = no caduca). Aquí se guarda como un instante de performance.now() (así no depende
+// del reloj del navegador) y un único setInterval de 1 s retira la burbuja con su animación de
+// salida, sin esperar al siguiente refresco. En los últimos 20 s la burbuja se atenúa (.caducando).
+// Sin burbujas se muestra un mensaje bilingüe («Escanea el QR…») que desaparece con la primera.
+//
 // Datos de prueba: abre la pantalla con ?demo=mural para verlo sin la API.
+//
+// Colores: nada va fijo en este archivo. El color por defecto, la opacidad, el fondo y los dos
+// colores de texto (claro/oscuro) se leen de las variables de static/css/paleta.css (T13). El texto
+// de cada burbuja se elige por contraste WCAG (≥ 4,5:1): si ninguno de los dos llega, se
+// aclara u oscurece un poco el color de la burbuja hasta conseguirlo.
 //
 // Los estilos están en static/css/mural.css (todo bajo #vista-mural) y las fuentes
 // en static/fonts/, sin depender de la red. Este script carga el CSS solo, así que
@@ -73,7 +84,7 @@
 
   const CONFIG = {
     maxBurbujas: 30,
-    color: '#8e3ff0',     // morado 25N
+    color: null,          // se lee de --burbuja-color (paleta.css) al iniciar
     fuente: 'moderna',
     forma: 'circulo',
     velocidad: 60,        // px por segundo
@@ -82,6 +93,8 @@
 
   const MAX_TEXTO = 200;
   const SUBPASOS = 3;     // la física se calcula varias veces por fotograma: choques más suaves
+  const AVISO_CADUCIDAD = 20_000;  // ms antes de caducar en que la burbuja empieza a atenuarse
+  const GUARDA_CADUCADA = 30_000;  // ms que se ignora una burbuja recién caducada si una respuesta atrasada la trae
   const reducirMovimiento = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -95,18 +108,28 @@
   let ultimoTiempo = 0;
   let iniciado = false;
   let obstaculo = null;   // rectángulo del QR en coordenadas del mural: {x0, y0, x1, y1}
+  let reloj = null;       // setInterval de 1 s que retira lo caducado (solo existe si hay burbujas que caducan)
+  const caducadas = new Map();   // id -> hasta cuándo se ignora (performance.now()), tras caducar aquí
+  let vacio = null;       // mensaje «Escanea el QR…» (sale solo con 0 burbujas)
+  let datosRecibidos = false;    // hasta la primera respuesta de la API no se enseña el mensaje vacío
+  // Colores leídos de paleta.css (ver leerPaleta): [r, g, b] salvo alfa, que es un número.
+  const PALETA = { fondo: null, alfa: 0.9, textoClaro: null, textoOscuro: null };
 
   // --- API pública -----------------------------------------------------------
 
   function pintarMural(mensajes) {
     if (!Array.isArray(mensajes)) return;   // datos raros: se deja lo que hay
     if (!iniciar()) return;
+    datosRecibidos = true;
 
+    const ahora = performance.now();
     const validos = [];
     const vistos = new Set();
     for (const m of mensajes) {
       const limpio = limpiarMensaje(m);
       if (!limpio || vistos.has(limpio.id)) continue;
+      // Acaba de caducar aquí: una respuesta atrasada no lo vuelve a poner.
+      if ((caducadas.get(limpio.id) || 0) > ahora) continue;
       vistos.add(limpio.id);
       validos.push(limpio);
       if (validos.length >= CONFIG.maxBurbujas) break;   // la API manda los más recientes primero
@@ -120,14 +143,14 @@
     let nuevas = 0;
     for (const m of validos) {
       const b = burbujas.get(m.id);
-      if (!b) {
-        crearBurbuja(m, nuevas++);
-      } else if (b.firma !== firmaDe(m)) {
-        rellenar(b, m);
-      }
+      const burbuja = b || crearBurbuja(m, nuevas++);
+      if (b && b.firma !== firmaDe(m)) rellenar(b, m);
+      marcarCaducidad(burbuja, m, ahora);
     }
 
     recalcularTamanos();
+    actualizarVacio();
+    ajustarReloj();
   }
 
   function configurarMural(opciones) {
@@ -156,13 +179,15 @@
 
     cargarEstilos();
     contenedor.classList.add('mural');
+    leerPaleta();
 
     const fondo = document.createElement('div');
     fondo.className = 'mural-fondo';
     fondo.setAttribute('aria-hidden', 'true');
     capa = document.createElement('div');
     capa.className = 'mural-capa';
-    contenedor.append(fondo, crearDefinicionesSvg(), capa);
+    vacio = crearMensajeVacio();
+    contenedor.append(fondo, crearDefinicionesSvg(), vacio, capa);
 
     medir();
     window.addEventListener('resize', medir);
@@ -266,6 +291,62 @@
     }
   }
 
+  // --- Caducidad y pantalla vacía (T15) -------------------------------------------
+
+  // Mensaje fijo y bilingüe (como el lema del QR: lo lee público de ambos idiomas).
+  function crearMensajeVacio() {
+    const el = document.createElement('div');
+    el.className = 'mural-vacio';
+    el.setAttribute('role', 'status');
+    const es = document.createElement('p');
+    es.textContent = 'Escanea el QR y comparte tu mensaje';
+    const en = document.createElement('p');
+    en.className = 'mural-vacio-en';
+    en.textContent = 'Scan the QR and share your message';
+    el.append(es, en);
+    return el;
+  }
+
+  function actualizarVacio() {
+    if (vacio) vacio.classList.toggle('visible', datosRecibidos && burbujas.size === 0);
+  }
+
+  // Guarda cuándo caduca la burbuja (null/ausente = nunca) y la atenúa si le queda poco.
+  function marcarCaducidad(b, m, ahora) {
+    b.caduca = m.caducaEn === null ? Infinity : ahora + m.caducaEn * 1000;
+    b.el.classList.toggle('caducando', b.caduca - ahora <= AVISO_CADUCIDAD);
+  }
+
+  // El reloj de 1 s solo corre mientras haya alguna burbuja que caduque.
+  function ajustarReloj() {
+    let hay = false;
+    for (const b of burbujas.values()) if (b.caduca !== Infinity) { hay = true; break; }
+    if (hay && !reloj) {
+      reloj = setInterval(revisarCaducidad, 1000);
+    } else if (!hay && reloj) {
+      clearInterval(reloj);
+      reloj = null;
+    }
+  }
+
+  function revisarCaducidad() {
+    const ahora = performance.now();
+    let quitadas = 0;
+    for (const b of Array.from(burbujas.values())) {
+      const resta = b.caduca - ahora;
+      if (resta <= 0) {
+        caducadas.set(b.id, ahora + GUARDA_CADUCADA);
+        quitarBurbuja(b);   // anima la salida (burbuja-salir) y la saca del mapa
+        quitadas++;
+      } else {
+        b.el.classList.toggle('caducando', resta <= AVISO_CADUCIDAD);
+      }
+    }
+    for (const [id, hasta] of caducadas) if (hasta <= ahora) caducadas.delete(id);
+    if (quitadas) recalcularTamanos();
+    ajustarReloj();
+  }
+
   // --- Datos -----------------------------------------------------------------
 
   function limpiarMensaje(m) {
@@ -281,6 +362,8 @@
       fuente: FUENTES[m.fuente] ? m.fuente : null,
       forma: Object.prototype.hasOwnProperty.call(FORMAS, m.forma) ? m.forma : null,
       emoji: limpiarEmoji(m.emoji),
+      // segundos que le quedan (T15); null = no caduca
+      caducaEn: (typeof m.caduca_en === 'number' && isFinite(m.caduca_en) && m.caduca_en >= 0) ? m.caduca_en : null,
     };
   }
 
@@ -310,10 +393,10 @@
     if (typeof valor !== 'string' || !lienzo) return null;
     const v = valor.trim();
     if (!v || v.length > 60) return null;
-    lienzo.fillStyle = '#010203';
+    // CSS.supports descarta lo que no es un color; var() y currentcolor no se pueden resolver aquí.
+    if (/var\(|currentcolor/i.test(v) || !(window.CSS && CSS.supports('color', v))) return null;
     lienzo.fillStyle = v;
     const res = lienzo.fillStyle;
-    if (res === '#010203' && v.toLowerCase() !== '#010203') return null;
     if (res[0] === '#') {
       return [1, 3, 5].map(function (i) { return parseInt(res.slice(i, i + 2), 16); });
     }
@@ -327,6 +410,50 @@
       return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
     });
     return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+  }
+
+  // Razón de contraste WCAG entre dos luminancias.
+  function contraste(l1, l2) {
+    return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+  }
+
+  // Mezcla a con b: k = 0 → a, k = 1 → b.
+  function mezclar(a, b, k) {
+    return a.map(function (v, i) { return Math.round(v + (b[i] - v) * k); });
+  }
+
+  // Lee de paleta.css (variables del :root) lo que necesita el mural.
+  function leerPaleta() {
+    const estilo = getComputedStyle(document.documentElement);
+    const leer = function (nombre) { return colorARgb(estilo.getPropertyValue(nombre)); };
+    PALETA.fondo = leer('--fondo') || colorARgb(getComputedStyle(contenedor).backgroundColor) || [255, 255, 255];
+    PALETA.textoClaro = leer('--texto-burbuja-claro') || PALETA.fondo;
+    PALETA.textoOscuro = leer('--texto-burbuja-oscuro') || PALETA.fondo;
+    const alfa = parseFloat(estilo.getPropertyValue('--burbuja-alfa'));
+    if (alfa > 0 && alfa <= 1) PALETA.alfa = alfa;
+    if (!CONFIG.color) CONFIG.color = estilo.getPropertyValue('--burbuja-color').trim();
+  }
+
+  // Color que se pinta de verdad (el de la burbuja sobre el fondo, con su opacidad) y color
+  // del texto que mejor se lee encima. Si ni el claro ni el oscuro llegan a 4,5:1 se desplaza
+  // el color de la burbuja hacia el lado contrario al texto elegido, hasta que llegue.
+  function elegirTexto(rgb) {
+    const lumClaro = luminancia(PALETA.textoClaro);
+    const lumOscuro = luminancia(PALETA.textoOscuro);
+    let color = rgb.slice();
+    let claro = false;
+    for (let i = 0; i < 14; i++) {
+      const efectivo = mezclar(PALETA.fondo, color, PALETA.alfa);
+      // El reflejo del cristal aclara un poco la zona del texto: se tiene en cuenta para el
+      // texto claro (que es el que empeora con ello).
+      const conReflejo = mezclar(efectivo, PALETA.textoClaro, 0.1);
+      const cClaro = contraste(luminancia(conReflejo), lumClaro);
+      const cOscuro = contraste(luminancia(efectivo), lumOscuro);
+      claro = cClaro > cOscuro;
+      if (Math.max(cClaro, cOscuro) >= 4.5) break;
+      color = claro ? mezclar(color, PALETA.textoOscuro, 0.1) : mezclar(color, PALETA.textoClaro, 0.1);
+    }
+    return { rgb: color, claro: claro };
   }
 
   // --- Formas ----------------------------------------------------------------
@@ -386,16 +513,17 @@
       defs.appendChild(nodoSvg('clipPath', { id: 'mural-clip-' + nombre, clipPathUnits: 'objectBoundingBox' },
         [nodoSvg('path', { d: FORMAS[nombre] })]));
     }
-    const parada = function (o, c, a) { return nodoSvg('stop', { offset: o, 'stop-color': c, 'stop-opacity': a }); };
+    // El color de cada parada lo pone mural.css con la clase mural-parada-*.
+    const parada = function (o, c, a) { return nodoSvg('stop', { offset: o, class: 'mural-parada-' + c, 'stop-opacity': a }); };
     defs.appendChild(nodoSvg('radialGradient', { id: 'mural-brillo', cx: '0.32', cy: '0.2', r: '0.55' }, [
-      parada('0', '#fff', '.42'), parada('.55', '#fff', '.06'), parada('1', '#fff', '0'),
+      parada('0', 'blanco', '.42'), parada('.55', 'blanco', '.06'), parada('1', 'blanco', '0'),
     ]));
     defs.appendChild(nodoSvg('linearGradient', { id: 'mural-volumen', x1: '0', y1: '0', x2: '1', y2: '1' }, [
-      parada('0', '#fff', '.85'), parada('.4', '#fff', '0'), parada('.6', '#000', '0'), parada('1', '#000', '.5'),
+      parada('0', 'blanco', '.85'), parada('.4', 'blanco', '0'), parada('.6', 'sombra', '0'), parada('1', 'sombra', '.5'),
     ]));
     defs.appendChild(nodoSvg('linearGradient', { id: 'mural-iris', x1: '0', y1: '0', x2: '1', y2: '1' }, [
-      parada('0', '#fff', '.95'), parada('.3', '#ffa0e6', '.7'), parada('.55', '#fff', '.15'),
-      parada('.8', '#a0dcff', '.75'), parada('1', '#fff', '.9'),
+      parada('0', 'blanco', '.95'), parada('.3', 'rosa', '.7'), parada('.55', 'blanco', '.15'),
+      parada('.8', 'azul', '.75'), parada('1', 'blanco', '.9'),
     ]));
     defs.appendChild(nodoSvg('filter', { id: 'mural-difuminar', x: '-20%', y: '-20%', width: '140%', height: '140%' }, [
       nodoSvg('feGaussianBlur', { stdDeviation: '0.03' }),
@@ -411,7 +539,7 @@
       nodoSvg('path', { d: d, fill: 'url(#mural-brillo)' }),
       nodoSvg('path', Object.assign({ class: 'burbuja-volumen', stroke: 'url(#mural-volumen)', filter: 'url(#mural-difuminar)' }, comun)),
       nodoSvg('path', Object.assign({ stroke: 'url(#mural-iris)', 'stroke-width': '4', opacity: '.7' }, comun)),
-      nodoSvg('path', Object.assign({ stroke: 'rgba(255,255,255,.6)', 'stroke-width': '1.5' }, comun)),
+      nodoSvg('path', Object.assign({ class: 'burbuja-borde-brillo', 'stroke-width': '1.5' }, comun)),
     ]);
   }
 
@@ -449,7 +577,7 @@
       giro: (Math.random() - 0.5) * 0.4,
       vx: Math.cos(angulo), vy: Math.sin(angulo),
       saliendo: false, colocada: false, porAjustar: true,
-      nacida: performance.now(), ultimoChoque: 0, firma: '',
+      nacida: performance.now(), ultimoChoque: 0, firma: '', caduca: Infinity,
     };
 
     escala.style.setProperty('--dur', (5 + Math.random() * 4).toFixed(2) + 's');
@@ -469,17 +597,19 @@
     b.emojiEl.textContent = m.emoji;
     b.emojiEl.hidden = !m.emoji;
 
-    const rgb = colorARgb(m.color) || colorARgb(CONFIG.color) || [142, 63, 240];
+    // Color propio, o el de la paleta; si no hay ninguno, el del texto del mural.
+    const base = colorARgb(m.color) || colorARgb(CONFIG.color) ||
+      colorARgb(getComputedStyle(contenedor).color) || PALETA.textoOscuro;
+    const elegido = elegirTexto(base);
+    const rgb = elegido.rgb;
     const oscuro = rgb.map(function (v) { return Math.round(v * 0.45); });
     const claro = rgb.map(function (v) { return Math.round(v + (255 - v) * 0.55); });
-    const clara = luminancia(rgb) > 0.6;
     const s = b.el.style;
     s.setProperty('--rgb', rgb.join(' '));
     s.setProperty('--rgb-osc', oscuro.join(' '));
     s.setProperty('--rgb-claro', claro.join(' '));
-    s.setProperty('--alfa', clara ? '0.62' : '0.32');
     s.setProperty('--fuente', FUENTES[m.fuente || CONFIG.fuente] || FUENTES.moderna);
-    b.el.classList.toggle('burbuja-clara', clara);
+    b.el.classList.toggle('burbuja-texto-claro', elegido.claro);   // texto blanco o texto oscuro
 
     const forma = m.forma || CONFIG.forma;
     if (forma !== b.forma) {
@@ -504,6 +634,7 @@
     burbujas.delete(b.id);
     b.el.classList.add('saliendo');
     setTimeout(function () { b.el.remove(); }, 700);
+    actualizarVacio();
   }
 
   // Radio base para que entre todo sin amontonarse, según cuántas burbujas hay.

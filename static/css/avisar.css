@@ -6,7 +6,7 @@
 
 [hidden] { display: none !important; }
 
-.aviso-ok { border-left-color: #17653a; }
+.aviso-ok { border-left-color: var(--ok); }
 .aviso-ok strong { display: block; }
 
 .explicacion-avisar { margin: 0 0 16px; }
@@ -21,15 +21,15 @@
   padding: 12px;
   border: 2px solid var(--borde);
   border-radius: 10px;
-  background: #fff;
+  background: var(--superficie);
   color: var(--texto);
   font: inherit;
   font-size: 18px; /* ≥ 16 px: evita el zoom automático en iPhone */
 }
 .buscar-avisar input:focus {
   outline: none;
-  border-color: var(--morado);
-  box-shadow: 0 0 0 3px rgba(106, 27, 154, .2);
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(var(--acento-rgb) / .2);
 }
 
 /* --- Listas de lo que está en pantalla --------------------------------- */
@@ -39,13 +39,13 @@
   gap: 8px;
   margin: 24px 0 10px;
   font-size: 1.2rem;
-  color: var(--morado-osc);
+  color: var(--acento-osc);
 }
 .avisar-seccion span {
   padding: 0 9px;
   border-radius: 999px;
-  background: var(--morado);
-  color: #fff;
+  background: var(--acento);
+  color: var(--texto-inverso);
   font-size: .85rem;
 }
 .lista-avisar { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
@@ -55,8 +55,8 @@
   gap: 12px;
   padding: 12px 12px 12px 16px;
   border-radius: var(--radio);
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(74, 26, 107, .1);
+  background: var(--superficie);
+  box-shadow: 0 2px 8px rgb(var(--acento-osc-rgb) / .1);
 }
 .publicacion-texto { flex: 1; margin: 0; font-size: 1rem; overflow-wrap: anywhere; }
 .publicacion-texto strong { display: block; }
@@ -66,33 +66,33 @@
   align-items: center;
   min-height: 48px;
   padding: 0 16px;
-  border: 2px solid #b00020;
+  border: 2px solid var(--error);
   border-radius: 10px;
-  background: #fff;
-  color: #b00020;
+  background: var(--superficie);
+  color: var(--error);
   font-weight: 700;
   text-decoration: none;
 }
-.boton-avisar:active { background: #fff0f3; }
-.boton-avisar:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
-.vacio-avisar { margin: 0; padding: 12px 4px; color: var(--gris); }
+.boton-avisar:active { background: var(--error-fondo); }
+.boton-avisar:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; }
+.vacio-avisar { margin: 0; padding: 12px 4px; color: var(--texto-sec); }
 
 /* --- Botón secundario (Volver / Cancelar) ------------------------------ */
 .boton-secundario {
   margin-top: 24px;
-  border: 2px solid var(--morado);
-  background: #fff;
-  color: var(--morado);
+  border: 2px solid var(--acento);
+  background: var(--superficie);
+  color: var(--acento);
 }
-.boton-secundario:active { background: var(--morado-claro); }
+.boton-secundario:active { background: var(--superficie-2); }
 
 /* --- Formulario del motivo --------------------------------------------- */
 .cita-avisar {
   margin: 12px 0 18px;
   padding: 12px 14px;
-  border-left: 4px solid var(--morado);
+  border-left: 4px solid var(--acento);
   border-radius: 6px;
-  background: var(--morado-claro);
+  background: var(--superficie-2);
   white-space: pre-line;
   overflow-wrap: anywhere;
 }
@@ -110,6 +110,6 @@
   border-radius: 10px;
   cursor: pointer;
 }
-.motivo:has(input:checked) { border-color: var(--morado); background: var(--morado-claro); }
-.motivo input { width: 22px; height: 22px; flex: none; accent-color: var(--morado); }
+.motivo:has(input:checked) { border-color: var(--acento); background: var(--superficie-2); }
+.motivo input { width: 22px; height: 22px; flex: none; accent-color: var(--acento); }
 .formulario .boton:disabled { opacity: .7; cursor: progress; }

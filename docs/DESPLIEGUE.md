@@ -54,6 +54,8 @@ cd <carpeta> && bash deploy/actualizar.sh https://thedevhub.santiagof.dev/colabo
 - [ ] **Ninguna ruta absoluta**: en plantillas `url_for(...)`; en JS, las URLs que da la plantilla (`data-*`).
       Buscar: `grep -rnE "(href|src|action)=\"/|fetch\('/" templates static`
 - [ ] Sin `<script>` ni `<style>` en línea ni atributos `onclick=`/`style=`: la cabecera CSP del servidor puede bloquearlos.
+- [ ] Sin colores sueltos en CSS/JS: todo sale de `static/css/paleta.css`, y
+      `python herramientas/comprobar_contraste.py` termina sin errores.
 - [ ] Usa los nombres de endpoint del README.
 - [ ] Textos visibles traducibles (`_()` en plantillas y Python, `data-textos` en JS) y
       `pybabel compile -d traducciones --statistics` al 100 % (ver README, «Idiomas»).
