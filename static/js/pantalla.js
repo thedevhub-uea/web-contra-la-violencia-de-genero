@@ -5,8 +5,9 @@
 // - Cada 10 s pide la API (URLs en <body data-api-mural / data-api-foro>) y llama a pintarMural (T07) y pintarForo (T09).
 // - Si una petición falla, se queda lo último que se pintó: nunca pantalla en blanco.
 // - Crea un botón de pantalla completa (o se puede usar F11).
-// - T17: durante el mural, un aro recorre el borde de la pantalla y se completa justo cuando termina
-//   (la duración sale de CONFIG.duracion.mural, que ya respeta ?seg=). Con el mural fijado no hay aro.
+// - T17: durante el mural y el foro, un aro recorre el borde de la pantalla y se completa justo cuando
+//   termina la vista (la duración sale de CONFIG.duracion, que ya respeta ?seg=). En el vídeo (tiene su
+//   propia barra) y con una vista fijada no hay aro.
 // - T16: crea una barra superior (solo informativa) con las vistas de CONFIG.secuencia y marca la activa.
 // - Cada 3 s pregunta a /api/pantalla (data-api-control) por las órdenes del panel:
 //   «saltar» a una vista (y seguir rotando desde ahí) o «fijar» una vista hasta soltarla.
@@ -50,7 +51,7 @@
     clearTimeout(temporizador);
     clearTimeout(guardia);
     temporizador = guardia = null;
-    ocultarAro();   // T17: el aro solo vive mientras hay un temporizador de mural
+    ocultarAro();   // T17: el aro solo vive mientras hay un temporizador de vista
   }
 
   function videoRoto() {
@@ -75,7 +76,7 @@
     if (nombre === 'video' || nombre === fijada) return; // el vídeo avanza con 'ended'; lo fijado no avanza
     const ms = CONFIG.duracion[nombre] ?? CONFIG.duracionPorDefecto;
     temporizador = setTimeout(siguiente, ms);
-    if (nombre === 'mural') arrancarAro(ms); // T17: el aro dura exactamente lo que el temporizador
+    arrancarAro(ms); // T17: en mural y foro el aro dura exactamente lo que el temporizador
   }
 
   function mostrarVista(nombre) {
