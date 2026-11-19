@@ -104,6 +104,7 @@
   <meta name="theme-color" content="#1a0b2e">
   <meta name="robots" content="noindex, nofollow">
   <title>{% if pendientes %}({{ pendientes }}) {% endif %}{{ _('Moderación') }} · 25N</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body class="admin" data-avisos="{{ avisados | length }}" data-retenidos="{{ retenidos | length }}"

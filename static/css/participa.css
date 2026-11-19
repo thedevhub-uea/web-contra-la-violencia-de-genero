@@ -14,12 +14,6 @@
  */
 
 :root {
-  --morado: #6a1b9a;
-  --morado-osc: #4a1a6b;
-  --morado-claro: #f3e8fa;
-  --texto: #1f1027;
-  --gris: #5c5066;
-  --borde: #c9b3d9;
   --radio: 14px;
   --tactil: 48px; /* alto mínimo de lo que se pulsa (≥ 44 px) */
 
@@ -27,8 +21,6 @@
   --lado-izq: max(16px, env(safe-area-inset-left));
   --lado-der: max(16px, env(safe-area-inset-right));
   --abajo: env(safe-area-inset-bottom, 0px);
-
-  color-scheme: light; /* los colores son fijos: que el modo oscuro no oscurezca solo los campos */
 }
 
 * { box-sizing: border-box; }
@@ -37,7 +29,7 @@ html {
   /* iOS agranda el texto al girar a horizontal: se desactiva para que no se descuadre */
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  background: var(--morado-claro);
+  background: var(--superficie-2);
 }
 
 body {
@@ -52,17 +44,17 @@ body {
   font-size: 18px;
   line-height: 1.5;
   color: var(--texto);
-  background: var(--morado-claro);
+  background: var(--superficie-2);
   overflow-wrap: anywhere; /* palabras o enlaces muy largos no provocan scroll horizontal */
-  -webkit-tap-highlight-color: rgba(106, 27, 154, .15);
+  -webkit-tap-highlight-color: rgb(var(--acento-rgb) / .15);
 }
 
 a, button, label, input, textarea { touch-action: manipulation; } /* sin espera del doble toque */
 
 /* --- Cabecera ------------------------------------------------------------ */
 .cabecera {
-  background: var(--morado-osc);
-  color: #fff;
+  background: var(--acento-osc);
+  color: var(--texto-inverso);
   padding: max(16px, env(safe-area-inset-top)) var(--lado-der) 14px var(--lado-izq);
   text-align: center;
 }
@@ -95,15 +87,15 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   color: inherit;
 }
 .selector-idioma a { text-decoration: underline; text-underline-offset: 3px; }
-.selector-idioma-actual { font-weight: 700; background: rgba(255, 255, 255, .16); }
-.tarjeta .selector-idioma { margin: -12px -12px 4px; color: var(--morado-osc); }
-.tarjeta .selector-idioma-actual { background: var(--morado-claro); }
+.selector-idioma-actual { font-weight: 700; background: rgb(var(--blanco-rgb) / .16); }
+.tarjeta .selector-idioma { margin: -12px -12px 4px; color: var(--acento-osc); }
+.tarjeta .selector-idioma-actual { background: var(--superficie-2); }
 
 /* --- Aviso de privacidad ------------------------------------------------- */
 .aviso {
-  background: #fff;
+  background: var(--superficie);
   line-height: 1.4;
-  border-left: 5px solid var(--morado);
+  border-left: 5px solid var(--acento);
   border-radius: 8px;
   padding: 12px 14px;
   margin: 0 0 16px;
@@ -112,10 +104,10 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 
 /* --- Error de validación (lo envía T01 en error_message) --------------- */
 .error {
-  background: #fff0f3;
-  border-left: 5px solid #b00020;
+  background: var(--error-fondo);
+  border-left: 5px solid var(--error);
   border-radius: 8px;
-  color: #7a0016;
+  color: var(--error-texto);
   font-weight: 600;
   padding: 12px 14px;
   margin: 0 0 16px;
@@ -133,10 +125,10 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   justify-content: center;
   text-align: center;
   padding: 8px 10px;
-  border: 2px solid var(--morado);
+  border: 2px solid var(--acento);
   border-radius: var(--radio);
-  background: #fff;
-  color: var(--morado);
+  background: var(--superficie);
+  color: var(--acento);
   font-weight: 700;
   line-height: 1.2;
   cursor: pointer;
@@ -145,12 +137,12 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 }
 #tab-mural:checked ~ .pestanas label[for="tab-mural"],
 #tab-foro:checked ~ .pestanas label[for="tab-foro"] {
-  background: var(--morado);
-  color: #fff;
+  background: var(--acento);
+  color: var(--texto-inverso);
 }
 #tab-mural:focus-visible ~ .pestanas label[for="tab-mural"],
 #tab-foro:focus-visible ~ .pestanas label[for="tab-foro"] {
-  outline: 3px solid #000;
+  outline: 3px solid var(--foco-form);
   outline-offset: 2px;
 }
 .panel { display: none; }
@@ -159,13 +151,13 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 
 /* --- Formularios --------------------------------------------------------- */
 .formulario {
-  background: #fff;
+  background: var(--superficie);
   border-radius: var(--radio);
   padding: 18px 16px;
-  box-shadow: 0 2px 8px rgba(74, 26, 107, .1);
+  box-shadow: 0 2px 8px rgb(var(--acento-osc-rgb) / .1);
 }
-.formulario h2 { margin: 0 0 4px; font-size: 1.25rem; line-height: 1.25; color: var(--morado-osc); }
-.formulario .desc { margin: 0 0 14px; color: var(--gris); font-size: 1rem; }
+.formulario h2 { margin: 0 0 4px; font-size: 1.25rem; line-height: 1.25; color: var(--acento-osc); }
+.formulario .desc { margin: 0 0 14px; color: var(--texto-sec); font-size: 1rem; }
 .campo { display: block; font-weight: 600; margin: 12px 0 6px; }
 
 .formulario input[type="text"],
@@ -180,7 +172,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   padding: 12px;
   border: 2px solid var(--borde);
   border-radius: 10px;
-  background: #fff;
+  background: var(--superficie);
   color: var(--texto);
   -webkit-appearance: none; /* iOS: sin sombra interior ni esquinas propias */
   appearance: none;
@@ -188,8 +180,8 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 .formulario input[type="text"]:focus,
 .formulario textarea:focus {
   outline: none;
-  border-color: var(--morado);
-  box-shadow: 0 0 0 3px rgba(106, 27, 154, .2);
+  border-color: var(--acento);
+  box-shadow: 0 0 0 3px rgb(var(--acento-rgb) / .2);
 }
 .formulario textarea { resize: vertical; overflow-wrap: break-word; }
 /* Alto de los textos según la pantalla visible: cabe entero en 360×640 y no se queda
@@ -200,16 +192,16 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 .contador {
   text-align: right;
   font-size: .9rem;
-  color: var(--gris);
+  color: var(--texto-sec);
   margin-top: 4px;
   min-height: 1.2em;
 }
-.contador.cerca { color: #b00060; font-weight: 600; }
+.contador.cerca { color: var(--contador-cerca); font-weight: 600; }
 
 .nota {
   margin: 12px 0 0;
   font-size: .95rem;
-  color: var(--gris);
+  color: var(--texto-sec);
   text-align: center;
 }
 
@@ -220,10 +212,10 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   justify-content: center;
   min-height: 44px;
   padding: 6px 4px;
-  color: var(--morado);
+  color: var(--acento);
   font-weight: 600;
 }
-.enlace:focus-visible { outline: 3px solid #000; outline-offset: 2px; border-radius: 4px; }
+.enlace:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; border-radius: 4px; }
 
 /* --- Botones ------------------------------------------------------------- */
 .boton {
@@ -236,8 +228,8 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   padding: 8px 16px;
   border: 0;
   border-radius: var(--radio);
-  background: var(--morado);
-  color: #fff;
+  background: var(--acento);
+  color: var(--texto-inverso);
   font: inherit;
   font-size: 1.1rem;
   font-weight: 700;
@@ -248,8 +240,8 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   -webkit-appearance: none;
   appearance: none;
 }
-.boton:active { background: var(--morado-osc); }
-.boton:focus-visible { outline: 3px solid #000; outline-offset: 2px; }
+.boton:active { background: var(--acento-osc); }
+.boton:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; }
 
 /* Botón de enviar del formulario: se queda pegado abajo de la pantalla mientras se
    baja por el formulario (sticky dentro de su <form>), así siempre está a mano.
@@ -258,12 +250,12 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   position: sticky;
   bottom: calc(10px + var(--abajo));
   z-index: 2;
-  box-shadow: 0 0 0 6px #fff, 0 6px 16px rgba(74, 26, 107, .3);
+  box-shadow: 0 0 0 6px var(--superficie), 0 6px 16px rgb(var(--acento-osc-rgb) / .3);
 }
 
 .pie {
   text-align: center;
-  color: var(--gris);
+  color: var(--texto-sec);
   font-size: .9rem;
   padding: 8px var(--lado-der) calc(24px + var(--abajo)) var(--lado-izq);
 }
@@ -283,27 +275,27 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 .tarjeta {
   width: 100%;
   max-width: 480px;
-  background: #fff;
+  background: var(--superficie);
   border-radius: 16px;
   padding: 32px 20px;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(74, 26, 107, .1);
+  box-shadow: 0 2px 8px rgb(var(--acento-osc-rgb) / .1);
 }
 .icono {
   width: 72px;
   height: 72px;
   margin: 0 auto 12px;
   border-radius: 50%;
-  background: var(--morado);
-  color: #fff;
+  background: var(--acento);
+  color: var(--texto-inverso);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 2.4rem;
   font-weight: 700;
 }
-.tarjeta h1 { margin: 0 0 8px; font-size: clamp(1.4rem, 6.5vw, 1.75rem); line-height: 1.2; color: var(--morado-osc); }
-.tarjeta p { margin: 0 0 8px; color: var(--gris); }
+.tarjeta h1 { margin: 0 0 8px; font-size: clamp(1.4rem, 6.5vw, 1.75rem); line-height: 1.2; color: var(--acento-osc); }
+.tarjeta p { margin: 0 0 8px; color: var(--texto-sec); }
 .tarjeta .boton { margin: 20px 0 8px; }
 .tarjeta p:last-child { margin-bottom: 0; }
 
