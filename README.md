@@ -32,6 +32,7 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   └── pantalla.html       T04/T07/T08/T09/T10 · esqueleto común de la pantalla
 ├── static/
 │   ├── css/
+│   │   ├── paleta.css      T13 · paleta única de colores (se enlaza la primera en todas las páginas)
 │   │   ├── estilos.css     T10 · estilos de la pantalla
 │   │   ├── mural.css       T07 · mural de burbujas (lo carga mural.js)
 │   │   ├── video.css       T08 · vista de vídeo (lo carga video.js)
@@ -57,7 +58,8 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   ├── t10/                T10 · vista previa de estilos.css y lista de pruebas en móviles
 │   └── DESPLIEGUE.md       T05 · guía de despliegue y checklist de PRs
 ├── herramientas/
-│   └── generar_qr.py       T10 · regenera static/img/qr.png (sin dependencias)
+│   ├── generar_qr.py       T10 · regenera static/img/qr.png (sin dependencias)
+│   └── comprobar_contraste.py  T13 · comprueba el contraste de los pares de paleta.css (sin dependencias)
 ├── datos/                  Se crea solo: aquí vive 25n.db (no se sube a git)
 ├── requirements.txt
 └── .env.example            Variables de entorno (copiar a .env)
@@ -119,6 +121,25 @@ Nombres de las rutas (el nombre de la función en `app.py` = endpoint de `url_fo
 
 Usuarios de HTTP Basic Auth: `admin` y `pantalla` (variables `ADMIN_USER`/`PANTALLA_USER` en `.env`),
 con las contraseñas `ADMIN_PASS` y `PANTALLA_PASS`.
+
+## Colores y contraste (T13)
+
+Toda la web usa un **tema claro** y todos los colores salen de [`static/css/paleta.css`](static/css/paleta.css),
+que es la primera hoja que se enlaza en `pantalla.html`, `participa.html`, `gracias.html`, `avisar*.html`
+y `admin.html`. **Ninguna hoja de estilos ni JS lleva colores sueltos** (`#hex`, `rgb()`…): se usa
+`var(--texto)`, `var(--acento)`… Para poner transparencia se usa la tripleta:
+`rgb(var(--acento-rgb) / .5)`.
+
+- **Mural:** las burbujas son de color vivo con opacidad alta (`--burbuja-alfa`). `mural.js` lee los colores
+  de la paleta y elige para cada burbuja el texto claro u oscuro que dé ≥ 4,5:1 (razón de contraste WCAG);
+  si ninguno llega, aclara u oscurece un poco la burbuja.
+- **Vídeo:** es oscuro por naturaleza; se enmarca sobre fondo claro y las franjas son `--letterbox`.
+- **Comprobar el contraste** (tras tocar `paleta.css`): `python herramientas/comprobar_contraste.py`
+  (`-v` para ver todos los pares). Lee los pares escritos en `paleta.css` con `@par --texto --fondo [grande]`
+  y falla si alguno baja de 4,5:1 (3:1 si es «grande»: texto ≥ 24 px, ≥ 18,66 px en negrita, o un trazo).
+  Si añades un color de texto o de fondo nuevo, añade su `@par`.
+- **Prueba en la sala real** (no se puede automatizar): con brillo máximo, la luz ambiente de la sala y el
+  proyector real, leer el mural, el foro y el QR desde 3–4 m.
 
 ## Moderación (T03)
 
