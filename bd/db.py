@@ -248,6 +248,26 @@ def listar_foro(solo_aprobadas=True):
     return _consultar(sql)
 
 
+# Máximo de elementos que el foro de la pantalla recibe de una vez (3 por página: ~20 páginas).
+LIMITE_FORO_MIXTO = 60
+
+
+def listar_foro_mixto(limite=LIMITE_FORO_MIXTO):
+    """Lo que muestra el foro de la pantalla (T14): mensajes del mural visibles y reflexiones
+    aprobadas, mezclados, más recientes primero.
+
+    Cada fila: {tipo ('mensaje' | 'reflexion'), id, titulo (None en los mensajes), texto, creado}.
+    Los ids se repiten entre tablas (mural 5 y foro 5): quien los use debe combinar tipo + id.
+    """
+    return _consultar(
+        "SELECT 'mensaje' AS tipo, id, NULL AS titulo, texto, creado FROM mural WHERE visible = 1 "
+        "UNION ALL "
+        "SELECT 'reflexion' AS tipo, id, titulo, texto, creado FROM foro WHERE aprobado = 1 "
+        "ORDER BY creado DESC, id DESC LIMIT ?",
+        (int(limite),),
+    )
+
+
 # --- Moderación (T03) --------------------------------------------------------
 
 def aplicar_accion(tabla, id_, accion):

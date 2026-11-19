@@ -46,7 +46,7 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   │   ├── pantalla.js     T04/T16 · rotación de vistas, actualización y barra de vistas
 │   │   ├── mural.js        T07 · pintarMural(mensajes)
 │   │   ├── video.js        T08 · iniciarVideo() / pararVideo()
-│   │   └── foro.js         T09 · pintarForo(reflexiones)
+│   │   └── foro.js         T09/T14 · pintarForo(elementos): reflexiones y mensajes del mural
 │   ├── fonts/              T07 · fuentes del mural en local (woff2, OFL)
 │   ├── img/qr.png          T10 · QR de /participa
 │   └── video/video.mp4     T08 · vídeo de concienciación
@@ -172,6 +172,25 @@ pantalla obedece en unos segundos. Las órdenes se guardan en la tabla `ajustes`
 (`pantalla_fijada`, `pantalla_salto_vista`, `pantalla_salto_id`): si se recarga `/pantalla`
 respeta la vista fijada, pero no repite un salto antiguo. Si el vídeo está fijado y no se puede
 reproducir, la pantalla rota con normalidad para no quedarse en negro.
+
+## Foro con mensajes y reflexiones (T14)
+
+El foro de la pantalla muestra **reflexiones aprobadas y mensajes del mural visibles, mezclados**.
+`/api/foro` devuelve una sola lista (más recientes primero, máximo 60) con el campo `tipo`:
+
+```json
+[{"tipo": "mensaje",   "id": 5, "titulo": null,    "texto": "Te creo"},
+ {"tipo": "reflexion", "id": 5, "titulo": "Título", "texto": "…"}]
+```
+
+- Los **ids chocan entre tablas** (mural 5 y foro 5): en `foro.js` toda identidad es `tipo + ':' + id`.
+- La consulta es `db.listar_foro_mixto()` (`UNION ALL` de `mural` con `visible = 1` y `foro` con `aprobado = 1`).
+  `listar_foro()` se mantiene porque lo usa el panel. Los mensajes siguen saliendo también en el mural.
+- Tarjetas: `.foro-tarjeta--reflexion` (título + texto) y `.foro-tarjeta--mensaje` (corta, sin título, texto
+  grande y centrado). Siguen siendo 3 por página, cada 15 s.
+- Moderación: ocultar un mensaje o retirar una reflexión en `/admin` los quita del foro en el siguiente refresco.
+- Prueba sin API: `/pantalla?demo-foro` (o `?demo-foro=N`, mezcla; con `&tipo=mensajes` o `&tipo=reflexiones`
+  solo de un tipo). En modo demo los datos reales de la API no pisan los de prueba.
 
 ## Barra de vistas de la pantalla (T16)
 

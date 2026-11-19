@@ -376,9 +376,12 @@ def create_app():
     @app.get("/api/foro")
     @requiere_rol("admin", "pantalla")
     def api_foro():
-        reflexiones = db.listar_foro(solo_aprobadas=True)
+        # T14: reflexiones aprobadas y mensajes del mural visibles, mezclados. Los ids se repiten
+        # entre tablas: el cliente debe identificar cada elemento por tipo + id.
+        elementos = db.listar_foro_mixto()
         return jsonify(
-            [{"id": r["id"], "titulo": r["titulo"], "texto": r["texto"]} for r in reflexiones]
+            [{"tipo": e["tipo"], "id": e["id"], "titulo": e["titulo"], "texto": e["texto"]}
+             for e in elementos]
         )
 
     @app.get("/api/pantalla")

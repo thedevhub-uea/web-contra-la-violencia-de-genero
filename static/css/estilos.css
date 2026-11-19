@@ -145,7 +145,8 @@ body {
 /* ---------- Foro de reflexiones (T09) ----------
  * Estructura que crea foro.js (PR #2):
  *   #vista-foro > h2.foro-cabecera
- *               > div.foro-tarjetas (--foro-columnas) > article.foro-tarjeta > h3.foro-titulo + p.foro-texto
+ *               > div.foro-tarjetas (--foro-columnas) > article.foro-tarjeta (.foro-tarjeta--reflexion | .foro-tarjeta--mensaje)
+ *                   reflexión: h3.foro-titulo + p.foro-texto · mensaje (T14): solo p.foro-texto
  *               > div.foro-puntos > span.foro-punto(.foro-activo)
  *   Sin datos: div.foro-tarjetas > div.foro-vacio > p + p.foro-vacio-en
  * Todos los estilos del foro viven aquí (T13: foro.js ya no inyecta ningún <style>).
@@ -193,6 +194,25 @@ body {
   box-shadow: 0 0.6vh 2.5vh rgb(var(--acento-osc-rgb) / 0.2);
   color: var(--texto);
   animation: aparecer 0.6s ease-out both;
+}
+
+/* T14 · Mensaje del mural en el foro: tarjeta corta, sin título, texto grande y centrado. */
+#vista-foro.vista .foro-tarjeta--mensaje {
+  justify-content: center;
+  background: var(--superficie-2);
+  text-align: center;
+}
+
+#vista-foro.vista .foro-tarjeta--mensaje .foro-texto {
+  font-size: var(--texto-grande);
+  font-weight: 600;
+  line-height: 1.25;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+}
+
+#vista-foro.vista .foro-titulo[hidden] {
+  display: none;
 }
 
 #vista-foro.vista .foro-titulo {
