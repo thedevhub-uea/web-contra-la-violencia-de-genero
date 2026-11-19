@@ -1,4 +1,6 @@
 /* T07 — Estilos del mural de burbujas. Todo cuelga de #vista-mural.
+   T13: tema claro. Los colores salen de paleta.css; el color del texto de cada burbuja lo elige
+   mural.js por contraste WCAG y lo marca con la clase .burbuja-texto-claro (texto blanco).
    Lo carga static/js/mural.js (no hace falta tocar pantalla.html).
    Las fuentes se sirven desde static/fonts/ para no depender de la red. */
 
@@ -19,7 +21,7 @@
   padding: 0;
   overflow: hidden;
   isolation: isolate;
-  background: #13041f;
+  background: var(--fondo);
 }
 
 /* Fondo: manchas de color con degradados (sin filtros: no cuesta nada moverlas). */
@@ -29,11 +31,11 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(32% 38% at 18% 20%, rgb(123 44 191 / .85), transparent 70%),
-    radial-gradient(30% 36% at 84% 30%, rgb(193 53 132 / .6), transparent 70%),
-    radial-gradient(38% 34% at 45% 92%, rgb(90 24 154 / .85), transparent 70%),
-    radial-gradient(18% 22% at 68% 62%, rgb(224 170 255 / .28), transparent 70%),
-    radial-gradient(26% 30% at 12% 70%, rgb(60 9 108 / .9), transparent 70%);
+    radial-gradient(32% 38% at 18% 20%, rgb(var(--mancha-a-rgb) / .85), transparent 70%),
+    radial-gradient(30% 36% at 84% 30%, rgb(var(--mancha-b-rgb) / .7), transparent 70%),
+    radial-gradient(38% 34% at 45% 92%, rgb(var(--mancha-c-rgb) / .8), transparent 70%),
+    radial-gradient(18% 22% at 68% 62%, rgb(var(--mancha-d-rgb) / .6), transparent 70%),
+    radial-gradient(26% 30% at 12% 70%, rgb(var(--mancha-e-rgb) / .8), transparent 70%);
   will-change: transform;
   animation: mural-fondo 60s ease-in-out infinite alternate;
 }
@@ -96,7 +98,8 @@
   100% { translate: -2px -1px; rotate: -.5deg; }
 }
 
-/* Capa 3: el cristal líquido. */
+/* Capa 3: el cristal líquido. Sobre fondo claro: color vivo con alfa alto (--burbuja-alfa),
+   brillos blancos moderados, borde del tono oscuro del propio color y sombra coloreada (sin negro). */
 #vista-mural .burbuja-cuerpo {
   position: relative;
   width: 100%; height: 100%;
@@ -105,22 +108,21 @@
   place-items: center;
   overflow: hidden;
   background:
-    radial-gradient(70% 70% at 30% 22%, rgb(255 255 255 / .30), transparent 55%),
-    radial-gradient(90% 60% at 50% 115%, rgb(var(--rgb-claro) / .45), transparent 70%),
-    rgb(var(--rgb) / var(--alfa, .32));
-  -webkit-backdrop-filter: blur(10px) saturate(180%) brightness(1.1);
-  backdrop-filter: blur(10px) saturate(180%) brightness(1.1);
-  border: 1px solid rgb(255 255 255 / .32);
+    radial-gradient(70% 70% at 30% 22%, rgb(var(--blanco-rgb) / .26), transparent 55%),
+    radial-gradient(90% 60% at 50% 115%, rgb(var(--rgb-claro) / .4), transparent 70%),
+    rgb(var(--rgb) / var(--burbuja-alfa));
+  -webkit-backdrop-filter: blur(6px) saturate(150%);
+  backdrop-filter: blur(6px) saturate(150%);
+  border: 1px solid rgb(var(--rgb-osc) / .55);
   box-shadow:
-    inset 0 1.5px 1px rgb(255 255 255 / .65),
-    inset 12px 16px 26px -14px rgb(255 255 255 / .6),
-    inset -14px -18px 32px -12px rgb(var(--rgb-osc) / .7),
-    inset 0 0 22px rgb(var(--rgb-claro) / .25),
-    0 22px 45px -18px rgb(var(--rgb) / .75),
-    0 6px 16px rgb(0 0 0 / .28);
+    inset 0 1.5px 1px rgb(var(--blanco-rgb) / .55),
+    inset 12px 16px 26px -14px rgb(var(--blanco-rgb) / .4),
+    inset -14px -18px 32px -12px rgb(var(--rgb-osc) / .45),
+    0 18px 36px -16px rgb(var(--rgb-osc) / .6),
+    0 5px 12px -4px rgb(var(--rgb-osc) / .3);
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  #vista-mural .burbuja-cuerpo { background-color: rgb(var(--rgb) / .75); }
+  #vista-mural .burbuja-cuerpo { background-color: rgb(var(--rgb) / .95); }
 }
 
 /* Brillo especular arriba a la izquierda. */
@@ -130,9 +132,9 @@
   left: 14%; top: 7%;
   width: 46%; height: 26%;
   border-radius: 50%;
-  background: linear-gradient(180deg, rgb(255 255 255 / .75), rgb(255 255 255 / 0));
+  background: linear-gradient(180deg, rgb(var(--blanco-rgb) / .6), rgb(var(--blanco-rgb) / 0));
   transform: rotate(-18deg);
-  opacity: .8;
+  opacity: .75;
   pointer-events: none;
 }
 
@@ -144,11 +146,11 @@
   border-radius: 50%;
   padding: 2px;
   background: conic-gradient(from 0deg,
-    rgb(255 255 255 / .9), rgb(var(--rgb-claro) / .2), rgb(255 160 230 / .7),
-    rgb(var(--rgb) / .1), rgb(160 220 255 / .7), rgb(255 255 255 / .9));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    rgb(var(--blanco-rgb) / .9), rgb(var(--rgb-claro) / .2), rgb(var(--burbuja-iris-rosa-rgb) / .7),
+    rgb(var(--rgb) / .1), rgb(var(--burbuja-iris-azul-rgb) / .7), rgb(var(--blanco-rgb) / .9));
+  -webkit-mask: linear-gradient(rgb(var(--negro-rgb)) 0 0) content-box, linear-gradient(rgb(var(--negro-rgb)) 0 0);
   -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mask: linear-gradient(rgb(var(--negro-rgb)) 0 0) content-box exclude, linear-gradient(rgb(var(--negro-rgb)) 0 0);
   opacity: .5;
   animation: burbuja-girar 14s linear infinite;
   pointer-events: none;
@@ -210,7 +212,7 @@
   gap: .12em;
   overflow: hidden;
   text-align: center;
-  color: #fff;
+  color: var(--texto-burbuja-oscuro);
   font-family: var(--fuente);
   font-size: var(--fs, 24px);
 }
@@ -226,10 +228,18 @@
   overflow-wrap: anywhere;
   hyphens: auto;
   text-wrap: balance;
-  text-shadow: 0 1px 2px rgb(0 0 0 / .4), 0 0 18px rgb(var(--rgb-osc) / .55);
+  text-shadow: 0 1px 1px rgb(var(--blanco-rgb) / .45);
 }
-#vista-mural .burbuja-clara .burbuja-contenido { color: #1c0a2e; }
-#vista-mural .burbuja-clara .burbuja-texto { text-shadow: 0 1px 1px rgb(255 255 255 / .5); }
+/* Colores oscuros: texto blanco (lo decide mural.js por contraste) */
+#vista-mural .burbuja-texto-claro .burbuja-contenido { color: var(--texto-burbuja-claro); }
+#vista-mural .burbuja-texto-claro .burbuja-texto { text-shadow: 0 1px 2px rgb(var(--rgb-osc) / .55); }
+
+/* Marcas del cristal de las formas con trazado (se pintan con CSS para no llevar colores en el JS). */
+#vista-mural .mural-parada-blanco { stop-color: rgb(var(--blanco-rgb)); }
+#vista-mural .mural-parada-sombra { stop-color: rgb(var(--noche-rgb)); }
+#vista-mural .mural-parada-rosa { stop-color: rgb(var(--burbuja-iris-rosa-rgb)); }
+#vista-mural .mural-parada-azul { stop-color: rgb(var(--burbuja-iris-azul-rgb)); }
+#vista-mural .burbuja-borde-brillo { stroke: rgb(var(--blanco-rgb) / .6); }
 
 @media (prefers-reduced-motion: reduce) {
   #vista-mural .mural-fondo,
