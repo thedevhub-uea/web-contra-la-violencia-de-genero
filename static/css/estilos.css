@@ -9,6 +9,7 @@
  * Clases que usan otras tareas (acordarlas antes de cambiarlas):
  *  - T04: .vista (cada <section>), .boton-pantalla-completa
  *  - T16: .barra-vistas (la crea pantalla.js) y --barra-alto: hueco que las tres vistas dejan arriba
+ *  - T17: .aro-tiempo (svg que crea pantalla.js) y --aro-grosor (paleta.css): el contenido se inserta ese margen
  *  - T07: .burbuja, .burbuja--nueva, variable --retraso (desfase de la animación)
  *  - T08: #video25n
  *  - T09: las .foro-* que crea foro.js (ver la sección del foro más abajo)
@@ -26,9 +27,12 @@
   --radio: 1.25rem;
   --margen: 3vh;
 
-  /* T16: alto de la barra de vistas. Las tres vistas (.vista, #vista-mural, #vista-video)
-     dejan este hueco arriba, así que nada queda tapado por la barra. */
+  /* T16: alto de la barra de vistas. T17: el aro de tiempo recorre el borde de la pantalla
+     (--aro-grosor, en paleta.css). Las tres vistas (.vista, #vista-mural, #vista-video) se
+     insertan lo justo para que ni la barra ni el aro tapen nada. */
   --barra-alto: 6.5vh;
+  --vista-lado: var(--aro-grosor);
+  --vista-top: calc(var(--aro-grosor) + var(--barra-alto));
 
   /* Tamaño del QR: ~26 % del alto de pantalla. En una proyección de ~1,2 m de alto
      sale un QR de unos 30 cm, suficiente para escanear a 3–4 m. */
@@ -64,7 +68,7 @@ body {
 /* ---------- Vistas (T04 muestra una y oculta las demás con el atributo hidden) ---------- */
 .vista {
   position: fixed;
-  inset: var(--barra-alto) 0 0;
+  inset: var(--vista-top) var(--vista-lado) var(--vista-lado);
   display: flex;
   flex-direction: column;
   padding: var(--margen);
@@ -304,10 +308,10 @@ body {
  * (y aria-current="page"). */
 .barra-vistas {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 12; /* por encima de las vistas; el QR (10) queda abajo y no se cruzan */
+  top: var(--aro-grosor); /* dentro del aro de tiempo (T17) */
+  left: var(--aro-grosor);
+  right: var(--aro-grosor);
+  z-index: 12; /* por encima de las vistas y del aro; el QR (10) queda abajo y no se cruzan */
   height: var(--barra-alto);
   display: flex;
   align-items: center;
@@ -345,12 +349,55 @@ body {
   color: var(--texto-inverso);
 }
 
+/* ---------- Aro de tiempo del mural (T17) ----------
+ * pantalla.js crea este <svg> fijo con dos <rect pathLength="1">: la pista (tenue) y el aro, que se
+ * va dibujando por el perímetro (stroke-dashoffset de 1 a 0, linear) durante exactamente lo que
+ * dura el mural. La duración la pone el JS en --aro-duracion y el viewBox va en píxeles (se
+ * recalcula al cambiar el tamaño). Se oculta en vídeo, foro y con el mural fijado desde /admin.
+ * Va por debajo de la barra de vistas (12) y del QR (10). */
+.aro-tiempo {
+  position: fixed;
+  inset: 0;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.aro-tiempo.aro-oculto {
+  display: none;
+}
+
+.aro-tiempo rect {
+  fill: none;
+  stroke-width: var(--aro-grosor);
+}
+
+.aro-tiempo .aro-pista {
+  stroke: rgb(var(--aro-pista-rgb) / 0.15);
+}
+
+.aro-tiempo .aro-progreso {
+  stroke: var(--aro-color);
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+}
+
+.aro-tiempo.aro-activo .aro-progreso {
+  animation: aro-llenar var(--aro-duracion, 300s) linear forwards;
+}
+
+@keyframes aro-llenar {
+  from { stroke-dashoffset: 1; }
+  to   { stroke-dashoffset: 0; }
+}
+
 /* ---------- Pantalla completa (T04) ----------
  * Arriba a la izquierda, dentro de la franja de la barra de vistas (que va centrada): así no
  * tapa el vídeo ni los contenidos, y el QR queda abajo a la derecha. */
 .boton-pantalla-completa {
   position: fixed;
-  top: calc((var(--barra-alto) - 2.2em) / 2);
+  top: calc(var(--aro-grosor) + (var(--barra-alto) - 2.2em) / 2);
   left: var(--margen);
   z-index: 20;
   height: 2.2em;
@@ -381,5 +428,10 @@ body {
   .burbuja--nueva,
   #vista-foro.vista .foro-tarjeta {
     animation: none;
+  }
+
+  /* El aro es un temporizador: no se quita. Sin movimiento suave, avanza a saltos (1 % del tiempo). */
+  .aro-tiempo.aro-activo .aro-progreso {
+    animation-timing-function: steps(100, end);
   }
 }

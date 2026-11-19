@@ -68,7 +68,8 @@
   --burbuja-iris-azul-rgb: 160 220 255;
   /* Aro de tiempo del mural (T17): ≥ 3:1 sobre --fondo */
   --aro-color: #7b2cbf;
-  --aro-grosor: 1.2vh;
+  --aro-grosor: 1.2vh;         /* ≥ ~1 vh: se lee a 3–4 m */
+  --aro-pista-rgb: 106 27 154; /* rastro tenue por donde va el aro (se usa con transparencia) */
   /* Progreso del vídeo */
   --progreso-a: #8e3ff0;
   --progreso-b: #d6336c;

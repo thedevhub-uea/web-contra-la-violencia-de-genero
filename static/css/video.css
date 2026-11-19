@@ -6,7 +6,7 @@
   --proporcion: 1.5333;
   --hueco: 4vh;
   position: fixed;
-  inset: var(--barra-alto) 0 0; /* T16: deja libre la barra de vistas */
+  inset: var(--vista-top) var(--vista-lado) var(--vista-lado); /* T16/T17: deja libres la barra y el aro */
   display: grid;
   grid-template-rows: auto 1fr;
   justify-items: start;   /* a la izquierda: el QR de la T10 (abajo a la derecha) no tapa el vídeo */
@@ -105,7 +105,7 @@
 #vista-video .video-marco {
   position: relative;
   aspect-ratio: var(--proporcion);
-  width: min(100%, calc((100dvh - var(--barra-alto) - 2 * var(--hueco) - 10vh) * var(--proporcion)));
+  width: min(100%, calc((100dvh - var(--vista-top) - var(--vista-lado) - 2 * var(--hueco) - 10vh) * var(--proporcion)));
   padding: 1vh;
   border-radius: 3.2vh;
   background: linear-gradient(145deg, rgb(var(--superficie-rgb) / .85), rgb(var(--superficie-rgb) / .55));

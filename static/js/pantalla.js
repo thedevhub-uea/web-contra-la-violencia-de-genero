@@ -5,6 +5,8 @@
 // - Cada 10 s pide la API (URLs en <body data-api-mural / data-api-foro>) y llama a pintarMural (T07) y pintarForo (T09).
 // - Si una petición falla, se queda lo último que se pintó: nunca pantalla en blanco.
 // - Crea un botón de pantalla completa (o se puede usar F11).
+// - T17: durante el mural, un aro recorre el borde de la pantalla y se completa justo cuando termina
+//   (la duración sale de CONFIG.duracion.mural, que ya respeta ?seg=). Con el mural fijado no hay aro.
 // - T16: crea una barra superior (solo informativa) con las vistas de CONFIG.secuencia y marca la activa.
 // - Cada 3 s pregunta a /api/pantalla (data-api-control) por las órdenes del panel:
 //   «saltar» a una vista (y seguir rotando desde ahí) o «fijar» una vista hasta soltarla.
@@ -48,6 +50,7 @@
     clearTimeout(temporizador);
     clearTimeout(guardia);
     temporizador = guardia = null;
+    ocultarAro();   // T17: el aro solo vive mientras hay un temporizador de mural
   }
 
   function videoRoto() {
@@ -68,8 +71,11 @@
   function programarFin(nombre) {
     clearTimeout(temporizador);
     temporizador = null;
+    ocultarAro(); // T17: sin temporizador (vídeo o vista fijada) no hay aro que llenar
     if (nombre === 'video' || nombre === fijada) return; // el vídeo avanza con 'ended'; lo fijado no avanza
-    temporizador = setTimeout(siguiente, CONFIG.duracion[nombre] ?? CONFIG.duracionPorDefecto);
+    const ms = CONFIG.duracion[nombre] ?? CONFIG.duracionPorDefecto;
+    temporizador = setTimeout(siguiente, ms);
+    if (nombre === 'mural') arrancarAro(ms); // T17: el aro dura exactamente lo que el temporizador
   }
 
   function mostrarVista(nombre) {
@@ -243,6 +249,65 @@
     }
   }
 
+  // ---------- Aro de tiempo del mural (T17) ----------
+  // <svg> fijo creado desde aquí con dos <rect pathLength="1">: pista y progreso. La animación
+  // (stroke-dashoffset de 1 a 0) está en estilos.css; aquí solo se arranca, se para y se mide.
+  const SVG_NS = 'http://www.w3.org/2000/svg';
+  let aro = null;
+  let aroPista = null;
+  let aroProgreso = null;
+
+  function crearAro() {
+    aro = document.createElementNS(SVG_NS, 'svg');
+    aro.id = 'aro-tiempo';
+    aro.setAttribute('class', 'aro-tiempo aro-oculto');
+    aro.setAttribute('aria-hidden', 'true');
+    aro.setAttribute('preserveAspectRatio', 'none');
+    aroPista = document.createElementNS(SVG_NS, 'rect');
+    aroPista.setAttribute('class', 'aro-pista');
+    aroProgreso = document.createElementNS(SVG_NS, 'rect');
+    aroProgreso.setAttribute('class', 'aro-progreso');
+    for (const r of [aroPista, aroProgreso]) {
+      r.setAttribute('pathLength', '1');
+      aro.append(r);
+    }
+    document.body.append(aro);
+    medirAro();
+    window.addEventListener('resize', medirAro);
+    document.addEventListener('fullscreenchange', medirAro);
+  }
+
+  // viewBox en píxeles; el rectángulo se mete medio grosor para que el trazo no se recorte en el borde.
+  function medirAro() {
+    if (!aro) return;
+    const ancho = document.documentElement.clientWidth;
+    const alto = document.documentElement.clientHeight;
+    const grosor = parseFloat(getComputedStyle(aroProgreso).strokeWidth) || 0; // --aro-grosor en px
+    aro.setAttribute('viewBox', `0 0 ${ancho} ${alto}`);
+    for (const r of [aroPista, aroProgreso]) {
+      r.setAttribute('x', grosor / 2);
+      r.setAttribute('y', grosor / 2);
+      r.setAttribute('width', Math.max(0, ancho - grosor));
+      r.setAttribute('height', Math.max(0, alto - grosor));
+    }
+  }
+
+  function ocultarAro() {
+    if (!aro) return;
+    aro.classList.remove('aro-activo'); // quita la animación
+    aro.classList.add('aro-oculto');
+  }
+
+  function arrancarAro(ms) {
+    if (!aro) return;
+    medirAro();
+    aro.classList.remove('aro-activo');
+    aro.classList.remove('aro-oculto');
+    void aro.getBoundingClientRect(); // fuerza el reflow: la animación empieza otra vez desde 0
+    aro.style.setProperty('--aro-duracion', ms + 'ms');
+    aro.classList.add('aro-activo');
+  }
+
   // ---------- Pantalla completa ----------
   // El botón se crea desde aquí para no tocar el esqueleto común de pantalla.html.
   // Textos traducidos en <body data-textos="{…}"> (i18n); si faltan, español.
@@ -274,6 +339,7 @@
   // ---------- Arranque ----------
   crearBotonPantallaCompleta();
   crearBarra();  // antes de la primera vista: mostrarVista() marca la activa
+  crearAro();    // antes de la primera vista: programarFin() lo arranca o lo oculta
   siguiente();   // muestra la primera vista
   cicloDatos();  // primera carga de datos inmediata, luego cada 10 s
   cicloControl(); // órdenes del panel: al arrancar y luego cada 3 s
