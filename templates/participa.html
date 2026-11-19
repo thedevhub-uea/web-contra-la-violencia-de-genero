@@ -4,6 +4,7 @@
 {% from '_idioma.html' import selector_idioma with context %}
 {% set en_mural = request.endpoint == 'crear_mural' %}
 {% set en_foro = request.endpoint == 'crear_foro' %}
+{% set abierto = participacion() %}
 <!DOCTYPE html>
 <html lang="{{ idioma_actual }}">
 <head>
@@ -39,6 +40,7 @@
     </div>
 
     <section id="panel-mural" class="panel" aria-labelledby="titulo-mural">
+      {% if abierto.mural %}
       <form class="formulario" method="POST" action="{{ url_for('crear_mural') }}">
         <h2 id="titulo-mural">{{ _('Mensaje burbuja') }}</h2>
         <p class="desc">{{ _('Un mensaje corto que aparecerá en el mural de la pantalla.') }}</p>
@@ -48,9 +50,16 @@
         <div class="contador" id="cont-mural" aria-live="polite"></div>
         <button class="boton boton-enviar" type="submit">{{ _('Enviar mensaje') }}</button>
       </form>
+      {% else %}
+      <div class="formulario cerrado" role="status">
+        <h2 id="titulo-mural">{{ _('Mensaje burbuja') }}</h2>
+        <p>{{ _('Ahora mismo no se admiten mensajes nuevos para el mural. ¡Gracias por participar!') }}</p>
+      </div>
+      {% endif %}
     </section>
 
     <section id="panel-foro" class="panel" aria-labelledby="titulo-foro">
+      {% if abierto.foro %}
       <form class="formulario" method="POST" action="{{ url_for('crear_foro') }}">
         <h2 id="titulo-foro">{{ _('Reflexión') }}</h2>
         <p class="desc">{{ _('Responde a una de estas preguntas con tu reflexión para el foro.') }}</p>
@@ -72,6 +81,12 @@
         <button class="boton boton-enviar" type="submit">{{ _('Enviar reflexión') }}</button>
         <p class="nota">{{ _('Tu reflexión se mostrará tras ser revisada.') }}</p>
       </form>
+      {% else %}
+      <div class="formulario cerrado" role="status">
+        <h2 id="titulo-foro">{{ _('Reflexión') }}</h2>
+        <p>{{ _('Ahora mismo no se admiten reflexiones nuevas para el foro. ¡Gracias por participar!') }}</p>
+      </div>
+      {% endif %}
     </section>
 
     {# T03: enlace para avisar de un mensaje inapropiado que haya salido en la pantalla #}

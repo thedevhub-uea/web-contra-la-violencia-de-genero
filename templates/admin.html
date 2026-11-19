@@ -6,7 +6,7 @@
                estado: 'visible' (en pantalla) | 'retenido' (parado por el filtro) | 'oculto' (retirado)
                        | 'caducado' (T15: mensaje cuyo tiempo de vida ya pasó; no está retirado por moderación)
     terminos   [{id, termino}] del filtro de palabras
-    ajustes    {enlaces, correos, telefonos, usuarios, foro_manual, retirar_por_avisos: '1'|'0',
+    ajustes    {enlaces, correos, telefonos, usuarios, foro_manual, mural_manual, retirar_por_avisos: '1'|'0',
                 avisos_para_ocultar, mensajes_vida_min}
     csrf       token que lleva cada formulario (ver _token_csrf() en app.py)
     aviso      (opcional) {texto, tipo: 'ok'|'error'} de la última acción
@@ -98,6 +98,11 @@
 </li>
 {%- endmacro -%}
 
+{#- Botón «i» de más información: el texto de ayuda largo se abre al pulsarlo (sin JS, con <details>). -#}
+{%- macro info(texto) -%}
+<details class="adm-info"><summary aria-label="{{ _('Más información') }}" title="{{ _('Más información') }}">i</summary>
+<div class="adm-info-texto" role="note">{{ texto }}</div></details>
+{%- endmacro -%}
 {%- macro vacio(texto) -%}
 <p class="adm-vacio">{{ icono('bandeja') }}{{ texto }}</p>
 {%- endmacro -%}
@@ -187,7 +192,10 @@
           <div>
             <h2 id="t-retenidos">{{ icono('escudo') }} {{ _('Pendientes de revisar') }} <span class="adm-cuenta">{{ retenidos | length }}</span></h2>
             <p>{{ _('No salen en la pantalla hasta que los apruebes.') }}
-              {% if ajustes.foro_manual == '1' %}{{ _('Aquí esperan todas las reflexiones del foro y lo que ha parado el filtro.') }}{% else %}{{ _('Aquí está lo que ha parado el filtro.') }}{% endif %}</p>
+              {% if ajustes.foro_manual == '1' and ajustes.mural_manual == '1' %}{{ _('Aquí esperan todos los mensajes del mural y todas las reflexiones del foro.') }}
+              {%- elif ajustes.foro_manual == '1' %}{{ _('Aquí esperan todas las reflexiones del foro y lo que ha parado el filtro.') }}
+              {%- elif ajustes.mural_manual == '1' %}{{ _('Aquí esperan todos los mensajes del mural y lo que ha parado el filtro.') }}
+              {%- else %}{{ _('Aquí está lo que ha parado el filtro.') }}{% endif %}</p>
           </div>
         </header>
         {% if retenidos %}
@@ -238,6 +246,69 @@
       </div>
     </section>
 
+    {# ---------- Participación: admitir o no envíos nuevos desde /participa ---------- #}
+    {% set abierto = participacion() %}
+    <section id="participacion" class="adm-panel" aria-labelledby="t-participacion">
+      <header class="adm-panel-cab">
+        <div>
+          <h2 id="t-participacion">{{ _('Participación') }}</h2>
+          <p>{{ _('Decide si el público puede enviar mensajes nuevos al mural y reflexiones nuevas al foro. Cerrar no retira nada de lo que ya está en pantalla.') }}</p>
+        </div>
+      </header>
+      <div class="adm-control">
+        <div class="adm-control-vistas">
+        {% for clave, nombre in [('mural', _('Mensajes del mural')), ('foro', _('Reflexiones del foro'))] %}
+          <div class="adm-control-vista{{ ' adm-control-cerrada' if not abierto[clave] }}">
+            <strong>{{ nombre }}
+              {%- if abierto[clave] %} <span class="adm-estado adm-estado-visible">{{ _('Abierto') }}</span>
+              {%- else %} <span class="adm-estado adm-estado-retenido">{{ _('Cerrado') }}</span>{% endif %}</strong>
+            <form method="post" action="{{ url_for('admin_participacion') }}">
+              <input type="hidden" name="csrf" value="{{ csrf }}">
+              <input type="hidden" name="destino" value="{{ clave }}">
+              <input type="hidden" name="accion" value="{{ 'cerrar' if abierto[clave] else 'abrir' }}">
+              <button type="submit" class="adm-btn{{ ' adm-btn-principal' if not abierto[clave] }}">
+                {{- _('Dejar de admitir') if abierto[clave] else _('Volver a admitir') }}</button>
+            </form>
+          </div>
+        {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    {# ---------- Tiempos de la pantalla: cuánto dura cada cosa ---------- #}
+    <section id="tiempos" class="adm-panel" aria-labelledby="t-tiempos">
+      <header class="adm-panel-cab">
+        <div>
+          <h2 id="t-tiempos">{{ _('Tiempos de la pantalla') }}</h2>
+          <p>{{ _('Cuánto dura cada vista y cada mensaje. La pantalla aplica los cambios en unos segundos, sin recargarla.') }}</p>
+        </div>
+      </header>
+      <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_tiempos') }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <div class="adm-tiempos-campos">
+        {% for clave, corto, texto, ayuda in [
+             ('tiempo_mural_seg', 'mural', _('Duración del mural (segundos)'), _('Después pasa al vídeo. 300 = 5 min.')),
+             ('tiempo_foro_seg', 'foro', _('Duración del foro (segundos)'), _('Después vuelve al mural. 300 = 5 min.')),
+             ('tiempo_foro_pagina_seg', 'foro_pagina', _('Cambio de página del foro (segundos)'), _('Cada página enseña 3 tarjetas.')),
+             ('tiempo_refresco_seg', 'refresco', _('Refresco de mensajes (segundos)'), _('Cada cuánto busca la pantalla mensajes nuevos o retirados.')),
+           ] %}
+          {% set minimo, maximo = limites_tiempos[clave] %}
+          <label class="adm-tiempo">
+            <span class="adm-tiempo-nombre">{{ texto }} {{ info(ayuda) }}</span>
+            <input type="number" name="{{ clave }}" min="{{ minimo }}" max="{{ maximo }}" inputmode="numeric" required value="{{ tiempos[corto] }}">
+            <span class="adm-ayuda">{{ _('De %(min)d a %(max)d.', min=minimo, max=maximo) }}</span>
+          </label>
+        {% endfor %}
+          <label class="adm-tiempo">
+            <span class="adm-tiempo-nombre">{{ _('Vida de cada mensaje del mural (minutos)') }} {{ info(_('La vida de un mensaje cuenta desde que se envía; al caducar deja de salir en el mural y en el foro, pero no se borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no caducan. Conviene que dure al menos un ciclo completo de la pantalla (mural + vídeo + foro): si es menos, un mensaje puede caducar sin haberse visto.')) }}</span>
+            <input type="number" name="mensajes_vida_min" min="0" max="{{ max_vida_min }}" inputmode="numeric" required value="{{ ajustes.mensajes_vida_min }}">
+            <span class="adm-ayuda">{{ _('0 = no caducan. De 0 a %(max)d.', max=max_vida_min) }}</span>
+          </label>
+        </div>
+        <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar tiempos') }}</button>
+      </form>
+    </section>
+
     {# ---------- 3. Todo lo publicado y lo retirado ---------- #}
     <section id="publicado" class="adm-panel" aria-labelledby="t-publicado">
       <header class="adm-panel-cab">
@@ -276,7 +347,10 @@
       <header class="adm-panel-cab">
         <div>
           <h2 id="t-filtro">{{ _('Filtro automático') }}</h2>
-          <p>{{ _('Los mensajes del mural se publican solos, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') if ajustes.foro_manual == '1' else _('Los mensajes y las reflexiones se publican solos, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}</p>
+          <p>{% if ajustes.foro_manual == '1' and ajustes.mural_manual == '1' %}{{ _('Todo espera a que lo apruebes; el filtro indica además qué coincide con estas palabras o reglas.') }}
+            {%- elif ajustes.foro_manual == '1' %}{{ _('Los mensajes del mural se publican solos, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}
+            {%- elif ajustes.mural_manual == '1' %}{{ _('Las reflexiones del foro se publican solas, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}
+            {%- else %}{{ _('Los mensajes y las reflexiones se publican solos, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}{% endif %}</p>
         </div>
       </header>
       <div class="adm-filtro">
@@ -323,14 +397,13 @@
           <label class="adm-check">
             <input type="checkbox" name="foro_manual" value="1" {{ 'checked' if ajustes.foro_manual == '1' }}>
             <span>{{ _('Aprobar a mano todas las reflexiones del foro') }}</span>
+            {{ info(_('Recomendado: las reflexiones pueden contar casos reales con nombres o lugares que el filtro no detecta.')) }}
           </label>
-          <p class="adm-ayuda">{{ _('Recomendado: las reflexiones pueden contar casos reales con nombres o lugares que el filtro no detecta.') }}</p>
-
-          <label class="adm-numero">
-            <span>{{ _('Minutos que un mensaje del mural sigue en pantalla:') }}</span>
-            <input type="number" name="mensajes_vida_min" min="0" max="240" inputmode="numeric" required value="{{ ajustes.mensajes_vida_min }}">
+          <label class="adm-check">
+            <input type="checkbox" name="mural_manual" value="1" {{ 'checked' if ajustes.mural_manual == '1' }}>
+            <span>{{ _('Aprobar a mano todos los mensajes del mural') }}</span>
+            {{ info(_('Apagado, los mensajes que pasan el filtro salen solos en la pantalla. Encendido, todos esperan en «Pendientes de revisar». La vida de un mensaje cuenta desde que se envía: si tardas en aprobarlo, sale menos tiempo.')) }}
           </label>
-          <p class="adm-ayuda">{{ _('0 = los mensajes no caducan (de 0 a 240). Cuenta desde que se envía el mensaje; al caducar deja de salir en el mural y en el foro, pero no se borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no caducan. Debe durar al menos un ciclo completo de la pantalla (mural 5 min + vídeo + foro 5 min, unos 16 min con el vídeo actual): si es menos, un mensaje puede caducar sin haberse visto. Para pruebas se permite 1.') }}</p>
 
           <p class="adm-ayuda">{{ _('Reglas de privacidad: retienen lo que pueda identificar o localizar a alguien.') }}</p>
           {% for clave, texto in [('enlaces', _('Retener enlaces (www…, http…, .com)')), ('correos', _('Retener correos electrónicos')),
@@ -345,12 +418,12 @@
           <label class="adm-check">
             <input type="checkbox" name="retirar_por_avisos" value="1" {{ 'checked' if ajustes.retirar_por_avisos == '1' }}>
             <span>{{ _('Retirar sola de la pantalla una publicación con muchos avisos') }}</span>
+            {{ info(_('Mejor dejarlo apagado: una sola persona podría vaciar la pantalla enviando avisos. Lo retirado así no se borra: espera a que decidas.')) }}
           </label>
           <label class="adm-numero">
             <span>{{ _('Cuántos avisos:') }}</span>
             <input type="number" name="avisos_para_ocultar" min="1" max="50" inputmode="numeric" required value="{{ ajustes.avisos_para_ocultar }}">
           </label>
-          <p class="adm-ayuda">{{ _('Mejor dejarlo apagado: una sola persona podría vaciar la pantalla enviando avisos. Lo retirado así no se borra: espera a que decidas.') }}</p>
           <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar ajustes') }}</button>
         </form>
       </div>

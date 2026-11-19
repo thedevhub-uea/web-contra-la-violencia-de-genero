@@ -11,6 +11,9 @@
 // - T16: crea una barra superior (solo informativa) con las vistas de CONFIG.secuencia y marca la activa.
 // - Cada 3 s pregunta a /api/pantalla (data-api-control) por las órdenes del panel:
 //   «saltar» a una vista (y seguir rotando desde ahí) o «fijar» una vista hasta soltarla.
+//   En la misma respuesta llegan los tiempos del panel (duración de mural y foro, páginas del foro y
+//   refresco): se aplican al momento; si cambia la duración de la vista en curso, se recalcula lo que
+//   le queda (y el aro sigue desde donde iba).
 //
 // Para pruebas: /pantalla?seg=20  → cada vista con tiempo dura 20 s en vez de 5 min.
 (() => {
@@ -28,6 +31,7 @@
     control: 3_000,           // cada cuánto se preguntan las órdenes del panel
   };
 
+  // Para pruebas, ?seg= manda sobre los tiempos del panel (ver aplicarTiempos).
   const seg = Number(new URLSearchParams(location.search).get('seg'));
   if (seg > 0) {
     CONFIG.duracionPorDefecto = seg * 1000;
@@ -44,6 +48,7 @@
   let vistaActual = null;
   let temporizador = null;
   let guardia = null;
+  let inicioVista = 0;        // performance.now() al empezar la vista con temporizador
   let fijada = null;          // vista fijada desde el panel (null = rotación automática)
   let ultimoSalto;            // salto_id ya atendido (undefined hasta la primera respuesta)
 
@@ -74,6 +79,7 @@
     temporizador = null;
     ocultarAro(); // T17: sin temporizador (vídeo o vista fijada) no hay aro que llenar
     if (nombre === 'video' || nombre === fijada) return; // el vídeo avanza con 'ended'; lo fijado no avanza
+    inicioVista = performance.now();
     const ms = CONFIG.duracion[nombre] ?? CONFIG.duracionPorDefecto;
     temporizador = setTimeout(siguiente, ms);
     arrancarAro(ms); // T17: en mural y foro el aro dura exactamente lo que el temporizador
@@ -202,6 +208,32 @@
     else if (vistaActual && vistaActual !== 'video') programarFin(vistaActual); // fija o suelta la vista actual
   }
 
+  // Tiempos del panel (segundos). Valores raros se ignoran; ?seg= manda sobre las duraciones.
+  function aplicarTiempos(t) {
+    if (!t || typeof t !== 'object') return;
+    const valido = v => Number.isFinite(v) && v > 0;
+    if (valido(t.refresco)) CONFIG.refresco = t.refresco * 1000;
+    if (valido(t.foro_pagina) && typeof configurarForo === 'function') configurarForo({ segundosPorPagina: t.foro_pagina });
+    if (seg > 0) return;
+    let cambia = false;
+    for (const vista of ['mural', 'foro']) {
+      if (!valido(t[vista])) continue;
+      const ms = t[vista] * 1000;
+      if (CONFIG.duracion[vista] !== ms) {
+        CONFIG.duracion[vista] = ms;
+        if (vista === vistaActual) cambia = true;
+      }
+    }
+    // La vista en curso con temporizador: se reprograma con lo que le queda según la nueva duración
+    if (cambia && temporizador) {
+      const total = CONFIG.duracion[vistaActual];
+      const pasado = performance.now() - inicioVista;
+      clearTimeout(temporizador);
+      temporizador = setTimeout(siguiente, Math.max(0, total - pasado));
+      arrancarAro(total, pasado);
+    }
+  }
+
   async function cicloControl() {
     const url = document.body.dataset.apiControl;
     if (!url) return; // sin URL no hay control remoto: solo rotación automática
@@ -210,7 +242,9 @@
     try {
       const res = await fetch(url, { cache: 'no-store', signal: ctrl.signal });
       if (!res.ok) throw new Error('HTTP ' + res.status);
-      aplicarOrdenes(await res.json());
+      const d = await res.json();
+      aplicarTiempos(d.tiempos);
+      aplicarOrdenes(d);
     } catch (e) {
       // Sin respuesta: se sigue con lo que hubiera (rotación o vista fijada)
       console.warn('No se pudieron leer las órdenes del panel:', e.message);
@@ -299,13 +333,15 @@
     aro.classList.add('aro-oculto');
   }
 
-  function arrancarAro(ms) {
+  // ms: duración total; pasado: lo que ya ha transcurrido (el aro empieza ya avanzado).
+  function arrancarAro(ms, pasado = 0) {
     if (!aro) return;
     medirAro();
     aro.classList.remove('aro-activo');
     aro.classList.remove('aro-oculto');
     void aro.getBoundingClientRect(); // fuerza el reflow: la animación empieza otra vez desde 0
     aro.style.setProperty('--aro-duracion', ms + 'ms');
+    aro.style.setProperty('--aro-retraso', -Math.min(pasado, ms) + 'ms');
     aro.classList.add('aro-activo');
   }
 

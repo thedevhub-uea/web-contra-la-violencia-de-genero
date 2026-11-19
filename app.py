@@ -121,6 +121,9 @@ _AVISOS_PANEL = {
     ("filtro", "invalido"): _l("No se ha añadido: usa solo letras y espacios (de 2 a 60), con * al final si quieres."),
     ("filtro", "repetido"): _l("Ese término ya estaba en el filtro."),
     ("ajustes", "guardados"): _l("Ajustes guardados.%(retirados)s"),
+    ("participacion", "abrir"): _l("«%(vista)s» vuelve a admitir envíos nuevos."),
+    ("participacion", "cerrar"): _l("«%(vista)s» ya no admite envíos nuevos. Lo que ya está en pantalla sigue."),
+    ("tiempos", "guardados"): _l("Tiempos guardados. La pantalla los aplica en unos segundos."),
     ("pantalla", "saltar"): _l("La pantalla salta a «%(vista)s» y después sigue la rotación."),
     ("pantalla", "fijar"): _l("La pantalla se queda en «%(vista)s» hasta que vuelvas a la rotación automática."),
     ("pantalla", "soltar"): _l("La pantalla vuelve a la rotación automática."),
@@ -155,7 +158,7 @@ def _pregunta_foro(valor):
         return PREGUNTAS_FORO[int(valor) - 1]
     return None
 _AVISOS_ERROR = {("filtro", "invalido"), ("filtro", "repetido")}
-_ANCLA_PANEL = {"mural": "revision", "foro": "revision", "filtro": "filtro", "ajustes": "filtro",
+_ANCLA_PANEL = {"mural": "revision", "foro": "revision", "filtro": "filtro", "ajustes": "filtro", "tiempos": "tiempos", "participacion": "participacion",
                 "pantalla": "control-pantalla"}
 _HECHO = re.compile(r"^([a-z]+)\.([a-z]+)\.(\d{1,12})$")
 
@@ -188,7 +191,7 @@ def _ultima_accion():
         if termino is None:
             return None
     vista = ""
-    if objeto == "pantalla":
+    if objeto in ("pantalla", "participacion"):
         if id_ >= len(db.VISTAS_PANTALLA):
             return None
         vista = _NOMBRES_VISTAS[db.VISTAS_PANTALLA[id_]]
@@ -312,7 +315,9 @@ def create_app():
     @app.context_processor
     def datos_idioma():
         return {"idiomas": IDIOMAS, "idioma_actual": str(get_locale() or IDIOMA_POR_DEFECTO),
-                "volver_aqui": _volver_aqui, "preguntas_foro": PREGUNTAS_FORO}
+                "volver_aqui": _volver_aqui, "preguntas_foro": PREGUNTAS_FORO,
+                # Función (no valor): solo consulta la BD en las plantillas que la usan
+                "participacion": db.participacion}
 
     @app.get("/idioma/<codigo>")
     def cambiar_idioma(codigo):
@@ -341,6 +346,11 @@ def create_app():
     @app.post("/mural")
     def crear_mural():
         texto = request.form.get("texto", "").strip()
+        if not db.participacion()["mural"]:
+            return render_template(
+                "participa.html",
+                error_message=_("Ahora mismo no se admiten mensajes nuevos para el mural."),
+            ), 403
         if not texto:
             return render_template(
                 "participa.html",
@@ -362,6 +372,11 @@ def create_app():
         pregunta = _pregunta_foro(request.form.get("pregunta", "").strip())
         texto = request.form.get("texto", "").strip()
 
+        if not db.participacion()["foro"]:
+            return render_template(
+                "participa.html",
+                error_message=_("Ahora mismo no se admiten reflexiones nuevas para el foro."),
+            ), 403
         if pregunta is None:
             error_message = _("Elige una de las preguntas antes de enviar la reflexión.")
         elif not texto:
@@ -420,8 +435,8 @@ def create_app():
     @app.get("/api/pantalla")
     @requiere_rol("admin", "pantalla")
     def api_pantalla():
-        """Órdenes del panel: vista fijada y último salto pedido (lo consulta pantalla.js)."""
-        resp = jsonify(db.estado_pantalla())
+        """Órdenes del panel: vista fijada, último salto pedido y tiempos (lo consulta pantalla.js)."""
+        resp = jsonify({**db.estado_pantalla(), "tiempos": db.tiempos_pantalla()})
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
@@ -455,6 +470,9 @@ def create_app():
             terminos=db.listar_filtros(),
             ajustes=db.leer_ajustes(),
             control=db.estado_pantalla(),
+            tiempos=db.tiempos_pantalla(),
+            limites_tiempos=db.TIEMPOS_PANTALLA,
+            max_vida_min=db.MAX_VIDA_MENSAJES_MIN,
             vistas=_NOMBRES_VISTAS,
             csrf=_token_csrf(),
             aviso=aviso,
@@ -498,16 +516,42 @@ def create_app():
     def admin_ajustes():
         _comprobar_csrf()
         nuevos = {regla: "1" if request.form.get(regla) == "1" else "0"
-                  for regla in ("enlaces", "correos", "telefonos", "usuarios", "foro_manual",
+                  for regla in ("enlaces", "correos", "telefonos", "usuarios", "foro_manual", "mural_manual",
                                 "retirar_por_avisos")}
         umbral = request.form.get("avisos_para_ocultar", "")
         if umbral.isdigit() and 1 <= int(umbral) <= 50:
             nuevos["avisos_para_ocultar"] = str(int(umbral))
-        vida = request.form.get("mensajes_vida_min", "")   # T15: 0 = no caducan
+        db.guardar_ajustes(nuevos)
+        return _volver_al_panel("ajustes", "guardados", 0, db.revisar_publicados())
+
+    @app.post("/admin/participacion")
+    @requiere_rol("admin")
+    def admin_participacion():
+        """Abrir o cerrar la entrada de mensajes nuevos del mural o de reflexiones del foro."""
+        _comprobar_csrf()
+        accion = request.form.get("accion", "")
+        destino = request.form.get("destino", "")
+        if accion not in ("abrir", "cerrar") or destino not in ("mural", "foro"):
+            abort(400)
+        db.guardar_ajustes({"admitir_" + destino: "1" if accion == "abrir" else "0"})
+        return _volver_al_panel("participacion", accion, db.VISTAS_PANTALLA.index(destino))
+
+    @app.post("/admin/tiempos")
+    @requiere_rol("admin")
+    def admin_tiempos():
+        """Tiempos de /pantalla (duración de cada vista, páginas del foro, refresco) y vida de los mensajes.
+        Un valor fuera de rango no se guarda (se queda el anterior)."""
+        _comprobar_csrf()
+        nuevos = {}
+        for clave, (minimo, maximo) in db.TIEMPOS_PANTALLA.items():
+            valor = request.form.get(clave, "").strip()
+            if valor.isdigit() and minimo <= int(valor) <= maximo:
+                nuevos[clave] = str(int(valor))
+        vida = request.form.get("mensajes_vida_min", "").strip()   # T15: 0 = no caducan
         if vida.isdigit() and 0 <= int(vida) <= db.MAX_VIDA_MENSAJES_MIN:
             nuevos["mensajes_vida_min"] = str(int(vida))
         db.guardar_ajustes(nuevos)
-        return _volver_al_panel("ajustes", "guardados", 0, db.revisar_publicados())
+        return _volver_al_panel("tiempos", "guardados")
 
     @app.post("/admin/pantalla")
     @requiere_rol("admin")

@@ -325,7 +325,8 @@ body {
 /* ---------- Barra de vistas (T16) ----------
  * La crea pantalla.js a partir de CONFIG.secuencia. Solo informa de en qué vista estamos:
  * no es clicable (pointer-events: none). La vista activa lleva .barra-vista--activa
- * (y aria-current="page"). */
+ * (y aria-current="page"). Ocupa todo el ancho, repartido a partes iguales entre las vistas, y
+ * la activa se marca como una pestaña (texto en acento, fondo suave y raya inferior), no como un botón. */
 .barra-vistas {
   position: fixed;
   top: var(--aro-grosor); /* dentro del aro de tiempo (T17) */
@@ -334,8 +335,7 @@ body {
   z-index: 12; /* por encima de las vistas y del aro; el QR (10) queda abajo y no se cruzan */
   height: var(--barra-alto);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
   border-bottom: 0.3vh solid var(--borde);
   background: rgb(var(--superficie-rgb) / 0.85);
   -webkit-backdrop-filter: blur(8px);
@@ -344,29 +344,43 @@ body {
 }
 
 .barra-vistas ol {
-  display: flex;
-  gap: 1.6vh;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr; /* todas las vistas, mismo ancho, de borde a borde */
+  width: 100%;
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
 .barra-vistas li {
-  padding: 0.5vh 2.4vh;
-  border: 0.25vh solid var(--borde);
-  border-radius: 999px;
-  background: var(--superficie);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 1.5vh;
+  margin-bottom: -0.3vh; /* la raya de la activa pisa el borde inferior de la barra */
+  border-bottom: 0.6vh solid transparent;
   color: var(--texto-sec);
   font-size: clamp(0.9rem, 2.5vh, 2rem);
   font-weight: 600;
   line-height: 1.2;
+  letter-spacing: 0.02em;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color 0.4s ease, background-color 0.4s ease, border-color 0.4s ease;
+}
+
+.barra-vistas li + li {
+  box-shadow: inset 0.15vh 0 0 var(--borde); /* separador fino entre vistas */
 }
 
 .barra-vistas li.barra-vista--activa {
-  border-color: var(--acento);
-  background: var(--acento);
-  color: var(--texto-inverso);
+  border-bottom-color: var(--acento);
+  background: rgb(var(--acento-rgb) / 0.1);
+  color: var(--acento-osc);
+  font-weight: 800;
 }
 
 /* ---------- Aro de tiempo del mural y el foro (T17) ----------
@@ -404,7 +418,7 @@ body {
 }
 
 .aro-tiempo.aro-activo .aro-progreso {
-  animation: aro-llenar var(--aro-duracion, 300s) linear forwards;
+  animation: aro-llenar var(--aro-duracion, 300s) linear var(--aro-retraso, 0ms) forwards;
 }
 
 @keyframes aro-llenar {
@@ -413,12 +427,12 @@ body {
 }
 
 /* ---------- Pantalla completa (T04) ----------
- * Arriba a la izquierda, dentro de la franja de la barra de vistas (que va centrada): así no
- * tapa el vídeo ni los contenidos, y el QR queda abajo a la derecha. */
+ * Abajo a la izquierda (la barra de vistas ocupa todo el ancho de arriba y el QR va abajo a la
+ * derecha). Solo se ve hasta entrar en pantalla completa. */
 .boton-pantalla-completa {
   position: fixed;
-  top: calc(var(--aro-grosor) + (var(--barra-alto) - 2.2em) / 2);
-  left: var(--margen);
+  bottom: calc(var(--aro-grosor) + var(--margen));
+  left: calc(var(--aro-grosor) + var(--margen));
   z-index: 20;
   height: 2.2em;
   padding: 0 1em;

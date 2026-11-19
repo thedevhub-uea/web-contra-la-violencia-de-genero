@@ -157,6 +157,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   box-shadow: 0 2px 8px rgb(var(--acento-osc-rgb) / .1);
 }
 .formulario h2 { margin: 0 0 4px; font-size: 1.25rem; line-height: 1.25; color: var(--acento-osc); }
+.formulario.cerrado p { margin: 0; color: var(--texto-sec); font-size: 1.05rem; line-height: 1.4; text-align: center; }
 .formulario .desc { margin: 0 0 14px; color: var(--texto-sec); font-size: 1rem; }
 .campo { display: block; font-weight: 600; margin: 12px 0 6px; }
 
