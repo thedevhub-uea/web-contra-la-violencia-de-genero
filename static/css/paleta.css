@@ -6,8 +6,9 @@
  * colores que lo necesitan se declaran como tripleta `--x-rgb: r g b` y el color completo
  * (`--x`) se deriva de ella.
  *
- * Los pares texto/fondo que se usan de verdad se declaran con `@par --texto --fondo [grande]`
- * (en los comentarios de abajo). `herramientas/comprobar_contraste.py` los lee y falla si algún
+ * Los pares texto/fondo que se usan de verdad se declaran abajo, en comentarios con la palabra
+ * «@par» seguida del color del texto, el del fondo y, si procede, «grande».
+ * `herramientas/comprobar_contraste.py` los lee y falla si algún
  * par baja de 4,5:1 (3:1 si es «grande»: texto ≥ 24 px, o ≥ 18,66 px en negrita, o un trazo).
  */
 :root {
@@ -63,8 +64,8 @@
   /* Burbujas del mural */
   --burbuja-color: var(--acento-vivo);
   --burbuja-alfa: .9;          /* opacidad del color: alta, para que no se lave sobre fondo claro */
-  --burbuja-iris-rosa: #ffa0e6;
-  --burbuja-iris-azul: #a0dcff;
+  --burbuja-iris-rosa-rgb: 255 160 230;  /* reflejos iridiscentes del borde */
+  --burbuja-iris-azul-rgb: 160 220 255;
   /* Aro de tiempo del mural (T17): ≥ 3:1 sobre --fondo */
   --aro-color: #7b2cbf;
   --aro-grosor: 1.2vh;
@@ -118,10 +119,9 @@
   /* @par --acento-osc --superficie */
   /* @par --texto-inverso --acento */
   /* @par --texto-inverso --acento-osc */
-  /* @par --texto-inverso --progreso-a grande */
+  /* @par --texto-inverso --acento-vivo grande */
   /* @par --aro-color --fondo grande */
   /* @par --aro-color --fondo-2 grande */
-  /* @par --texto-burbuja-claro --noche */
   /* @par --error --superficie */
   /* @par --error-texto --error-fondo */
   /* @par --contador-cerca --superficie */
