@@ -370,19 +370,27 @@ def create_app():
     @app.get("/api/mural")
     @requiere_rol("admin", "pantalla")
     def api_mural():
-        mensajes = db.listar_mural(solo_visibles=True, limite=30)
-        return jsonify([{"id": m["id"], "texto": m["texto"]} for m in mensajes])
+        # T15: los mensajes caducados ya no salen; caduca_en = segundos que le quedan (None: no caduca).
+        vida = db.vida_mensajes_min()
+        mensajes = db.listar_mural(solo_visibles=True, limite=30, vida_min=vida)
+        return jsonify([{"id": m["id"], "texto": m["texto"], "caduca_en": db.caduca_en(m["edad"], vida)}
+                        for m in mensajes])
 
     @app.get("/api/foro")
     @requiere_rol("admin", "pantalla")
     def api_foro():
         # T14: reflexiones aprobadas y mensajes del mural visibles, mezclados. Los ids se repiten
         # entre tablas: el cliente debe identificar cada elemento por tipo + id.
-        elementos = db.listar_foro_mixto()
-        return jsonify(
-            [{"tipo": e["tipo"], "id": e["id"], "titulo": e["titulo"], "texto": e["texto"]}
-             for e in elementos]
-        )
+        # T15: los mensajes caducados ya no salen (las reflexiones no caducan) y cada mensaje
+        # lleva caduca_en (segundos que le quedan; None si no caduca).
+        vida = db.vida_mensajes_min()
+        salida = []
+        for e in db.listar_foro_mixto(vida_min=vida):
+            fila = {"tipo": e["tipo"], "id": e["id"], "titulo": e["titulo"], "texto": e["texto"]}
+            if e["tipo"] == "mensaje":
+                fila["caduca_en"] = db.caduca_en(e["edad"], vida)
+            salida.append(fila)
+        return jsonify(salida)
 
     @app.get("/api/pantalla")
     @requiere_rol("admin", "pantalla")
@@ -470,6 +478,9 @@ def create_app():
         umbral = request.form.get("avisos_para_ocultar", "")
         if umbral.isdigit() and 1 <= int(umbral) <= 50:
             nuevos["avisos_para_ocultar"] = str(int(umbral))
+        vida = request.form.get("mensajes_vida_min", "")   # T15: 0 = no caducan
+        if vida.isdigit() and 0 <= int(vida) <= db.MAX_VIDA_MENSAJES_MIN:
+            nuevos["mensajes_vida_min"] = str(int(vida))
         db.guardar_ajustes(nuevos)
         return _volver_al_panel("ajustes", "guardados", 0, db.revisar_publicados())
 
@@ -499,7 +510,7 @@ def create_app():
     def pagina_avisar(error_message=None, codigo=200):
         return render_template(
             "avisar.html",
-            mensajes=db.listar_mural(solo_visibles=True, limite=30),
+            mensajes=db.listar_mural(solo_visibles=True, limite=30, vida_min=db.vida_mensajes_min()),
             reflexiones=db.listar_foro(solo_aprobadas=True),
             enviado=request.args.get("enviado") == "1",
             retirada_automatica=db.leer_ajustes()["retirar_por_avisos"] == "1",

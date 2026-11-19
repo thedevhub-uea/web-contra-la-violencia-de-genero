@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-18 17:21+0100\n"
+"POT-Creation-Date: 2026-11-19 14:57+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,6 +24,15 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "(gratuito, 24 horas, no deja rastro en la factura)."
+msgstr ""
+
+msgid ""
+"0 = los mensajes no caducan (de 0 a 240). Cuenta desde que se envía el "
+"mensaje; al caducar deja de salir en el mural y en el foro, pero no se "
+"borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no "
+"caducan. Debe durar al menos un ciclo completo de la pantalla (mural 5 "
+"min + vídeo + foro 5 min, unos 16 min con el vídeo actual): si es menos, "
+"un mensaje puede caducar sin haberse visto. Para pruebas se permite 1."
 msgstr ""
 
 msgid "Acceso restringido"
@@ -112,6 +121,9 @@ msgstr ""
 
 #, python-format
 msgid "Búscalo aquí y pulsa %(boton)s. Es anónimo."
+msgstr ""
+
+msgid "Caducado"
 msgstr ""
 
 msgid "Cancelar"
@@ -244,6 +256,12 @@ msgstr ""
 msgid "Guardar ajustes"
 msgstr ""
 
+#, python-format
+msgid ""
+"Ha caducado: ya no sale en la pantalla (vida de los mensajes: %(min)s "
+"min). No está retirado por moderación."
+msgstr ""
+
 msgid "Idioma"
 msgstr ""
 
@@ -314,6 +332,9 @@ msgid "Mensaje burbuja"
 msgstr ""
 
 msgid "Mensajes del mural"
+msgstr ""
+
+msgid "Minutos que un mensaje del mural sigue en pantalla:"
 msgstr ""
 
 msgid "Moderación"

@@ -425,6 +425,8 @@ body.admin [hidden] { display: none !important; }
 }
 .adm-estado::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .adm-estado-visible { background: var(--adm-verde-fondo); color: var(--adm-verde); }
+/* T15: caducado (pasó su tiempo de vida) ≠ retirado por moderación (gris): se distingue por el color y el texto */
+.adm-estado-caducado { background: var(--adm-ambar-fondo); color: var(--adm-ambar-texto); box-shadow: inset 0 0 0 1px var(--adm-ambar-borde); }
 .adm-estado-oculto { background: var(--adm-gris-fondo); color: var(--adm-gris-texto); }
 .adm-estado-retenido { background: var(--adm-ambar-fondo); color: var(--adm-ambar); box-shadow: inset 0 0 0 1px var(--adm-ambar-borde); }
 .adm-tipo {

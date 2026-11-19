@@ -64,12 +64,16 @@ AJUSTES_POR_DEFECTO = {
     # podría vaciar la pantalla.
     "retirar_por_avisos": "0",
     "avisos_para_ocultar": "2",  # N, si se activa retirar_por_avisos
+    # T15: minutos que un mensaje del mural sigue en pantalla desde que se envía ("0" = no caduca).
+    # Solo caducan los mensajes; las reflexiones no. Caducar no borra nada: solo deja de mostrarse.
+    "mensajes_vida_min": "15",
     # Control de /pantalla desde el panel (ver ordenar_pantalla()).
     "pantalla_fijada": "",       # '' = rotación automática; o 'mural' | 'video' | 'foro'
     "pantalla_salto_vista": "",  # última vista a la que se pidió saltar
     "pantalla_salto_id": "0",    # sube en cada salto: así la pantalla sabe que es una orden nueva
 }
 VISTAS_PANTALLA = ("mural", "video", "foro")
+MAX_VIDA_MENSAJES_MIN = 240  # tope del ajuste mensajes_vida_min (4 horas)
 MOTIVOS_AVISO = {
     "odio": "Odio o discriminación",
     "acoso": "Insultos, acoso o amenazas",
@@ -89,7 +93,9 @@ _SQL = {
             "motivo": "ALTER TABLE mural ADD COLUMN motivo TEXT",
             "revisado": "ALTER TABLE mural ADD COLUMN revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))",
         },
-        "panel": ("SELECT id, NULL AS titulo, texto, creado, visible AS publicado, retenido, motivo "
+        # edad: segundos desde el envío (calculada aquí: «creado» es UTC sin zona y no se parsea en JS)
+        "panel": ("SELECT id, NULL AS titulo, texto, creado, visible AS publicado, retenido, motivo, "
+                  "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
                   "FROM mural"),
         "publico": "SELECT id, NULL AS titulo, texto FROM mural WHERE id = ? AND visible = 1",
         "revisar": "SELECT id, '' AS titulo, texto FROM mural WHERE visible = 1 AND revisado = 0",
@@ -104,8 +110,8 @@ _SQL = {
             "motivo": "ALTER TABLE foro ADD COLUMN motivo TEXT",
             "revisado": "ALTER TABLE foro ADD COLUMN revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))",
         },
-        "panel": ("SELECT id, titulo, texto, creado, aprobado AS publicado, retenido, motivo "
-                  "FROM foro"),
+        "panel": ("SELECT id, titulo, texto, creado, aprobado AS publicado, retenido, motivo, "
+                  "NULL AS edad FROM foro"),
         "publico": "SELECT id, titulo, texto FROM foro WHERE id = ? AND aprobado = 1",
         "revisar": "SELECT id, titulo, texto FROM foro WHERE aprobado = 1 AND revisado = 0",
         "retener": "UPDATE foro SET aprobado = 0, retenido = 1, motivo = ? WHERE id = ? AND aprobado = 1",
@@ -221,17 +227,30 @@ def insertar_foro(titulo, texto):
 
 # --- Lectura (T02 API y T03 admin) -------------------------------------------
 
-def listar_mural(solo_visibles=True, limite=None):
-    """Mensajes del mural, más recientes primero."""
-    sql = "SELECT id, texto, creado, visible FROM mural"
+def listar_mural(solo_visibles=True, limite=None, vida_min=None):
+    """Mensajes del mural, más recientes primero.
+
+    Cada fila lleva `edad`: segundos desde el envío, calculados por SQLite (T15).
+    Con vida_min > 0 se excluyen los mensajes que ya han caducado (edad ≥ vida): el filtro va
+    en el WHERE, antes del LIMIT, para que los caducados no ocupen sitio. No borra nada.
+    """
+    sql = ("SELECT id, texto, creado, visible, "
+           "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
+           "FROM mural")
+    condiciones = []
+    params = []
     if solo_visibles:
-        sql += " WHERE visible = 1"
+        condiciones.append("visible = 1")
+    if vida_min and int(vida_min) > 0:
+        condiciones.append("CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) < ?")
+        params.append(int(vida_min) * 60)
+    if condiciones:
+        sql += " WHERE " + " AND ".join(condiciones)
     sql += " ORDER BY creado DESC, id DESC"
-    params = ()
     if limite is not None:
         sql += " LIMIT ?"
-        params = (int(limite),)
-    return _consultar(sql, params)
+        params.append(int(limite))
+    return _consultar(sql, tuple(params))
 
 
 def listar_foro(solo_aprobadas=True):
@@ -252,19 +271,27 @@ def listar_foro(solo_aprobadas=True):
 LIMITE_FORO_MIXTO = 60
 
 
-def listar_foro_mixto(limite=LIMITE_FORO_MIXTO):
+def listar_foro_mixto(limite=LIMITE_FORO_MIXTO, vida_min=None):
     """Lo que muestra el foro de la pantalla (T14): mensajes del mural visibles y reflexiones
     aprobadas, mezclados, más recientes primero.
 
-    Cada fila: {tipo ('mensaje' | 'reflexion'), id, titulo (None en los mensajes), texto, creado}.
+    Cada fila: {tipo ('mensaje' | 'reflexion'), id, titulo (None en los mensajes), texto, creado,
+    edad (segundos desde el envío; solo en los mensajes, None en las reflexiones)}.
     Los ids se repiten entre tablas (mural 5 y foro 5): quien los use debe combinar tipo + id.
+
+    T15: con vida_min > 0 se excluyen los MENSAJES caducados (las reflexiones no caducan). El filtro
+    va en el WHERE, antes del LIMIT. No borra nada.
     """
+    vida_seg = max(0, int(vida_min or 0)) * 60
     return _consultar(
-        "SELECT 'mensaje' AS tipo, id, NULL AS titulo, texto, creado FROM mural WHERE visible = 1 "
+        "SELECT 'mensaje' AS tipo, id, NULL AS titulo, texto, creado, "
+        "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
+        "FROM mural WHERE visible = 1 AND (? = 0 OR "
+        "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) < ?) "
         "UNION ALL "
-        "SELECT 'reflexion' AS tipo, id, titulo, texto, creado FROM foro WHERE aprobado = 1 "
+        "SELECT 'reflexion' AS tipo, id, titulo, texto, creado, NULL AS edad FROM foro WHERE aprobado = 1 "
         "ORDER BY creado DESC, id DESC LIMIT ?",
-        (int(limite),),
+        (vida_seg, vida_seg, int(limite)),
     )
 
 
@@ -352,6 +379,21 @@ def ordenar_pantalla(accion, vista=None):
 def umbral_avisos():
     valor = leer_ajustes()["avisos_para_ocultar"]
     return max(1, int(valor)) if valor.isdigit() else int(AJUSTES_POR_DEFECTO["avisos_para_ocultar"])
+
+
+def vida_mensajes_min():
+    """Minutos que un mensaje del mural sigue en pantalla (T15). 0 = no caduca."""
+    valor = leer_ajustes()["mensajes_vida_min"]
+    if valor.isdigit() and int(valor) <= MAX_VIDA_MENSAJES_MIN:
+        return int(valor)
+    return int(AJUSTES_POR_DEFECTO["mensajes_vida_min"])
+
+
+def caduca_en(edad, vida_min):
+    """Segundos que le quedan a un mensaje (T15), o None si no caduca (vida 0 o sin edad)."""
+    if not vida_min or edad is None:
+        return None
+    return max(0, int(vida_min) * 60 - int(edad))
 
 
 def listar_filtros():
@@ -442,8 +484,12 @@ def registrar_aviso(tabla, id_, motivo, avisador):
 
 def listar_para_panel():
     """Mural y foro juntos, más recientes primero, con su estado y sus avisos:
-    {tabla, id, titulo, texto, creado, estado ('visible'|'retenido'|'oculto'), motivo,
-     avisos, motivos_aviso [(texto, n), ...]}"""
+    {tabla, id, titulo, texto, creado, estado ('visible'|'retenido'|'oculto'|'caducado'), motivo,
+     avisos, motivos_aviso [(texto, n), ...]}
+
+    'caducado' (T15): mensaje del mural publicado cuya edad ya supera la vida configurada. Ya no
+    sale en pantalla, pero no está retirado por moderación ni se borra: sigue en el panel."""
+    vida_seg = vida_mensajes_min() * 60
     avisos = {}
     for f in _consultar("SELECT tabla, elemento_id, motivo, COUNT(*) AS n FROM avisos "
                         "GROUP BY tabla, elemento_id, motivo"):
@@ -453,6 +499,9 @@ def listar_para_panel():
         for e in _consultar(_SQL[tabla]["panel"]):
             e["tabla"] = tabla
             e["estado"] = "visible" if e["publicado"] else ("retenido" if e["retenido"] else "oculto")
+            if (e["estado"] == "visible" and tabla == "mural" and vida_seg
+                    and e["edad"] is not None and e["edad"] >= vida_seg):
+                e["estado"] = "caducado"
             motivos = sorted(avisos.get((tabla, e["id"]), []), key=lambda m: -m[1])
             e["motivos_aviso"] = motivos
             e["avisos"] = sum(n for _, n in motivos)

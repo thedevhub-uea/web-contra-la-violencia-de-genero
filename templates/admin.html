@@ -4,9 +4,10 @@
     elementos  mural y foro juntos, más recientes primero (db.listar_para_panel()):
                {tabla: 'mural'|'foro', id, titulo, texto, creado, estado, motivo, avisos, motivos_aviso}
                estado: 'visible' (en pantalla) | 'retenido' (parado por el filtro) | 'oculto' (retirado)
+                       | 'caducado' (T15: mensaje cuyo tiempo de vida ya pasó; no está retirado por moderación)
     terminos   [{id, termino}] del filtro de palabras
     ajustes    {enlaces, correos, telefonos, usuarios, foro_manual, retirar_por_avisos: '1'|'0',
-                avisos_para_ocultar}
+                avisos_para_ocultar, mensajes_vida_min}
     csrf       token que lleva cada formulario (ver _token_csrf() en app.py)
     aviso      (opcional) {texto, tipo: 'ok'|'error'} de la última acción
     resaltar   (opcional) 'mural-5' o 'foro-3': la fila de la última acción
@@ -21,6 +22,7 @@
 {%- set publicados = elementos | rejectattr('estado', 'equalto', 'retenido') | list -%}
 {%- set en_pantalla = elementos | selectattr('estado', 'equalto', 'visible') | list -%}
 {%- set retirados = elementos | selectattr('estado', 'equalto', 'oculto') | list -%}
+{%- set caducados = elementos | selectattr('estado', 'equalto', 'caducado') | list -%}
 {%- set pendientes = avisados | length + retenidos | length -%}
 
 {%- macro icono(n) -%}
@@ -62,6 +64,7 @@
       <span class="adm-tipo">{{ _('Mural') if e.tabla == 'mural' else _('Foro') }}</span>
       {%- if e.estado == 'visible' %}<span class="adm-estado adm-estado-visible">{{ _('En pantalla') }}</span>
       {%- elif e.estado == 'retenido' %}<span class="adm-estado adm-estado-retenido">{{ _('Pendiente') }}</span>
+      {%- elif e.estado == 'caducado' %}<span class="adm-estado adm-estado-caducado">{{ _('Caducado') }}</span>
       {%- else %}<span class="adm-estado adm-estado-oculto">{{ _('Retirado') }}</span>{% endif %}
       <span class="adm-id">#{{ e.id }}</span>
       {%- if e.creado %}<span aria-hidden="true">·</span><time datetime="{{ e.creado }}">{{ e.creado | fecha }}</time>{% endif %}
@@ -74,19 +77,21 @@
         {%- if e.estado == 'oculto' %}. {{ _('Ya está retirado de la pantalla.') }}{% endif %}</span></p>
     {%- elif seccion == 'retenidos' %}
       <p class="adm-motivo">{{ icono('escudo') }}<span>{{ e.motivo | motivo }}</span></p>
+    {%- elif e.estado == 'caducado' %}
+      <p class="adm-motivo adm-motivo-suave">{{ _('Ha caducado: ya no sale en la pantalla (vida de los mensajes: %(min)s min). No está retirado por moderación.', min=ajustes.mensajes_vida_min) }}</p>
     {%- elif e.estado == 'oculto' and e.motivo %}
       <p class="adm-motivo adm-motivo-suave">{{ e.motivo | motivo }}</p>
     {%- endif %}
   </div>
   <div class="adm-acciones">
     {%- if seccion == 'avisos' %}
-      {{ boton(e, 'publicar', _('Mantener') if e.estado == 'visible' else _('Volver a publicar'), '', 'mantener') }}
+      {{ boton(e, 'publicar', _('Mantener') if e.estado in ('visible', 'caducado') else _('Volver a publicar'), '', 'mantener') }}
       {{ boton(e, 'borrar', _('Borrar'), 'adm-btn-peligro') }}
     {%- elif seccion == 'retenidos' %}
       {{ boton(e, 'publicar', _('Aprobar') if e.tabla == 'foro' else _('Publicar igualmente')) }}
       {{ boton(e, 'borrar', _('Borrar'), 'adm-btn-peligro') }}
     {%- else %}
-      {%- if e.estado == 'visible' %}{{ boton(e, 'ocultar', _('Retirar')) }}{% else %}{{ boton(e, 'publicar', _('Publicar')) }}{% endif %}
+      {%- if e.estado in ('visible', 'caducado') %}{{ boton(e, 'ocultar', _('Retirar')) }}{% else %}{{ boton(e, 'publicar', _('Publicar')) }}{% endif %}
       {{ boton(e, 'borrar', _('Borrar'), 'adm-btn-peligro') }}
     {%- endif %}
   </div>
@@ -245,6 +250,7 @@
             <button type="button" data-filtro="mural" aria-pressed="false">{{ _('Mural') }}</button>
             <button type="button" data-filtro="foro" aria-pressed="false">{{ _('Foro') }}</button>
             <button type="button" data-filtro="oculto" aria-pressed="false">{{ _('Retirado') }} <span>{{ retirados | length }}</span></button>
+            <button type="button" data-filtro="caducado" aria-pressed="false">{{ _('Caducado') }} <span>{{ caducados | length }}</span></button>
           </div>
           <label class="adm-buscar">
             <span class="solo-lectores">{{ _('Buscar en las publicaciones') }}</span>{{ icono('buscar') }}
@@ -317,6 +323,12 @@
             <span>{{ _('Aprobar a mano todas las reflexiones del foro') }}</span>
           </label>
           <p class="adm-ayuda">{{ _('Recomendado: las reflexiones pueden contar casos reales con nombres o lugares que el filtro no detecta.') }}</p>
+
+          <label class="adm-numero">
+            <span>{{ _('Minutos que un mensaje del mural sigue en pantalla:') }}</span>
+            <input type="number" name="mensajes_vida_min" min="0" max="240" inputmode="numeric" required value="{{ ajustes.mensajes_vida_min }}">
+          </label>
+          <p class="adm-ayuda">{{ _('0 = los mensajes no caducan (de 0 a 240). Cuenta desde que se envía el mensaje; al caducar deja de salir en el mural y en el foro, pero no se borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no caducan. Debe durar al menos un ciclo completo de la pantalla (mural 5 min + vídeo + foro 5 min, unos 16 min con el vídeo actual): si es menos, un mensaje puede caducar sin haberse visto. Para pruebas se permite 1.') }}</p>
 
           <p class="adm-ayuda">{{ _('Reglas de privacidad: retienen lo que pueda identificar o localizar a alguien.') }}</p>
           {% for clave, texto in [('enlaces', _('Retener enlaces (www…, http…, .com)')), ('correos', _('Retener correos electrónicos')),

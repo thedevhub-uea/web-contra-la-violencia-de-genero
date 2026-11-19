@@ -6,7 +6,7 @@
  *  - Hora de la última carga y aviso de la última acción (se cierra solo).
  *  - Cada 30 s pregunta a /admin/estado si hay avisos o retenidos nuevos y lo indica
  *    sin recargar (así no se pierde lo que se esté escribiendo).
- *  - Filtro (Todo / Mural / Foro / Retirado) y búsqueda en las publicaciones y en el filtro.
+ *  - Filtro (Todo / Mural / Foro / Retirado / Caducado) y búsqueda en las publicaciones y en el filtro.
  *  - «Ver texto completo» en reflexiones largas.
  *  - Confirmación antes de borrar y bloqueo de dobles envíos.
  *

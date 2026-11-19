@@ -192,6 +192,28 @@ El foro de la pantalla muestra **reflexiones aprobadas y mensajes del mural visi
 - Prueba sin API: `/pantalla?demo-foro` (o `?demo-foro=N`, mezcla; con `&tipo=mensajes` o `&tipo=reflexiones`
   solo de un tipo). En modo demo los datos reales de la API no pisan los de prueba.
 
+## Caducidad de los mensajes (T15)
+
+Los **mensajes del mural** dejan de salir en pantalla pasado un tiempo (por defecto **15 min** desde que se
+envían). Las reflexiones **no caducan**. Caducar **no borra ni cambia ningún estado**: solo deja de mostrarse
+(en el mural y en el foro) y el mensaje sigue en `/admin`.
+
+- **Ajuste:** `mensajes_vida_min` en `/admin` → Ajustes (entero de 0 a 240; `0` = nunca caduca; para pruebas
+  vale 1). Debe ser al menos un ciclo completo de la pantalla (mural 5 min + vídeo + foro 5 min), porque si es
+  menor un mensaje puede caducar sin haberse visto.
+- **La edad la calcula el servidor** (`creado` es UTC sin zona; el navegador no lo interpreta):
+  `db.listar_mural(…, vida_min=)` y `db.listar_foro_mixto(…, vida_min=)` filtran en el `WHERE`, antes del
+  `LIMIT`. `/api/mural` y los mensajes de `/api/foro` añaden `caduca_en` (segundos que le quedan; `null` si no
+  caduca).
+- **`mural.js`:** guarda por burbuja `caduca = performance.now() + caduca_en·1000` (no depende del reloj del
+  navegador) y un único `setInterval` de 1 s retira la burbuja con su animación de salida, sin esperar al
+  siguiente refresco de 10 s. En los últimos 20 s la burbuja se atenúa (clase `caducando`). El intervalo solo
+  existe mientras haya burbujas que caduquen.
+- **Mural vacío:** sin ninguna burbuja sale el mensaje fijo «Escanea el QR y comparte tu mensaje / Scan the QR
+  and share your message»; desaparece al llegar la primera.
+- **Panel:** `listar_para_panel()` marca como `estado = 'caducado'` los mensajes publicados cuya edad supera la
+  vida. Tienen insignia ámbar «Caducado» y un filtro propio, distintos de «Retirado» (moderación, gris).
+
 ## Barra de vistas de la pantalla (T16)
 
 `pantalla.js` crea arriba de `/pantalla` una barra **solo informativa** (no clicable) con las vistas de

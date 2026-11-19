@@ -14,6 +14,12 @@
 // Opcional: configurarMural({color, fuente, forma, maxBurbujas, velocidad}) cambia
 // los valores por defecto de todo el mural.
 //
+// Caducidad (T15): la API manda `caduca_en` (segundos que le quedan al mensaje, calculados en el
+// servidor; null = no caduca). Aquí se guarda como un instante de performance.now() (así no depende
+// del reloj del navegador) y un único setInterval de 1 s retira la burbuja con su animación de
+// salida, sin esperar al siguiente refresco. En los últimos 20 s la burbuja se atenúa (.caducando).
+// Sin burbujas se muestra un mensaje bilingüe («Escanea el QR…») que desaparece con la primera.
+//
 // Datos de prueba: abre la pantalla con ?demo=mural para verlo sin la API.
 //
 // Colores: nada va fijo en este archivo. El color por defecto, la opacidad, el fondo y los dos
@@ -87,6 +93,8 @@
 
   const MAX_TEXTO = 200;
   const SUBPASOS = 3;     // la física se calcula varias veces por fotograma: choques más suaves
+  const AVISO_CADUCIDAD = 20_000;  // ms antes de caducar en que la burbuja empieza a atenuarse
+  const GUARDA_CADUCADA = 30_000;  // ms que se ignora una burbuja recién caducada si una respuesta atrasada la trae
   const reducirMovimiento = window.matchMedia &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -100,6 +108,10 @@
   let ultimoTiempo = 0;
   let iniciado = false;
   let obstaculo = null;   // rectángulo del QR en coordenadas del mural: {x0, y0, x1, y1}
+  let reloj = null;       // setInterval de 1 s que retira lo caducado (solo existe si hay burbujas que caducan)
+  const caducadas = new Map();   // id -> hasta cuándo se ignora (performance.now()), tras caducar aquí
+  let vacio = null;       // mensaje «Escanea el QR…» (sale solo con 0 burbujas)
+  let datosRecibidos = false;    // hasta la primera respuesta de la API no se enseña el mensaje vacío
   // Colores leídos de paleta.css (ver leerPaleta): [r, g, b] salvo alfa, que es un número.
   const PALETA = { fondo: null, alfa: 0.9, textoClaro: null, textoOscuro: null };
 
@@ -108,12 +120,16 @@
   function pintarMural(mensajes) {
     if (!Array.isArray(mensajes)) return;   // datos raros: se deja lo que hay
     if (!iniciar()) return;
+    datosRecibidos = true;
 
+    const ahora = performance.now();
     const validos = [];
     const vistos = new Set();
     for (const m of mensajes) {
       const limpio = limpiarMensaje(m);
       if (!limpio || vistos.has(limpio.id)) continue;
+      // Acaba de caducar aquí: una respuesta atrasada no lo vuelve a poner.
+      if ((caducadas.get(limpio.id) || 0) > ahora) continue;
       vistos.add(limpio.id);
       validos.push(limpio);
       if (validos.length >= CONFIG.maxBurbujas) break;   // la API manda los más recientes primero
@@ -127,14 +143,14 @@
     let nuevas = 0;
     for (const m of validos) {
       const b = burbujas.get(m.id);
-      if (!b) {
-        crearBurbuja(m, nuevas++);
-      } else if (b.firma !== firmaDe(m)) {
-        rellenar(b, m);
-      }
+      const burbuja = b || crearBurbuja(m, nuevas++);
+      if (b && b.firma !== firmaDe(m)) rellenar(b, m);
+      marcarCaducidad(burbuja, m, ahora);
     }
 
     recalcularTamanos();
+    actualizarVacio();
+    ajustarReloj();
   }
 
   function configurarMural(opciones) {
@@ -170,7 +186,8 @@
     fondo.setAttribute('aria-hidden', 'true');
     capa = document.createElement('div');
     capa.className = 'mural-capa';
-    contenedor.append(fondo, crearDefinicionesSvg(), capa);
+    vacio = crearMensajeVacio();
+    contenedor.append(fondo, crearDefinicionesSvg(), vacio, capa);
 
     medir();
     window.addEventListener('resize', medir);
@@ -274,6 +291,62 @@
     }
   }
 
+  // --- Caducidad y pantalla vacía (T15) -------------------------------------------
+
+  // Mensaje fijo y bilingüe (como el lema del QR: lo lee público de ambos idiomas).
+  function crearMensajeVacio() {
+    const el = document.createElement('div');
+    el.className = 'mural-vacio';
+    el.setAttribute('role', 'status');
+    const es = document.createElement('p');
+    es.textContent = 'Escanea el QR y comparte tu mensaje';
+    const en = document.createElement('p');
+    en.className = 'mural-vacio-en';
+    en.textContent = 'Scan the QR and share your message';
+    el.append(es, en);
+    return el;
+  }
+
+  function actualizarVacio() {
+    if (vacio) vacio.classList.toggle('visible', datosRecibidos && burbujas.size === 0);
+  }
+
+  // Guarda cuándo caduca la burbuja (null/ausente = nunca) y la atenúa si le queda poco.
+  function marcarCaducidad(b, m, ahora) {
+    b.caduca = m.caducaEn === null ? Infinity : ahora + m.caducaEn * 1000;
+    b.el.classList.toggle('caducando', b.caduca - ahora <= AVISO_CADUCIDAD);
+  }
+
+  // El reloj de 1 s solo corre mientras haya alguna burbuja que caduque.
+  function ajustarReloj() {
+    let hay = false;
+    for (const b of burbujas.values()) if (b.caduca !== Infinity) { hay = true; break; }
+    if (hay && !reloj) {
+      reloj = setInterval(revisarCaducidad, 1000);
+    } else if (!hay && reloj) {
+      clearInterval(reloj);
+      reloj = null;
+    }
+  }
+
+  function revisarCaducidad() {
+    const ahora = performance.now();
+    let quitadas = 0;
+    for (const b of Array.from(burbujas.values())) {
+      const resta = b.caduca - ahora;
+      if (resta <= 0) {
+        caducadas.set(b.id, ahora + GUARDA_CADUCADA);
+        quitarBurbuja(b);   // anima la salida (burbuja-salir) y la saca del mapa
+        quitadas++;
+      } else {
+        b.el.classList.toggle('caducando', resta <= AVISO_CADUCIDAD);
+      }
+    }
+    for (const [id, hasta] of caducadas) if (hasta <= ahora) caducadas.delete(id);
+    if (quitadas) recalcularTamanos();
+    ajustarReloj();
+  }
+
   // --- Datos -----------------------------------------------------------------
 
   function limpiarMensaje(m) {
@@ -289,6 +362,8 @@
       fuente: FUENTES[m.fuente] ? m.fuente : null,
       forma: Object.prototype.hasOwnProperty.call(FORMAS, m.forma) ? m.forma : null,
       emoji: limpiarEmoji(m.emoji),
+      // segundos que le quedan (T15); null = no caduca
+      caducaEn: (typeof m.caduca_en === 'number' && isFinite(m.caduca_en) && m.caduca_en >= 0) ? m.caduca_en : null,
     };
   }
 
@@ -502,7 +577,7 @@
       giro: (Math.random() - 0.5) * 0.4,
       vx: Math.cos(angulo), vy: Math.sin(angulo),
       saliendo: false, colocada: false, porAjustar: true,
-      nacida: performance.now(), ultimoChoque: 0, firma: '',
+      nacida: performance.now(), ultimoChoque: 0, firma: '', caduca: Infinity,
     };
 
     escala.style.setProperty('--dur', (5 + Math.random() * 4).toFixed(2) + 's');
@@ -559,6 +634,7 @@
     burbujas.delete(b.id);
     b.el.classList.add('saliendo');
     setTimeout(function () { b.el.remove(); }, 700);
+    actualizarVacio();
   }
 
   // Radio base para que entre todo sin amontonarse, según cuántas burbujas hay.
