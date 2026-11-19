@@ -1,8 +1,9 @@
-/* T10 — Estilos comunes de la pantalla proyectada: paleta morada 25N, alto contraste, letra grande.
+/* T10 — Estilos comunes de la pantalla proyectada: tema claro con acentos morados 25N, alto contraste, letra grande.
+ * T13: los colores salen de paleta.css (se enlaza antes que esta hoja); aquí no hay colores sueltos.
  *
  * Pensado para un proyector o una tele vista a varios metros:
  *  - Tamaños en vh/vw/clamp() para que todo escale con la pantalla.
- *  - Texto blanco sobre morado muy oscuro (contraste > 12:1).
+ *  - Texto oscuro sobre fondo claro (contraste ≥ 4,5:1, lo comprueba herramientas/comprobar_contraste.py).
  *  - El QR (#qr) queda fijo abajo a la derecha encima de las tres vistas.
  *
  * Clases que usan otras tareas (acordarlas antes de cambiarlas):
@@ -12,17 +13,8 @@
  *  - T09: las .foro-* que crea foro.js (ver la sección del foro más abajo)
  */
 
-/* ---------- Paleta y medidas ---------- */
+/* ---------- Medidas (los colores están en paleta.css) ---------- */
 :root {
-  /* Morados del 25N */
-  --morado-noche: #1a0b2e;   /* fondo general */
-  --morado-oscuro: #2e1250;  /* fondo de tarjetas y burbujas */
-  --morado: #6a1b9a;         /* color principal 25N */
-  --morado-vivo: #9c4dcc;    /* bordes y acentos */
-  --lila: #e1bee7;           /* texto secundario */
-  --blanco: #ffffff;         /* texto principal */
-  --negro: #000000;          /* fondo del vídeo */
-
   --fuente: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
 
   /* Letra grande, legible desde el fondo de la sala */
@@ -55,9 +47,9 @@ body {
 
 body {
   overflow: hidden; /* es una proyección: nunca barras de scroll */
-  background: radial-gradient(ellipse at top left, var(--morado-oscuro), var(--morado-noche) 70%);
-  background-color: var(--morado-noche);
-  color: var(--blanco);
+  background: radial-gradient(ellipse at top left, var(--fondo-2), var(--fondo) 70%);
+  background-color: var(--fondo);
+  color: var(--texto);
   font-family: var(--fuente);
   font-size: var(--texto-base);
   line-height: 1.35;
@@ -74,8 +66,8 @@ body {
 }
 
 /* Importante: sin esto, display:flex anularía el atributo hidden y se verían las tres a la vez.
-   !important porque otros estilos (p. ej. los que inyecta foro.js en #vista-foro) también
-   ponen display y, al ir con id, ganarían a esta regla. */
+   !important porque otros estilos (p. ej. los de #vista-foro) también ponen display y,
+   al ir con id, ganarían a esta regla. */
 .vista[hidden] {
   display: none !important;
 }
@@ -93,11 +85,11 @@ body {
   width: max-content;
   max-width: 24vw;
   padding: 0.7em 1em;
-  border: 0.25vh solid var(--morado-vivo);
+  border: 0.25vh solid var(--acento-osc);
   border-radius: 1.2em;
-  background: var(--morado-oscuro);
-  box-shadow: 0 0.6vh 2.5vh rgba(0, 0, 0, 0.45);
-  color: var(--blanco);
+  background: var(--acento-vivo);
+  box-shadow: 0 0.6vh 2.5vh rgb(var(--acento-osc-rgb) / 0.25);
+  color: var(--texto-inverso);
   font-size: clamp(1.25rem, 3.2vh, 2.75rem);
   font-weight: 600;
   line-height: 1.2;
@@ -109,8 +101,8 @@ body {
 
 /* Variante con el color principal, para alternar (p. ej. una de cada tres) */
 .burbuja:nth-child(3n) {
-  background: var(--morado);
-  border-color: var(--lila);
+  background: var(--acento);
+  border-color: var(--acento-claro);
 }
 
 /* Entrada de una burbuja nueva: crece desde pequeña */
@@ -131,14 +123,14 @@ body {
 /* ---------- Vídeo (T08) ---------- */
 #vista-video {
   padding: 0;
-  background: var(--negro);
+  background: var(--letterbox);
 }
 
 #video25n {
   width: 100%;
   height: 100%;
   object-fit: contain; /* ocupa la pantalla sin deformarse */
-  background: var(--negro);
+  background: var(--letterbox);
 }
 
 /* ---------- Foro de reflexiones (T09) ----------
@@ -147,9 +139,8 @@ body {
  *               > div.foro-tarjetas (--foro-columnas) > article.foro-tarjeta > h3.foro-titulo + p.foro-texto
  *               > div.foro-puntos > span.foro-punto(.foro-activo)
  *   Sin datos: div.foro-tarjetas > div.foro-vacio > p + p.foro-vacio-en
- * foro.js inyecta además sus propios estilos con selectores "#vista-foro .foro-*".
- * Aquí se usa "#vista-foro.vista" (un punto más de especificidad) para que mande
- * siempre este archivo, se queden o no esos estilos inyectados. */
+ * Todos los estilos del foro viven aquí (T13: foro.js ya no inyecta ningún <style>).
+ * Se usa "#vista-foro.vista" para ganar en especificidad a las reglas genéricas de .vista. */
 #vista-foro.vista {
   min-height: 0;
   gap: 3vh;
@@ -159,7 +150,7 @@ body {
 
 #vista-foro.vista .foro-cabecera {
   margin: 0;
-  color: var(--blanco);
+  color: var(--acento-osc);
   font-size: var(--texto-titulo);
   font-weight: 800;
   line-height: 1.1;
@@ -187,17 +178,17 @@ body {
   padding: 3.5vh 2.2vw;
   overflow: hidden;
   border: 0;
-  border-left: 1vh solid var(--morado-vivo);
+  border-left: 1vh solid var(--acento-vivo);
   border-radius: var(--radio);
-  background: var(--morado-oscuro);
-  box-shadow: 0 0.6vh 2.5vh rgba(0, 0, 0, 0.45);
-  color: var(--blanco);
+  background: var(--superficie);
+  box-shadow: 0 0.6vh 2.5vh rgb(var(--acento-osc-rgb) / 0.2);
+  color: var(--texto);
   animation: aparecer 0.6s ease-out both;
 }
 
 #vista-foro.vista .foro-titulo {
   margin: 0;
-  color: var(--lila);
+  color: var(--acento);
   font-size: var(--texto-grande);
   font-weight: 700;
   line-height: 1.15;
@@ -237,17 +228,16 @@ body {
 #vista-foro.vista .foro-vacio p {
   margin: 0;
   max-width: 20ch;
-  color: var(--lila);
+  color: var(--acento);
   font-size: var(--texto-titulo);
   font-weight: 700;
   line-height: 1.15;
 }
 
 #vista-foro.vista .foro-vacio .foro-vacio-en {
-  color: var(--blanco);
+  color: var(--texto-sec);
   font-size: var(--texto-grande);
   font-weight: 400;
-  opacity: 0.85;
 }
 
 /* Puntos que indican la página de tarjetas */
@@ -262,8 +252,8 @@ body {
   width: 1.6vh;
   height: 1.6vh;
   border-radius: 50%;
-  background: var(--lila);
-  opacity: 0.35;
+  background: var(--acento);
+  opacity: 0.3;
 }
 
 #vista-foro.vista .foro-punto.foro-activo {
@@ -283,8 +273,8 @@ body {
   width: calc(var(--qr-tamano) + 4vh);
   padding: 2vh;
   border-radius: var(--radio);
-  background: var(--blanco); /* fondo blanco = margen de silencio que necesita el lector */
-  box-shadow: 0 0 0 0.5vh var(--morado-vivo), 0 1vh 4vh rgba(0, 0, 0, 0.5);
+  background: var(--superficie); /* fondo blanco = margen de silencio que necesita el lector */
+  box-shadow: 0 0 0 0.5vh var(--acento), 0 1vh 4vh rgb(var(--acento-osc-rgb) / 0.3);
 }
 
 #qr img {
@@ -296,7 +286,7 @@ body {
 
 #qr p {
   margin: 0;
-  color: var(--morado);
+  color: var(--acento);
   font-size: clamp(0.9rem, 2.1vh, 1.6rem);
   font-weight: 800;
   line-height: 1.2;
@@ -310,10 +300,10 @@ body {
   right: var(--margen);
   z-index: 20;
   padding: 0.6em 1em;
-  border: 0.2vh solid var(--lila);
+  border: 0.2vh solid var(--acento);
   border-radius: 999px;
-  background: var(--morado-oscuro);
-  color: var(--blanco);
+  background: var(--superficie);
+  color: var(--acento-osc);
   font: inherit;
   font-size: 1rem;
   cursor: pointer;

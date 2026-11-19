@@ -5,6 +5,8 @@
 // Se puede llamar cada vez que lleguen datos nuevos de /api/foro: actualiza las
 // tarjetas sin reiniciar la rotación ni provocar parpadeos si nada ha cambiado.
 //
+// Los estilos de la vista están en estilos.css (sección «Foro»); este archivo no inyecta ningún <style>.
+//
 // Prueba sin API: abrir /pantalla?demo-foro (o ?demo-foro=0, =1, =20 reflexiones).
 
 (function () {
@@ -23,41 +25,6 @@
     pagina: 0,
     temporizador: null
   };
-
-  // Estilos mínimos de la vista. Van aquí para no tocar estilos.css (T10);
-  // T10 puede sobrescribirlos usando las mismas clases .foro-*.
-  function ponerEstilos() {
-    if (document.getElementById("foro-estilos")) return;
-    var css =
-      "#vista-foro{box-sizing:border-box;min-height:100vh;padding:4vh 4vw 4vh;" +
-      "display:flex;flex-direction:column;gap:3vh;}" +
-      "#vista-foro .foro-cabecera{margin:0;font-size:clamp(28px,4vw,64px);font-weight:700;}" +
-      "#vista-foro .foro-tarjetas{flex:1;display:grid;gap:2.5vw;" +
-      "grid-template-columns:repeat(var(--foro-columnas,3),minmax(0,1fr));align-items:stretch;" +
-      "transition:opacity .6s ease;}" +
-      "#vista-foro .foro-tarjetas.foro-oculto{opacity:0;}" +
-      "#vista-foro .foro-tarjeta{box-sizing:border-box;padding:3vh 2vw;border-radius:24px;" +
-      "background:rgba(255,255,255,.95);color:#2b0a3d;border-top:10px solid #7b2cbf;" +
-      "box-shadow:0 10px 30px rgba(0,0,0,.25);display:flex;flex-direction:column;gap:2vh;" +
-      "overflow:hidden;max-height:70vh;}" +
-      "#vista-foro .foro-titulo{margin:0;font-size:clamp(24px,2.6vw,48px);line-height:1.15;" +
-      "overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;" +
-      "-webkit-line-clamp:3;overflow:hidden;}" +
-      "#vista-foro .foro-texto{margin:0;font-size:clamp(20px,1.9vw,36px);line-height:1.35;" +
-      "overflow-wrap:anywhere;white-space:pre-line;display:-webkit-box;" +
-      "-webkit-box-orient:vertical;-webkit-line-clamp:8;overflow:hidden;}" +
-      "#vista-foro .foro-vacio{flex:1;display:flex;flex-direction:column;align-items:center;" +
-      "justify-content:center;text-align:center;gap:2vh;}" +
-      "#vista-foro .foro-vacio p{margin:0;font-size:clamp(32px,4.5vw,80px);font-weight:700;}" +
-      "#vista-foro .foro-vacio .foro-vacio-en{font-size:clamp(20px,2.5vw,44px);font-weight:400;opacity:.8;}" +
-      "#vista-foro .foro-puntos{display:flex;justify-content:center;gap:12px;min-height:16px;}" +
-      "#vista-foro .foro-punto{width:16px;height:16px;border-radius:50%;background:currentColor;opacity:.3;}" +
-      "#vista-foro .foro-punto.foro-activo{opacity:1;}";
-    var estilo = document.createElement("style");
-    estilo.id = "foro-estilos";
-    estilo.textContent = css;
-    document.head.appendChild(estilo);
-  }
 
   function recortar(texto, maximo) {
     var limpio = String(texto).replace(/\s+\n/g, "\n").trim();
@@ -200,7 +167,6 @@
   }
 
   function pintarForo(reflexiones) {
-    ponerEstilos();
     var nuevas = normalizar(reflexiones);
     var firma = JSON.stringify(nuevas);
 
