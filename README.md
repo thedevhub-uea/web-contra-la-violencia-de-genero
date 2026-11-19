@@ -43,7 +43,7 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   │   ├── participa.js    T06 · contador de caracteres del formulario
 │   │   ├── admin.js        T03 · filtros, búsqueda, novedades y confirmación del panel
 │   │   ├── avisar.js       T03 · buscador de /avisar
-│   │   ├── pantalla.js     T04 · rotación de vistas y actualización
+│   │   ├── pantalla.js     T04/T16 · rotación de vistas, actualización y barra de vistas
 │   │   ├── mural.js        T07 · pintarMural(mensajes)
 │   │   ├── video.js        T08 · iniciarVideo() / pararVideo()
 │   │   └── foro.js         T09 · pintarForo(reflexiones)
@@ -172,6 +172,16 @@ pantalla obedece en unos segundos. Las órdenes se guardan en la tabla `ajustes`
 (`pantalla_fijada`, `pantalla_salto_vista`, `pantalla_salto_id`): si se recarga `/pantalla`
 respeta la vista fijada, pero no repite un salto antiguo. Si el vídeo está fijado y no se puede
 reproducir, la pantalla rota con normalidad para no quedarse en negro.
+
+## Barra de vistas de la pantalla (T16)
+
+`pantalla.js` crea arriba de `/pantalla` una barra **solo informativa** (no clicable) con las vistas de
+`CONFIG.secuencia` (Mural / Wall · Vídeo / Video · Foro / Forum) y marca la activa con la clase
+`barra-vista--activa` y `aria-current="page"`. Se actualiza dentro de `mostrarVista()`, así que también sigue
+los saltos y las vistas fijadas desde `/admin`. Para reservar su sitio, `--barra-alto` (en `estilos.css`) es el
+inset superior de las tres vistas (`.vista`, `#vista-mural.mural`, `#vista-video.video-vista`) y se descuenta en
+el cálculo del marco del vídeo. El botón de pantalla completa se movió arriba a la izquierda, dentro de la
+franja de la barra.
 
 ## Idiomas (i18n)
 

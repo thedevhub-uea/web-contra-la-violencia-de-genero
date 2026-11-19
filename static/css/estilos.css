@@ -8,6 +8,7 @@
  *
  * Clases que usan otras tareas (acordarlas antes de cambiarlas):
  *  - T04: .vista (cada <section>), .boton-pantalla-completa
+ *  - T16: .barra-vistas (la crea pantalla.js) y --barra-alto: hueco que las tres vistas dejan arriba
  *  - T07: .burbuja, .burbuja--nueva, variable --retraso (desfase de la animación)
  *  - T08: #video25n
  *  - T09: las .foro-* que crea foro.js (ver la sección del foro más abajo)
@@ -24,6 +25,10 @@
 
   --radio: 1.25rem;
   --margen: 3vh;
+
+  /* T16: alto de la barra de vistas. Las tres vistas (.vista, #vista-mural, #vista-video)
+     dejan este hueco arriba, así que nada queda tapado por la barra. */
+  --barra-alto: 6.5vh;
 
   /* Tamaño del QR: ~26 % del alto de pantalla. En una proyección de ~1,2 m de alto
      sale un QR de unos 30 cm, suficiente para escanear a 3–4 m. */
@@ -59,7 +64,7 @@ body {
 /* ---------- Vistas (T04 muestra una y oculta las demás con el atributo hidden) ---------- */
 .vista {
   position: fixed;
-  inset: 0;
+  inset: var(--barra-alto) 0 0;
   display: flex;
   flex-direction: column;
   padding: var(--margen);
@@ -144,7 +149,7 @@ body {
 #vista-foro.vista {
   min-height: 0;
   gap: 3vh;
-  padding: 5vh 4vw;
+  padding: 3vh 4vw 5vh;
   padding-right: var(--qr-hueco); /* las tarjetas no pasan por debajo del QR */
 }
 
@@ -293,13 +298,63 @@ body {
   text-align: center;
 }
 
-/* ---------- Pantalla completa (T04) ---------- */
+/* ---------- Barra de vistas (T16) ----------
+ * La crea pantalla.js a partir de CONFIG.secuencia. Solo informa de en qué vista estamos:
+ * no es clicable (pointer-events: none). La vista activa lleva .barra-vista--activa
+ * (y aria-current="page"). */
+.barra-vistas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 12; /* por encima de las vistas; el QR (10) queda abajo y no se cruzan */
+  height: var(--barra-alto);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-bottom: 0.3vh solid var(--borde);
+  background: rgb(var(--superficie-rgb) / 0.85);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  pointer-events: none;
+}
+
+.barra-vistas ol {
+  display: flex;
+  gap: 1.6vh;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.barra-vistas li {
+  padding: 0.5vh 2.4vh;
+  border: 0.25vh solid var(--borde);
+  border-radius: 999px;
+  background: var(--superficie);
+  color: var(--texto-sec);
+  font-size: clamp(0.9rem, 2.5vh, 2rem);
+  font-weight: 600;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.barra-vistas li.barra-vista--activa {
+  border-color: var(--acento);
+  background: var(--acento);
+  color: var(--texto-inverso);
+}
+
+/* ---------- Pantalla completa (T04) ----------
+ * Arriba a la izquierda, dentro de la franja de la barra de vistas (que va centrada): así no
+ * tapa el vídeo ni los contenidos, y el QR queda abajo a la derecha. */
 .boton-pantalla-completa {
   position: fixed;
-  top: var(--margen);
-  right: var(--margen);
+  top: calc((var(--barra-alto) - 2.2em) / 2);
+  left: var(--margen);
   z-index: 20;
-  padding: 0.6em 1em;
+  height: 2.2em;
+  padding: 0 1em;
   border: 0.2vh solid var(--acento);
   border-radius: 999px;
   background: var(--superficie);

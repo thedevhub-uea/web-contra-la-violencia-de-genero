@@ -5,6 +5,7 @@
 // - Cada 10 s pide la API (URLs en <body data-api-mural / data-api-foro>) y llama a pintarMural (T07) y pintarForo (T09).
 // - Si una petición falla, se queda lo último que se pintó: nunca pantalla en blanco.
 // - Crea un botón de pantalla completa (o se puede usar F11).
+// - T16: crea una barra superior (solo informativa) con las vistas de CONFIG.secuencia y marca la activa.
 // - Cada 3 s pregunta a /api/pantalla (data-api-control) por las órdenes del panel:
 //   «saltar» a una vista (y seguir rotando desde ahí) o «fijar» una vista hasta soltarla.
 //
@@ -29,6 +30,10 @@
     CONFIG.duracionPorDefecto = seg * 1000;
     CONFIG.duracion = { mural: seg * 1000, foro: seg * 1000 };
   }
+
+  // Nombres de la barra de vistas (bilingües fijos, como el lema del QR: lo lee público de ambos
+  // idiomas). Si aparece una vista nueva en CONFIG.secuencia y no está aquí, se usa su id.
+  const NOMBRES_VISTAS = { mural: 'Mural / Wall', video: 'Vídeo / Video', foro: 'Foro / Forum' };
 
   // ---------- Rotación de vistas ----------
   const video = document.getElementById('video25n');
@@ -79,6 +84,7 @@
     }
     vistaActual = nombre;
     indice = CONFIG.secuencia.indexOf(nombre); // la rotación sigue desde aquí
+    actualizarBarra(nombre);                   // T16: cubre rotación, saltos y vistas fijadas
 
     if (nombre === 'video') arrancarVideo();
     else programarFin(nombre);
@@ -207,6 +213,36 @@
     }
   }
 
+  // ---------- Barra de vistas (T16) ----------
+  // Se crea desde aquí para no tocar el esqueleto común de pantalla.html. Solo informa: no es clicable.
+  let barra = null;
+
+  function crearBarra() {
+    barra = document.createElement('nav');
+    barra.id = 'barra-vistas';
+    barra.className = 'barra-vistas'; // estilos: estilos.css
+    barra.setAttribute('aria-label', 'Vistas / Views');
+    const lista = document.createElement('ol');
+    for (const n of CONFIG.secuencia) {
+      const item = document.createElement('li');
+      item.dataset.vista = n;
+      item.textContent = NOMBRES_VISTAS[n] || n;
+      lista.append(item);
+    }
+    barra.append(lista);
+    document.body.append(barra);
+  }
+
+  function actualizarBarra(nombre) {
+    if (!barra) return;
+    for (const item of barra.querySelectorAll('li')) {
+      const activa = item.dataset.vista === nombre;
+      item.classList.toggle('barra-vista--activa', activa);
+      if (activa) item.setAttribute('aria-current', 'page');
+      else item.removeAttribute('aria-current');
+    }
+  }
+
   // ---------- Pantalla completa ----------
   // El botón se crea desde aquí para no tocar el esqueleto común de pantalla.html.
   // Textos traducidos en <body data-textos="{…}"> (i18n); si faltan, español.
@@ -237,6 +273,7 @@
 
   // ---------- Arranque ----------
   crearBotonPantallaCompleta();
+  crearBarra();  // antes de la primera vista: mostrarVista() marca la activa
   siguiente();   // muestra la primera vista
   cicloDatos();  // primera carga de datos inmediata, luego cada 10 s
   cicloControl(); // órdenes del panel: al arrancar y luego cada 3 s

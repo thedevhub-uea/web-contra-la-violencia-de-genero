@@ -17,7 +17,7 @@
 
 #vista-mural.mural {
   position: fixed;
-  inset: 0;
+  inset: var(--barra-alto) 0 0; /* T16: deja libre la barra de vistas */
   padding: 0;
   overflow: hidden;
   isolation: isolate;
