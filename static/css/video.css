@@ -164,6 +164,24 @@
   will-change: transform;
 }
 
+/* Aviso de sonido: abajo a la izquierda (el QR va abajo a la derecha, la barra de vistas arriba). */
+#vista-video .video-aviso {
+  position: absolute;
+  left: var(--hueco);
+  bottom: 1.2vh;
+  z-index: 1;
+  margin: 0;
+  padding: .6vh 2vh;
+  border-radius: 999px;
+  font-size: clamp(.9rem, 2.2vh, 1.6rem);
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--texto-inverso);
+  background: var(--acento);
+  pointer-events: none;
+}
+#vista-video .video-aviso[hidden] { display: none; }
+
 @keyframes video-aparecer {
   from { opacity: 0; transform: translateY(-1.5vh); }
   to   { opacity: 1; transform: none; }

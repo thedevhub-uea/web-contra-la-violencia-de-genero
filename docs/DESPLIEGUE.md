@@ -72,6 +72,26 @@ cd <carpeta> && bash deploy/actualizar.sh https://thedevhub.santiagof.dev/colabo
 6. `sudo systemctl restart 25n-web` → los mensajes siguen ahí (la BD persiste).
 7. Escanear el QR desde 3–4 m en la pantalla real.
 
+### Sonido del vídeo en la sala
+
+El vídeo tiene audio, pero los navegadores no dejan reproducirlo con sonido sin un gesto del usuario. Sin
+ayuda, `/pantalla` arranca el vídeo en silencio (con un aviso) y suena solo tras un clic o una tecla.
+Para una pantalla **desatendida**, lanza el navegador permitiendo el autoplay con sonido:
+
+```bash
+# Chrome / Edge (Windows: chrome.exe o msedge.exe; Linux: google-chrome / microsoft-edge)
+chrome --autoplay-policy=no-user-gesture-required --kiosk <URL de /pantalla>
+```
+
+- La política equivalente para equipos gestionados es `AutoplayAllowed` (con `AutoplayAllowlist` para limitarla
+  a la URL de la pantalla).
+- **Audio:** en el sistema operativo, elige como salida predeterminada la del proyector (HDMI) o la de los
+  altavoces, sube el volumen y comprueba con el vídeo (`/pantalla?seg=20`, «Saltar ahora» → vídeo en `/admin`)
+  que suena por donde toca. El sitio no debe estar silenciado en el navegador (menú de la pestaña).
+- Sin ese flag, **tras recargar la página** (o reiniciar el navegador) hace falta de nuevo un clic o tecla.
+- `/pantalla?mudo` fuerza el silencio (ensayos). Si no hay audio, el vídeo sigue rotando en silencio:
+  nunca bloquea la pantalla.
+
 ## 5. Durante el evento
 
 ```bash
