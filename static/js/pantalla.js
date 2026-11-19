@@ -329,6 +329,8 @@
       } else {
         boton.textContent = t('pulsa_f11', 'Pulsa F11 para pantalla completa');
       }
+      // El clic es un gesto: permite el sonido del vídeo (T08)
+      if (typeof activarSonidoVideo === 'function') activarSonidoVideo();
       // Si el navegador había bloqueado el vídeo, el clic permite reintentarlo
       if (vistaActual === 'video' && video && video.paused) video.play().catch(() => {});
     });

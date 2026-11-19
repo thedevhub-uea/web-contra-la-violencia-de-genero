@@ -173,6 +173,10 @@ pantalla obedece en unos segundos. Las órdenes se guardan en la tabla `ajustes`
 respeta la vista fijada, pero no repite un salto antiguo. Si el vídeo está fijado y no se puede
 reproducir, la pantalla rota con normalidad para no quedarse en negro.
 
+> Si la pantalla «se queda» en una vista (p. ej. el foro) y no vuelve al mural, mira primero `/api/pantalla`
+> o la sección **Pantalla** de `/admin`: con una vista **fijada** no hay rotación (ni aro) hasta pulsar
+> **Volver a la rotación automática**. La orden se guarda en la base de datos y sobrevive a recargas.
+
 ## Foro con mensajes y reflexiones (T14)
 
 El foro de la pantalla muestra **reflexiones aprobadas y mensajes del mural visibles, mezclados**.
@@ -192,15 +196,30 @@ El foro de la pantalla muestra **reflexiones aprobadas y mensajes del mural visi
 - Prueba sin API: `/pantalla?demo-foro` (o `?demo-foro=N`, mezcla; con `&tipo=mensajes` o `&tipo=reflexiones`
   solo de un tipo). En modo demo los datos reales de la API no pisan los de prueba.
 
+## Sonido del vídeo (T08)
+
+El vídeo (`static/video/video.mp4`) tiene pista de audio y **suena**, pero los navegadores bloquean `play()` con
+sonido hasta que alguien interactúa con la página. Por eso:
+
+- Arranca **siempre en silencio** (sin atributo `muted` en el HTML: lo gestiona `video.js`) y muestra el aviso
+  «Pulsa para activar el sonido / Click to enable sound» mientras suena en silencio.
+- El **primer clic o tecla** en la página (o en el botón de pantalla completa) activa el sonido en el vídeo en
+  curso y en los siguientes ciclos, sin más clics.
+- Si el navegador rechaza el sonido, vuelve a reproducir en silencio: el audio nunca para la rotación.
+- `/pantalla?mudo` fuerza el silencio aunque haya habido clic (pruebas y ensayos).
+- Pantalla desatendida con sonido: navegador en modo kiosco con autoplay permitido
+  (`docs/DESPLIEGUE.md`, «Sonido del vídeo en la sala»).
+
 ## Caducidad de los mensajes (T15)
 
-Los **mensajes del mural** dejan de salir en pantalla pasado un tiempo (por defecto **15 min** desde que se
+Los **mensajes del mural** dejan de salir en pantalla pasado un tiempo (por defecto **20 min** desde que se
 envían). Las reflexiones **no caducan**. Caducar **no borra ni cambia ningún estado**: solo deja de mostrarse
 (en el mural y en el foro) y el mensaje sigue en `/admin`.
 
 - **Ajuste:** `mensajes_vida_min` en `/admin` → Ajustes (entero de 0 a 240; `0` = nunca caduca; para pruebas
-  vale 1). Debe ser al menos un ciclo completo de la pantalla (mural 5 min + vídeo + foro 5 min), porque si es
-  menor un mensaje puede caducar sin haberse visto.
+  vale 1). Debe ser al menos un ciclo completo de la pantalla (mural 5 min + vídeo 5:44 + foro 5 min = 15:44), porque si es
+  menor un mensaje puede caducar sin haberse visto. Por eso el valor por defecto es 20 min. (Solo cambia
+  en bases nuevas: si el ajuste ya se guardó en `/admin`, hay que subirlo allí.)
 - **La edad la calcula el servidor** (`creado` es UTC sin zona; el navegador no lo interpreta):
   `db.listar_mural(…, vida_min=)` y `db.listar_foro_mixto(…, vida_min=)` filtran en el `WHERE`, antes del
   `LIMIT`. `/api/mural` y los mensajes de `/api/foro` añaden `caduca_en` (segundos que le quedan; `null` si no

@@ -65,8 +65,9 @@ AJUSTES_POR_DEFECTO = {
     "retirar_por_avisos": "0",
     "avisos_para_ocultar": "2",  # N, si se activa retirar_por_avisos
     # T15: minutos que un mensaje del mural sigue en pantalla desde que se envía ("0" = no caduca).
+    # 20 min > ciclo completo de la pantalla (mural 5 + vídeo 5:44 + foro 5 = 15:44).
     # Solo caducan los mensajes; las reflexiones no. Caducar no borra nada: solo deja de mostrarse.
-    "mensajes_vida_min": "15",
+    "mensajes_vida_min": "20",
     # Control de /pantalla desde el panel (ver ordenar_pantalla()).
     "pantalla_fijada": "",       # '' = rotación automática; o 'mural' | 'video' | 'foro'
     "pantalla_salto_vista": "",  # última vista a la que se pidió saltar

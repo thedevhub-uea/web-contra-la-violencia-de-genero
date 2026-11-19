@@ -1,5 +1,14 @@
 // T08 — Vista de vídeo: iniciarVideo() y pararVideo().
 //
+// Sonido: el vídeo arranca SIEMPRE silenciado (los navegadores solo dejan el autoplay así). Cuando
+// alguien hace clic o pulsa una tecla en la página (o en el botón de pantalla completa) se activa el
+// sonido: suena el vídeo en curso y los siguientes ciclos, sin más clics. Mientras suena en silencio
+// se ve un aviso. Si el navegador rechaza reproducir con sonido, se reintenta en silencio: el audio
+// nunca puede parar la rotación. `?mudo` en la URL fuerza el silencio (pruebas y ensayos).
+// Para una pantalla desatendida con sonido: docs/DESPLIEGUE.md (navegador en modo kiosco). Por eso el
+// primer ciclo sin gesto sondea una vez si el navegador deja reproducir con sonido; si lo rechaza, no
+// vuelve a intentarlo hasta que haya un gesto.
+//
 // La T04 (pantalla.js) llama a iniciarVideo() al mostrar la vista de vídeo y
 // pasa a la siguiente vista con el evento `ended` del <video id="video25n">.
 //
@@ -32,6 +41,11 @@
   let marco = null;
   let bucle = 0;
   let ultimoAmbiente = 0;
+  let aviso = null;         // «Pulsa para activar el sonido»
+
+  const forzarMudo = new URLSearchParams(window.location.search).has('mudo');
+  let sonidoActivo = false; // true tras un gesto del usuario (o si el navegador deja sonar solo)
+  let sondeado = false;     // ya se probó el sonido sin gesto y el navegador lo rechazó
 
   // Cada llamada a iniciarVideo() o pararVideo() sube este número. Un reintento
   // pendiente solo reproduce si sigue siendo el último: así pararVideo() lo anula.
@@ -40,8 +54,8 @@
 
   // --- API pública -----------------------------------------------------------
 
-  // Vuelve al segundo 0 y reproduce sin sonido. Devuelve la promesa de play()
-  // (nunca lanza): si el navegador no deja reproducir, se reintenta una vez
+  // Vuelve al segundo 0 y reproduce (con sonido si ya hubo un gesto; si no, en silencio).
+  // Devuelve la promesa de play() (nunca lanza): si el navegador no deja reproducir, se reintenta una vez
   // cuando el vídeo esté listo; si tampoco, la T04 salta la vista.
   function iniciarVideo() {
     if (!video) return Promise.resolve(false);
@@ -84,8 +98,19 @@
     actualizarProgreso();
   }
 
+  // Un gesto del usuario permite el sonido: lo activa en el vídeo en curso y en los siguientes.
+  function activarSonido() {
+    if (forzarMudo) return;
+    sonidoActivo = true;
+    sondeado = false;
+    quitarEscuchaGesto();
+    if (video && !video.paused) video.muted = false;
+    actualizarAviso();
+  }
+
   window.iniciarVideo = iniciarVideo;
   window.pararVideo = pararVideo;
+  window.activarSonidoVideo = activarSonido;   // lo llama el botón de pantalla completa (pantalla.js)
 
   // --- Reproducción ----------------------------------------------------------
 
@@ -96,8 +121,24 @@
     espera = null;
   }
 
+  // Con sonido si hubo un gesto (o si aún no se ha sondeado); si el navegador lo rechaza, otra vez en
+  // silencio y se espera un gesto. Sin gesto, tras el sondeo: en silencio, que es lo que el autoplay permite.
   function reproducir() {
-    video.muted = true;   // sin sonido: los navegadores permiten el autoplay así
+    const conSonido = !forzarMudo && (sonidoActivo || !sondeado);
+    video.muted = !conSonido;
+    return intentarPlay().then(function (ok) {
+      if (ok && conSonido) sonidoActivo = true;   // el navegador deja sonar (gesto o modo kiosco)
+      if (ok || !conSonido) { actualizarAviso(); return ok; }
+      console.warn('El navegador no permite el sonido sin gesto; se reproduce en silencio.');
+      sonidoActivo = false;
+      sondeado = true;
+      escucharGesto();
+      video.muted = true;
+      return intentarPlay().then(function (r) { actualizarAviso(); return r; });
+    });
+  }
+
+  function intentarPlay() {
     const promesa = video.play();
     if (!promesa || typeof promesa.then !== 'function') return Promise.resolve(!video.paused);
     return promesa.then(
@@ -109,9 +150,25 @@
     );
   }
 
+  function escucharGesto() {
+    if (forzarMudo) return;
+    document.addEventListener('pointerdown', activarSonido, { once: true });
+    document.addEventListener('keydown', activarSonido, { once: true });
+  }
+
+  function quitarEscuchaGesto() {
+    document.removeEventListener('pointerdown', activarSonido);
+    document.removeEventListener('keydown', activarSonido);
+  }
+
+  // El aviso solo se ve mientras el vídeo suena en silencio por falta de gesto.
+  function actualizarAviso() {
+    if (!aviso) return;
+    aviso.hidden = forzarMudo || video.paused || !video.muted;
+  }
+
   function prepararVideo() {
-    video.muted = true;
-    video.defaultMuted = true;
+    video.muted = forzarMudo || !sonidoActivo;
     video.playsInline = true;
     video.controls = false;
     video.loop = false;   // `ended` tiene que llegar para pasar de vista
@@ -155,6 +212,13 @@
 
     video.replaceWith(marco);   // el <video> sigue siendo el mismo elemento (id incluido)
     marco.append(video, progreso);
+    aviso = document.createElement('p');
+    aviso.className = 'video-aviso';
+    aviso.setAttribute('role', 'status');
+    aviso.textContent = 'Pulsa para activar el sonido / Click to enable sound';   // bilingüe fijo, como el lema del QR
+    aviso.hidden = true;
+    vista.append(aviso);
+
     vista.prepend(ambiente);
     vista.insertBefore(cabecera, marco);
 
@@ -162,6 +226,7 @@
     video.addEventListener('timeupdate', actualizarTiempo);
     video.addEventListener('play', arrancarBucle);
     video.addEventListener('seeked', actualizarProgreso);
+    for (const ev of ['play', 'pause', 'volumechange', 'ended']) video.addEventListener(ev, actualizarAviso);
     if (video.readyState >= HTMLMediaElement.HAVE_METADATA) ajustarProporcion();
   }
 
@@ -241,6 +306,7 @@
 
   if (video && vista) {
     prepararVideo();
+    escucharGesto();
     video.preload = 'auto';   // que esté cargado cuando llegue su turno
     cargarEstilos();
     construir();
