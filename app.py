@@ -127,6 +127,33 @@ _AVISOS_PANEL = {
 }
 # Nombre de cada vista de /pantalla en el panel. En ?hecho=pantalla.<accion>.<n> va su posición.
 _NOMBRES_VISTAS = {"mural": _l("Mural"), "video": _l("Vídeo"), "foro": _l("Foro")}
+
+# Preguntas del foro: son las ÚNICAS de las que se puede hablar. Quien participa elige una
+# (el formulario manda su número, 1-5) y la reflexión se guarda con su «titulo», que es lo que
+# sale en la pantalla (máx. 80 caracteres, igual que el CHECK de bd/schema.sql).
+# «texto» es la pregunta completa que se ve en el formulario (traducible).
+PREGUNTAS_FORO = (
+    {"titulo": "¿Qué piensas de la utilidad del feminismo hoy en día?",
+     "texto": _l("¿Qué piensas de la utilidad del feminismo hoy en día?")},
+    {"titulo": "¿Cómo actuarías tú en ese lugar?",
+     "texto": _l("¿Cómo actuarías tú en ese lugar?")},
+    {"titulo": "¿Qué le dirías a una persona que está pasando algo así?",
+     "texto": _l("¿Qué le dirías a una persona que está pasando algo así?")},
+    {"titulo": "¿Son útiles los teléfonos de ayuda, los puntos morados y medidas similares?",
+     "texto": _l("¿Crees que son de utilidad los teléfonos de ayuda y las asistencias similares "
+                 "(puntos morados, puerta en los vestuarios, aparcamientos cerca de la entrada, etc.)? "
+                 "¿Crees que son de apoyo?")},
+    {"titulo": "¿Crees que estas situaciones siguen pasando hoy en día?",
+     "texto": _l("¿Crees que estas situaciones siguen pasando hoy en día?")},
+)
+assert all(len(p["titulo"]) <= 80 for p in PREGUNTAS_FORO)
+
+
+def _pregunta_foro(valor):
+    """Número de pregunta (texto «1»..«5») → su dict de PREGUNTAS_FORO, o None si no es válida."""
+    if valor.isdigit() and 1 <= int(valor) <= len(PREGUNTAS_FORO):
+        return PREGUNTAS_FORO[int(valor) - 1]
+    return None
 _AVISOS_ERROR = {("filtro", "invalido"), ("filtro", "repetido")}
 _ANCLA_PANEL = {"mural": "revision", "foro": "revision", "filtro": "filtro", "ajustes": "filtro",
                 "pantalla": "control-pantalla"}
@@ -285,7 +312,7 @@ def create_app():
     @app.context_processor
     def datos_idioma():
         return {"idiomas": IDIOMAS, "idioma_actual": str(get_locale() or IDIOMA_POR_DEFECTO),
-                "volver_aqui": _volver_aqui}
+                "volver_aqui": _volver_aqui, "preguntas_foro": PREGUNTAS_FORO}
 
     @app.get("/idioma/<codigo>")
     def cambiar_idioma(codigo):
@@ -331,14 +358,12 @@ def create_app():
 
     @app.post("/foro")
     def crear_foro():
-        titulo = request.form.get("titulo", "").strip()
+        # Solo se puede responder a una de las preguntas de PREGUNTAS_FORO: el título no se escribe.
+        pregunta = _pregunta_foro(request.form.get("pregunta", "").strip())
         texto = request.form.get("texto", "").strip()
 
-        if not titulo:
-            error_message = _("Escribe un título antes de enviar la reflexión.")
-        elif len(titulo) > db.MAX_FORO_TITULO:
-            error_message = _("El título no puede superar los %(num)d caracteres.",
-                              num=db.MAX_FORO_TITULO)
+        if pregunta is None:
+            error_message = _("Elige una de las preguntas antes de enviar la reflexión.")
         elif not texto:
             error_message = _("Escribe una reflexión antes de enviarla.")
         elif len(texto) > db.MAX_FORO_TEXTO:
@@ -353,7 +378,7 @@ def create_app():
                 error_message=error_message,
             ), 400
 
-        db.insertar_foro(titulo, texto)
+        db.insertar_foro(pregunta["titulo"], texto)
         return redirect(url_for("gracias"))
 
     @app.get("/gracias")

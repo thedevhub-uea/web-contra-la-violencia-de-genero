@@ -69,6 +69,9 @@ cd <carpeta> && bash deploy/actualizar.sh https://thedevhub.santiagof.dev/colabo
 4. En `/admin` (credenciales de admin): ocultar un mensaje y aprobar una reflexión.
 5. En la pantalla real (`/pantalla`, credenciales de pantalla, F11): el mensaje oculto desaparece en ≤ 10 s
    y la reflexión aprobada aparece; dejarla 15 min y comprobar que completa un ciclo entero con el vídeo.
+   El vídeo tiene audio: pulsar el botón «Pantalla completa» (cualquier clic o tecla vale) para que el
+   navegador deje sonar, o abrir Chrome con `--autoplay-policy=no-user-gesture-required`. Sin eso el
+   vídeo se reproduce, pero en silencio hasta el primer clic.
 6. `sudo systemctl restart 25n-web` → los mensajes siguen ahí (la BD persiste).
 7. Escanear el QR desde 3–4 m en la pantalla real.
 

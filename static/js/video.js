@@ -40,7 +40,7 @@
 
   // --- API pública -----------------------------------------------------------
 
-  // Vuelve al segundo 0 y reproduce sin sonido. Devuelve la promesa de play()
+  // Vuelve al segundo 0 y reproduce con sonido (sin sonido solo si el navegador lo bloquea). Devuelve la promesa de play()
   // (nunca lanza): si el navegador no deja reproducir, se reintenta una vez
   // cuando el vídeo esté listo; si tampoco, la T04 salta la vista.
   function iniciarVideo() {
@@ -96,22 +96,54 @@
     espera = null;
   }
 
+  // Primero con sonido. Si el navegador lo bloquea (autoplay con audio sin que nadie haya
+  // tocado la página), se reproduce sin sonido para no dejar la vista en negro y el sonido
+  // se activa en cuanto alguien pulse o toque la pantalla (p. ej. el botón de pantalla completa).
+  // En el equipo de la proyección conviene arrancar Chrome con
+  // --autoplay-policy=no-user-gesture-required para que suene siempre sin tocar nada.
   function reproducir() {
-    video.muted = true;   // sin sonido: los navegadores permiten el autoplay así
+    video.muted = false;
+    return intentarPlay().then(function (ok) {
+      if (ok) return true;
+      if (video.error) return false;
+      video.muted = true;
+      esperarGesto();
+      return intentarPlay();
+    });
+  }
+
+  function intentarPlay() {
     const promesa = video.play();
     if (!promesa || typeof promesa.then !== 'function') return Promise.resolve(!video.paused);
     return promesa.then(
       function () { return true; },
       function (error) {
-        console.warn('No se pudo reproducir el vídeo:', error && error.name);
+        console.warn('No se pudo reproducir el vídeo' + (video.muted ? ' (sin sonido)' : ' con sonido') + ':',
+                     error && error.name);
         return false;
       }
     );
   }
 
+  // Tras el primer gesto de usuario el navegador ya deja sonar: se quita el silencio.
+  let gestoArmado = false;
+  function esperarGesto() {
+    if (gestoArmado) return;
+    gestoArmado = true;
+    const activar = function () {
+      ['pointerdown', 'keydown', 'touchstart'].forEach(function (tipo) {
+        document.removeEventListener(tipo, activar, true);
+      });
+      gestoArmado = false;
+      video.muted = false;
+    };
+    ['pointerdown', 'keydown', 'touchstart'].forEach(function (tipo) {
+      document.addEventListener(tipo, activar, true);
+    });
+  }
+
   function prepararVideo() {
-    video.muted = true;
-    video.defaultMuted = true;
+    video.defaultMuted = false;   // el vídeo tiene audio y se tiene que oír
     video.playsInline = true;
     video.controls = false;
     video.loop = false;   // `ended` tiene que llegar para pasar de vista

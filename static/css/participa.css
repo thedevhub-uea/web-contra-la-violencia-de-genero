@@ -187,6 +187,24 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 /* Alto de los textos según la pantalla visible: cabe entero en 360×640 y no se queda
    corto en 414×896. vh de respaldo para navegadores sin svh. */
 #mural-texto { min-height: clamp(96px, 16vh, 170px); min-height: clamp(96px, 16svh, 170px); }
+/* Preguntas del foro: solo se puede responder a una de la lista (radios grandes, fáciles de tocar) */
+.preguntas { margin: 0; padding: 0; border: 0; min-width: 0; }
+.preguntas legend { padding: 0; }
+.pregunta {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  padding: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  background: var(--superficie);
+  line-height: 1.35;
+  cursor: pointer;
+}
+.pregunta input { flex: none; width: 20px; height: 20px; margin: 1px 0 0; accent-color: var(--acento); }
+.pregunta:has(input:checked) { border-color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); }
+.pregunta:has(input:focus-visible) { outline: 3px solid var(--foco-form); outline-offset: 2px; }
 #foro-texto  { min-height: clamp(130px, 28vh, 280px); min-height: clamp(130px, 28svh, 280px); }
 
 .contador {

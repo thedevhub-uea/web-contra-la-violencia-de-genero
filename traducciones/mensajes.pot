@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-19 14:57+0100\n"
+"POT-Creation-Date: 2026-11-19 21:53+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -132,9 +132,6 @@ msgstr ""
 msgid "Cerrar aviso"
 msgstr ""
 
-msgid "Comparte una reflexión más larga para el foro."
-msgstr ""
-
 #, python-format
 msgid "Con %(asterisco)s al final cubre todo lo que empiece igual (%(ejemplo)s)."
 msgstr ""
@@ -176,11 +173,13 @@ msgstr ""
 msgid "El mensaje no puede superar los %(num)d caracteres."
 msgstr ""
 
-#, python-format
-msgid "El título no puede superar los %(num)d caracteres."
+msgid "Elige la pregunta a la que respondes"
 msgstr ""
 
 msgid "Elige un motivo."
+msgstr ""
+
+msgid "Elige una de las preguntas antes de enviar la reflexión."
 msgstr ""
 
 msgid "En pantalla"
@@ -211,9 +210,6 @@ msgid "Escribe aquí tu reflexión…"
 msgstr ""
 
 msgid "Escribe un mensaje antes de enviarlo."
-msgstr ""
-
-msgid "Escribe un título antes de enviar la reflexión."
 msgstr ""
 
 msgid "Escribe una palabra del mensaje"
@@ -488,6 +484,9 @@ msgid ""
 "alguien."
 msgstr ""
 
+msgid "Responde a una de estas preguntas con tu reflexión para el foro."
+msgstr ""
+
 msgid "Resumen"
 msgstr ""
 
@@ -572,13 +571,7 @@ msgstr ""
 msgid "Términos en el filtro"
 msgstr ""
 
-msgid "Título"
-msgstr ""
-
 msgid "Un mensaje corto que aparecerá en el mural de la pantalla."
-msgstr ""
-
-msgid "Un título breve"
 msgstr ""
 
 msgid "Ver menos"
@@ -654,6 +647,18 @@ msgstr ""
 msgid "¿Borrar?"
 msgstr ""
 
+msgid "¿Crees que estas situaciones siguen pasando hoy en día?"
+msgstr ""
+
+msgid ""
+"¿Crees que son de utilidad los teléfonos de ayuda y las asistencias "
+"similares (puntos morados, puerta en los vestuarios, aparcamientos cerca "
+"de la entrada, etc.)? ¿Crees que son de apoyo?"
+msgstr ""
+
+msgid "¿Cómo actuarías tú en ese lugar?"
+msgstr ""
+
 msgid ""
 "¿Has visto en la pantalla un mensaje de odio, un insulto o datos de "
 "alguien?"
@@ -662,9 +667,15 @@ msgstr ""
 msgid "¿Has visto en la pantalla un mensaje inapropiado? Avísanos"
 msgstr ""
 
+msgid "¿Qué le dirías a una persona que está pasando algo así?"
+msgstr ""
+
 msgid "¿Qué le pasa a esta reflexión?"
 msgstr ""
 
 msgid "¿Qué le pasa a este mensaje?"
+msgstr ""
+
+msgid "¿Qué piensas de la utilidad del feminismo hoy en día?"
 msgstr ""
 
