@@ -369,11 +369,11 @@ body {
   color: var(--texto-inverso);
 }
 
-/* ---------- Aro de tiempo del mural (T17) ----------
+/* ---------- Aro de tiempo del mural y el foro (T17) ----------
  * pantalla.js crea este <svg> fijo con dos <rect pathLength="1">: la pista (tenue) y el aro, que se
  * va dibujando por el perímetro (stroke-dashoffset de 1 a 0, linear) durante exactamente lo que
- * dura el mural. La duración la pone el JS en --aro-duracion y el viewBox va en píxeles (se
- * recalcula al cambiar el tamaño). Se oculta en vídeo, foro y con el mural fijado desde /admin.
+ * dura la vista (mural o foro). La duración la pone el JS en --aro-duracion y el viewBox va en píxeles (se
+ * recalcula al cambiar el tamaño). Se oculta en el vídeo y con una vista fijada desde /admin.
  * Va por debajo de la barra de vistas (12) y del QR (10). */
 .aro-tiempo {
   position: fixed;

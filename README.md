@@ -224,17 +224,18 @@ inset superior de las tres vistas (`.vista`, `#vista-mural.mural`, `#vista-video
 el cálculo del marco del vídeo. El botón de pantalla completa se movió arriba a la izquierda, dentro de la
 franja de la barra.
 
-## Aro de tiempo del mural (T17)
+## Aro de tiempo del mural y el foro (T17)
 
-Mientras dura el mural, un aro (un `<svg>` fijo que crea `pantalla.js`) va recorriendo el borde de la pantalla
-y se completa justo cuando termina: es el tiempo que queda hasta el vídeo. Se pinta con un `<rect pathLength="1">`
+Mientras dura el mural o el foro, un aro (un `<svg>` fijo que crea `pantalla.js`) va recorriendo el borde de la
+pantalla y se completa justo cuando termina: es el tiempo que queda hasta la siguiente vista (el vídeo tiene su
+propia barra de progreso). Se pinta con un `<rect pathLength="1">`
 y la animación CSS `stroke-dashoffset` (1 → 0, lineal), no con `conic-gradient`, para que avance por perímetro
 y no por ángulo en un rectángulo 16:9. Detalles:
 
-- **La fuente de verdad es `programarFin(nombre)`:** cuando programa el temporizador del mural, arranca el aro con
-  exactamente esa duración (`CONFIG.duracion.mural`, que ya respeta `?seg=`); cuando no hay temporizador (vídeo,
-  foro o **mural fijado desde `/admin`**) lo oculta, así que con el mural fijado el aro no se llena nunca. Fijar
-  o soltar el mural desde el panel lo oculta o lo reinicia.
+- **La fuente de verdad es `programarFin(nombre)`:** cuando programa el temporizador del mural o del foro, arranca el
+  aro con exactamente esa duración (`CONFIG.duracion`, que ya respeta `?seg=`); cuando no hay temporizador (vídeo
+  o **vista fijada desde `/admin`**) lo oculta, así que con una vista fijada el aro no se llena nunca. Fijar
+  o soltar la vista desde el panel lo oculta o lo reinicia.
 - El `viewBox` va en píxeles y se recalcula en `resize` y `fullscreenchange`, descontando medio grosor para que
   el trazo no se recorte. Grosor y color: `--aro-grosor` y `--aro-color` en `paleta.css` (contraste ≥ 3:1).
 - Va por debajo de la barra de vistas y del QR. Las vistas, la barra y el botón de pantalla completa se
