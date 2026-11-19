@@ -498,10 +498,17 @@ body.admin [hidden] { display: none !important; }
 /* Control de la pantalla (saltar / fijar una vista) */
 .adm-panel-cab h2 .adm-estado { margin-left: 6px; vertical-align: middle; }
 .adm-control {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+}
+/* La rejilla solo lleva las tarjetas de vista: si «Volver a la rotación» estuviera dentro
+   (ocupando 1 / -1), auto-fit no podría plegar las columnas vacías y las tarjetas se encogerían. */
+.adm-control-vistas {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 12px;
-  padding: 16px;
 }
 .adm-control-vista {
   display: flex;
@@ -515,7 +522,7 @@ body.admin [hidden] { display: none !important; }
 .adm-control-botones { display: flex; gap: 8px; }
 .adm-control-botones form { margin: 0; flex: 1 1 0; }
 .adm-control .adm-btn[aria-pressed="true"]:disabled { opacity: 1; cursor: default; }
-.adm-control-soltar { grid-column: 1 / -1; margin: 0; }
+.adm-control-soltar { margin: 0; }
 
 /* Diálogo de confirmación */
 .adm-dialogo {

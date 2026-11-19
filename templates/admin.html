@@ -209,6 +209,7 @@
         </div>
       </header>
       <div class="adm-control">
+        <div class="adm-control-vistas">
         {% for clave, nombre in vistas.items() %}
           <div class="adm-control-vista{{ ' adm-control-fijada' if control.fijada == clave }}">
             <strong>{{ nombre }}</strong>
@@ -226,6 +227,7 @@
             </div>
           </div>
         {% endfor %}
+        </div>
         {% if control.fijada %}
           <form method="post" action="{{ url_for('admin_pantalla') }}" class="adm-control-soltar">
             <input type="hidden" name="csrf" value="{{ csrf }}">

@@ -53,13 +53,18 @@
     <section id="panel-foro" class="panel" aria-labelledby="titulo-foro">
       <form class="formulario" method="POST" action="{{ url_for('crear_foro') }}">
         <h2 id="titulo-foro">{{ _('Reflexión') }}</h2>
-        <p class="desc">{{ _('Comparte una reflexión más larga para el foro.') }}</p>
-        <label class="campo" for="foro-titulo">{{ _('Título') }}</label>
-        <input type="text" id="foro-titulo" name="titulo" maxlength="80" required
-               placeholder="{{ _('Un título breve') }}" data-contador="cont-titulo"
-               autocomplete="off" autocapitalize="sentences" enterkeyhint="next"
-               value="{% if en_foro %}{{ request.form.get('titulo', '') }}{% endif %}">
-        <div class="contador" id="cont-titulo" aria-live="polite"></div>
+        <p class="desc">{{ _('Responde a una de estas preguntas con tu reflexión para el foro.') }}</p>
+        {% set pregunta_elegida = request.form.get('pregunta', '') if en_foro else '' %}
+        <fieldset class="preguntas">
+          <legend class="campo">{{ _('Elige la pregunta a la que respondes') }}</legend>
+          {% for p in preguntas_foro %}
+          <label class="pregunta">
+            <input type="radio" name="pregunta" value="{{ loop.index }}" required
+                   {%- if pregunta_elegida == loop.index | string %} checked{% endif %}>
+            <span>{{ p.texto }}</span>
+          </label>
+          {% endfor %}
+        </fieldset>
         <label class="campo" for="foro-texto">{{ _('Tu reflexión') }}</label>
         <textarea id="foro-texto" name="texto" maxlength="1000" required
                   placeholder="{{ _('Escribe aquí tu reflexión…') }}" data-contador="cont-foro">{% if en_foro %}{{ request.form.get('texto', '') }}{% endif %}</textarea>

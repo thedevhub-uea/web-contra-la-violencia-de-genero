@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 25N VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-19 14:57+0100\n"
+"POT-Creation-Date: 2026-11-19 21:53+0100\n"
 "PO-Revision-Date: 2026-11-18 17:19+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -144,9 +144,6 @@ msgstr "Cancel"
 msgid "Cerrar aviso"
 msgstr "Close notice"
 
-msgid "Comparte una reflexión más larga para el foro."
-msgstr "Share a longer reflection for the forum."
-
 #, python-format
 msgid "Con %(asterisco)s al final cubre todo lo que empiece igual (%(ejemplo)s)."
 msgstr ""
@@ -194,12 +191,14 @@ msgstr "The word filter is empty."
 msgid "El mensaje no puede superar los %(num)d caracteres."
 msgstr "The message cannot be longer than %(num)d characters."
 
-#, python-format
-msgid "El título no puede superar los %(num)d caracteres."
-msgstr "The title cannot be longer than %(num)d characters."
+msgid "Elige la pregunta a la que respondes"
+msgstr "Choose the question you are answering"
 
 msgid "Elige un motivo."
 msgstr "Choose a reason."
+
+msgid "Elige una de las preguntas antes de enviar la reflexión."
+msgstr "Choose one of the questions before sending your reflection."
 
 msgid "En pantalla"
 msgstr "On screen"
@@ -232,9 +231,6 @@ msgstr "Write your reflection here…"
 
 msgid "Escribe un mensaje antes de enviarlo."
 msgstr "Write a message before sending it."
-
-msgid "Escribe un título antes de enviar la reflexión."
-msgstr "Write a title before sending the reflection."
 
 msgid "Escribe una palabra del mensaje"
 msgstr "Type a word from the message"
@@ -536,6 +532,9 @@ msgstr ""
 "Privacy rules: they hold back anything that could identify or locate "
 "someone."
 
+msgid "Responde a una de estas preguntas con tu reflexión para el foro."
+msgstr "Answer one of these questions with your reflection for the forum."
+
 msgid "Resumen"
 msgstr "Summary"
 
@@ -626,14 +625,8 @@ msgstr "Term removed from the filter."
 msgid "Términos en el filtro"
 msgstr "Terms in the filter"
 
-msgid "Título"
-msgstr "Title"
-
 msgid "Un mensaje corto que aparecerá en el mural de la pantalla."
 msgstr "A short message that will appear on the wall on the screen."
-
-msgid "Un título breve"
-msgstr "A short title"
 
 msgid "Ver menos"
 msgstr "Show less"
@@ -711,6 +704,21 @@ msgstr "Delete this message?"
 msgid "¿Borrar?"
 msgstr "Delete?"
 
+msgid "¿Crees que estas situaciones siguen pasando hoy en día?"
+msgstr "Do you think these situations still happen today?"
+
+msgid ""
+"¿Crees que son de utilidad los teléfonos de ayuda y las asistencias "
+"similares (puntos morados, puerta en los vestuarios, aparcamientos cerca "
+"de la entrada, etc.)? ¿Crees que son de apoyo?"
+msgstr ""
+"Do you think helplines and similar support measures (purple points, doors"
+" on changing rooms, parking spaces near the entrance, etc.) are useful? "
+"Do you think they offer support?"
+
+msgid "¿Cómo actuarías tú en ese lugar?"
+msgstr "How would you act in that place?"
+
 msgid ""
 "¿Has visto en la pantalla un mensaje de odio, un insulto o datos de "
 "alguien?"
@@ -721,9 +729,15 @@ msgstr ""
 msgid "¿Has visto en la pantalla un mensaje inapropiado? Avísanos"
 msgstr "Seen an inappropriate message on the screen? Let us know"
 
+msgid "¿Qué le dirías a una persona que está pasando algo así?"
+msgstr "What would you say to someone going through something like this?"
+
 msgid "¿Qué le pasa a esta reflexión?"
 msgstr "What is wrong with this reflection?"
 
 msgid "¿Qué le pasa a este mensaje?"
 msgstr "What is wrong with this message?"
+
+msgid "¿Qué piensas de la utilidad del feminismo hoy en día?"
+msgstr "What do you think about the usefulness of feminism today?"
 
