@@ -172,10 +172,17 @@
     let textos = {};  // traducciones de <body data-textos="{…}"> (i18n)
     try { textos = JSON.parse(document.body.dataset.textos || '{}'); } catch (_) { /* español */ }
     titulo.textContent = textos.video_titulo || 'Día Internacional para la Eliminación de la Violencia contra la Mujer';
+    // Créditos de la autora original del cortometraje (instagram.com/zoilaelectra): siempre visibles.
+    const creditos = document.createElement('span');
+    creditos.className = 'video-creditos';
+    creditos.textContent = textos.video_creditos || 'Cortometraje de zoila electra · @zoilaelectra';
+    const textosCabecera = document.createElement('span');
+    textosCabecera.className = 'video-textos';
+    textosCabecera.append(titulo, creditos);
     tiempo = document.createElement('span');
     tiempo.className = 'video-tiempo';
     tiempo.setAttribute('aria-hidden', 'true');
-    cabecera.append(insignia, titulo, tiempo);
+    cabecera.append(insignia, textosCabecera, tiempo);
 
     marco = document.createElement('div');
     marco.className = 'video-marco';

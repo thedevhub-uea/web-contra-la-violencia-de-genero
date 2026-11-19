@@ -90,6 +90,13 @@
   line-height: 1.2;
   color: var(--texto);
 }
+#vista-video .video-textos { display: flex; flex-direction: column; gap: .3vh; min-width: 0; }
+#vista-video .video-creditos {
+  font-size: clamp(.85rem, 1.9vh, 1.6rem);
+  font-weight: 500;
+  line-height: 1.2;
+  color: var(--texto-sec);
+}
 #vista-video .video-tiempo {
   margin-left: .6vh;
   padding: .5vh 1.4vh;
@@ -105,7 +112,7 @@
 #vista-video .video-marco {
   position: relative;
   aspect-ratio: var(--proporcion);
-  width: min(100%, calc((100dvh - var(--vista-top) - var(--vista-lado) - 2 * var(--hueco) - 10vh) * var(--proporcion)));
+  width: min(100%, calc((100dvh - var(--vista-top) - var(--vista-lado) - 2 * var(--hueco) - 12vh) * var(--proporcion))); /* 12vh: cabecera (título + créditos) y separación */
   padding: 1vh;
   border-radius: 3.2vh;
   background: linear-gradient(145deg, rgb(var(--superficie-rgb) / .85), rgb(var(--superficie-rgb) / .55));

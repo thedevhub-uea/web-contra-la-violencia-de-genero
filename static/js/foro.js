@@ -5,6 +5,9 @@
 //   { tipo: "mensaje",   id, titulo: null, texto } → tarjeta corta, sin título, texto grande y centrado
 // Los ids se repiten entre tablas (mural 5 y foro 5): toda identidad es tipo + ":" + id.
 //
+// configurarForo({segundosPorPagina}) cambia cada cuánto pasa de página (lo llama pantalla.js
+// con el tiempo del panel).
+//
 // Uso (desde pantalla.js, T04):
 //   pintarForo([{ tipo: "reflexion", id: 1, titulo: "...", texto: "..." }, ...]);
 // Se puede llamar cada vez que lleguen datos nuevos de /api/foro: actualiza las
@@ -19,7 +22,7 @@
   "use strict";
 
   var TARJETAS_POR_PAGINA = 3;
-  var SEGUNDOS_POR_PAGINA = 15;
+  var SEGUNDOS_POR_PAGINA = 15;   // se cambia desde el panel: configurarForo({segundosPorPagina})
   var MAX_TITULO = 80;   // igual que el CHECK de bd/schema.sql
   var MAX_TEXTO = 280;   // lo que se lee bien a distancia; el resto se corta con «…»
   var MAX_MENSAJE = 200; // igual que el límite del mural (bd/schema.sql)
@@ -188,6 +191,19 @@
       estado.temporizador = null;
     }
   }
+
+  // Tiempos del panel (los aplica pantalla.js). Si cambia el ritmo, se rehace el temporizador.
+  function configurarForo(opciones) {
+    var s = opciones && Number(opciones.segundosPorPagina);
+    if (!(s > 0) || s === SEGUNDOS_POR_PAGINA) return;
+    SEGUNDOS_POR_PAGINA = s;
+    if (estado.temporizador) {
+      clearInterval(estado.temporizador);
+      estado.temporizador = null;
+      ajustarRotacion();
+    }
+  }
+  window.configurarForo = configurarForo;
 
   function pintarForo(elementos) {
     var nuevas = normalizar(elementos);

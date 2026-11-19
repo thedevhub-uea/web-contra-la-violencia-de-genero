@@ -9,6 +9,7 @@
  *  - Filtro (Todo / Mural / Foro / Retirado / Caducado) y búsqueda en las publicaciones y en el filtro.
  *  - «Ver texto completo» en reflexiones largas.
  *  - Confirmación antes de borrar y bloqueo de dobles envíos.
+ *  - Las «i» de más información (<details class="adm-info">) se cierran al pulsar fuera o con Esc.
  *
  * La URL de /admin/estado llega en <body data-api-estado="…"> (nunca rutas escritas a mano).
  * Texto de usuario siempre con textContent.
@@ -201,5 +202,18 @@
       var b = f.querySelector('button[type=submit]');
       if (b) b.disabled = false;
     });
+  });
+
+  // ---------- «i» de más información: se cierra al pulsar fuera o con Esc ----------
+  var cerrarInfos = function (salvo) {
+    document.querySelectorAll('details.adm-info[open]').forEach(function (d) {
+      if (d !== salvo) d.open = false;
+    });
+  };
+  document.addEventListener('click', function (e) {
+    cerrarInfos(e.target.closest && e.target.closest('details.adm-info'));
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') cerrarInfos(null);
   });
 })();

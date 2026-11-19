@@ -59,6 +59,9 @@ AJUSTES_POR_DEFECTO = {
     # por defecto no salen hasta que moderación las lee y las aprueba. Relajarlo es una
     # decisión del equipo, desde el panel.
     "foro_manual": "1",
+    # Lo mismo para los mensajes del mural: por defecto se publican solos si pasan el filtro.
+    # Activado, todos esperan en «Pendientes de revisar» hasta que moderación los publique.
+    "mural_manual": "0",
     # Los avisos del público solo marcan el elemento en el panel. Retirarlo solo al llegar a
     # N avisos es opcional y va apagado: la cookie anónima se puede saltar y una sola persona
     # podría vaciar la pantalla.
@@ -67,6 +70,15 @@ AJUSTES_POR_DEFECTO = {
     # T15: minutos que un mensaje del mural sigue en pantalla desde que se envía ("0" = no caduca).
     # Solo caducan los mensajes; las reflexiones no. Caducar no borra nada: solo deja de mostrarse.
     "mensajes_vida_min": "15",
+    # Participación: si /participa admite mensajes nuevos para el mural y reflexiones para el foro.
+    # Se abren y cierran desde el panel; cerrar no retira nada de lo que ya está en pantalla.
+    "admitir_mural": "1",
+    "admitir_foro": "1",
+    # Tiempos de /pantalla, en segundos (se cambian desde el panel; ver TIEMPOS_PANTALLA).
+    "tiempo_mural_seg": "300",       # lo que dura el mural antes de pasar al vídeo
+    "tiempo_foro_seg": "300",        # lo que dura el foro antes de volver al mural
+    "tiempo_foro_pagina_seg": "15",  # cada cuánto cambia la página de tarjetas del foro
+    "tiempo_refresco_seg": "10",     # cada cuánto pide la pantalla los mensajes nuevos
     # Control de /pantalla desde el panel (ver ordenar_pantalla()).
     "pantalla_fijada": "",       # '' = rotación automática; o 'mural' | 'video' | 'foro'
     "pantalla_salto_vista": "",  # última vista a la que se pidió saltar
@@ -74,6 +86,14 @@ AJUSTES_POR_DEFECTO = {
 }
 VISTAS_PANTALLA = ("mural", "video", "foro")
 MAX_VIDA_MENSAJES_MIN = 240  # tope del ajuste mensajes_vida_min (4 horas)
+# Tiempos de /pantalla configurables desde el panel: clave del ajuste -> (mínimo, máximo) en segundos.
+# El nombre corto (sin «tiempo_» ni «_seg») es el que llega a pantalla.js en /api/pantalla.
+TIEMPOS_PANTALLA = {
+    "tiempo_mural_seg": (10, 3600),
+    "tiempo_foro_seg": (10, 3600),
+    "tiempo_foro_pagina_seg": (5, 300),
+    "tiempo_refresco_seg": (3, 300),
+}
 MOTIVOS_AVISO = {
     "odio": "Odio o discriminación",
     "acoso": "Insultos, acoso o amenazas",
@@ -199,10 +219,13 @@ def _consultar(sql, params=()):
 def insertar_mural(texto):
     """Guarda un mensaje del mural y devuelve su id.
 
-    T03: si no pasa el filtro automático se guarda retenido (no sale en pantalla).
+    T03: si no pasa el filtro automático (o si la aprobación manual del mural está
+    activada) se guarda retenido (no sale en pantalla hasta que moderación decida).
     """
     texto = texto.strip()
     motivo = filtro_actual().motivo(texto)
+    if motivo is None and leer_ajustes()["mural_manual"] == "1":
+        motivo = MOTIVO_PENDIENTE
     return _ejecutar(
         "INSERT INTO mural (texto, visible, retenido, motivo) VALUES (?, ?, ?, ?)",
         (texto, 0 if motivo else 1, 1 if motivo else 0, motivo),
@@ -379,6 +402,25 @@ def ordenar_pantalla(accion, vista=None):
 def umbral_avisos():
     valor = leer_ajustes()["avisos_para_ocultar"]
     return max(1, int(valor)) if valor.isdigit() else int(AJUSTES_POR_DEFECTO["avisos_para_ocultar"])
+
+
+def participacion():
+    """{"mural": bool, "foro": bool}: si /participa admite envíos nuevos para cada uno."""
+    ajustes = leer_ajustes()
+    return {"mural": ajustes["admitir_mural"] == "1", "foro": ajustes["admitir_foro"] == "1"}
+
+
+def tiempos_pantalla():
+    """Tiempos de /pantalla en segundos: {mural, foro, foro_pagina, refresco}.
+    Un valor guardado fuera de rango (o no numérico) vuelve al de por defecto."""
+    ajustes = leer_ajustes()
+    tiempos = {}
+    for clave, (minimo, maximo) in TIEMPOS_PANTALLA.items():
+        valor = ajustes[clave]
+        if not (valor.isdigit() and minimo <= int(valor) <= maximo):
+            valor = AJUSTES_POR_DEFECTO[clave]
+        tiempos[clave[len("tiempo_"):-len("_seg")]] = int(valor)
+    return tiempos
 
 
 def vida_mensajes_min():

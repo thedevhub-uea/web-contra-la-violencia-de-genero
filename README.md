@@ -221,8 +221,9 @@ envían). Las reflexiones **no caducan**. Caducar **no borra ni cambia ningún e
 `barra-vista--activa` y `aria-current="page"`. Se actualiza dentro de `mostrarVista()`, así que también sigue
 los saltos y las vistas fijadas desde `/admin`. Para reservar su sitio, `--barra-alto` (en `estilos.css`) es el
 inset superior de las tres vistas (`.vista`, `#vista-mural.mural`, `#vista-video.video-vista`) y se descuenta en
-el cálculo del marco del vídeo. El botón de pantalla completa se movió arriba a la izquierda, dentro de la
-franja de la barra.
+el cálculo del marco del vídeo. La barra ocupa todo el ancho, repartido a partes iguales entre las vistas, y la
+activa se marca como una pestaña (texto en acento, fondo suave y raya inferior). El botón de pantalla completa
+va abajo a la izquierda y desaparece al entrar en pantalla completa.
 
 ## Aro de tiempo del mural y el foro (T17)
 
@@ -241,6 +242,19 @@ y no por ángulo en un rectángulo 16:9. Detalles:
 - Va por debajo de la barra de vistas y del QR. Las vistas, la barra y el botón de pantalla completa se
   insertan `--aro-grosor` (`--vista-lado` / `--vista-top` en `estilos.css`) para que el aro no los pise.
 - Con `prefers-reduced-motion` el aro avanza a saltos del 1 % en vez de suavemente, pero sigue funcionando.
+
+## Panel: tiempos, participación y aprobación del mural
+
+- **Tiempos de la pantalla** (sección «Tiempos de la pantalla», `POST /admin/tiempos`): duración del mural y del
+  foro, cambio de página del foro, refresco de mensajes (en segundos) y vida de los mensajes (minutos). Se
+  guardan en la tabla `ajustes` (claves `tiempo_*_seg` y `mensajes_vida_min`; rangos en `db.TIEMPOS_PANTALLA`).
+  `/api/pantalla` los manda en `tiempos` y `pantalla.js` los aplica sin recargar: si cambia la duración de la
+  vista en curso, recalcula lo que le queda y el aro sigue desde donde iba. `?seg=` sigue mandando para pruebas.
+- **Participación** (`POST /admin/participacion`): abrir o cerrar la entrada de mensajes nuevos del mural y de
+  reflexiones del foro (`admitir_mural` / `admitir_foro`). Cerrado, `/participa` muestra un aviso en lugar del
+  formulario y el servidor rechaza los envíos (403). Lo que ya está en pantalla sigue.
+- **Aprobar a mano los mensajes del mural** (`mural_manual`, en «Ajustes»): igual que `foro_manual`; encendido,
+  todos los mensajes nuevos esperan en «Pendientes de revisar». Va apagado por defecto.
 
 ## Idiomas (i18n)
 

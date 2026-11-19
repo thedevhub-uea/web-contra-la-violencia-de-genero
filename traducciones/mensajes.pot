@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-19 21:53+0100\n"
+"POT-Creation-Date: 2026-11-20 00:48+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,13 +26,11 @@ msgstr[1] ""
 msgid "(gratuito, 24 horas, no deja rastro en la factura)."
 msgstr ""
 
-msgid ""
-"0 = los mensajes no caducan (de 0 a 240). Cuenta desde que se envía el "
-"mensaje; al caducar deja de salir en el mural y en el foro, pero no se "
-"borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no "
-"caducan. Debe durar al menos un ciclo completo de la pantalla (mural 5 "
-"min + vídeo + foro 5 min, unos 16 min con el vídeo actual): si es menos, "
-"un mensaje puede caducar sin haberse visto. Para pruebas se permite 1."
+#, python-format
+msgid "0 = no caducan. De 0 a %(max)d."
+msgstr ""
+
+msgid "Abierto"
 msgstr ""
 
 msgid "Acceso restringido"
@@ -43,6 +41,22 @@ msgid "Actualizado a las {hora}"
 msgstr ""
 
 msgid "Actualizar"
+msgstr ""
+
+msgid "Ahora mismo no se admiten mensajes nuevos para el mural."
+msgstr ""
+
+msgid ""
+"Ahora mismo no se admiten mensajes nuevos para el mural. ¡Gracias por "
+"participar!"
+msgstr ""
+
+msgid "Ahora mismo no se admiten reflexiones nuevas para el foro."
+msgstr ""
+
+msgid ""
+"Ahora mismo no se admiten reflexiones nuevas para el foro. ¡Gracias por "
+"participar!"
 msgstr ""
 
 msgid "Ajustes"
@@ -57,13 +71,31 @@ msgid ""
 "contenga."
 msgstr ""
 
+msgid ""
+"Apagado, los mensajes que pasan el filtro salen solos en la pantalla. "
+"Encendido, todos esperan en «Pendientes de revisar». La vida de un "
+"mensaje cuenta desde que se envía: si tardas en aprobarlo, sale menos "
+"tiempo."
+msgstr ""
+
 msgid "Aprobar"
 msgstr ""
 
 msgid "Aprobar a mano todas las reflexiones del foro"
 msgstr ""
 
+msgid "Aprobar a mano todos los mensajes del mural"
+msgstr ""
+
 msgid "Aquí esperan todas las reflexiones del foro y lo que ha parado el filtro."
+msgstr ""
+
+msgid "Aquí esperan todos los mensajes del mural y lo que ha parado el filtro."
+msgstr ""
+
+msgid ""
+"Aquí esperan todos los mensajes del mural y todas las reflexiones del "
+"foro."
 msgstr ""
 
 msgid "Aquí está lo que ha parado el filtro."
@@ -123,10 +155,22 @@ msgstr ""
 msgid "Búscalo aquí y pulsa %(boton)s. Es anónimo."
 msgstr ""
 
+msgid "Cada cuánto busca la pantalla mensajes nuevos o retirados."
+msgstr ""
+
+msgid "Cada página enseña 3 tarjetas."
+msgstr ""
+
 msgid "Caducado"
 msgstr ""
 
+msgid "Cambio de página del foro (segundos)"
+msgstr ""
+
 msgid "Cancelar"
+msgstr ""
+
+msgid "Cerrado"
 msgstr ""
 
 msgid "Cerrar aviso"
@@ -154,13 +198,46 @@ msgstr ""
 msgid "Contiene un número de teléfono"
 msgstr ""
 
+#, python-format
+msgid "Cortometraje de %(autora)s"
+msgstr ""
+
+msgid ""
+"Cuánto dura cada vista y cada mensaje. La pantalla aplica los cambios en "
+"unos segundos, sin recargarla."
+msgstr ""
+
 msgid "Cuántos avisos:"
 msgstr ""
 
 msgid "Código QR para participar"
 msgstr ""
 
+#, python-format
+msgid "De %(min)d a %(max)d."
+msgstr ""
+
+msgid ""
+"Decide si el público puede enviar mensajes nuevos al mural y reflexiones "
+"nuevas al foro. Cerrar no retira nada de lo que ya está en pantalla."
+msgstr ""
+
 msgid "Deja tu mensaje"
+msgstr ""
+
+msgid "Dejar de admitir"
+msgstr ""
+
+msgid "Después pasa al vídeo. 300 = 5 min."
+msgstr ""
+
+msgid "Después vuelve al mural. 300 = 5 min."
+msgstr ""
+
+msgid "Duración del foro (segundos)"
+msgstr ""
+
+msgid "Duración del mural (segundos)"
 msgstr ""
 
 msgid "Día Internacional para la Eliminación de la Violencia contra la Mujer"
@@ -252,6 +329,9 @@ msgstr ""
 msgid "Guardar ajustes"
 msgstr ""
 
+msgid "Guardar tiempos"
+msgstr ""
+
 #, python-format
 msgid ""
 "Ha caducado: ya no sale en la pantalla (vida de los mensajes: %(min)s "
@@ -285,6 +365,19 @@ msgstr ""
 
 #, python-format
 msgid "La reflexión no puede superar los %(num)d caracteres."
+msgstr ""
+
+msgid ""
+"La vida de un mensaje cuenta desde que se envía; al caducar deja de salir"
+" en el mural y en el foro, pero no se borra: sigue en «Publicaciones» "
+"como «Caducado». Las reflexiones no caducan. Conviene que dure al menos "
+"un ciclo completo de la pantalla (mural + vídeo + foro): si es menos, un "
+"mensaje puede caducar sin haberse visto."
+msgstr ""
+
+msgid ""
+"Las reflexiones del foro se publican solas, salvo lo que coincide con "
+"estas palabras o reglas: eso queda pendiente para que decidas."
 msgstr ""
 
 msgid ""
@@ -330,9 +423,6 @@ msgstr ""
 msgid "Mensajes del mural"
 msgstr ""
 
-msgid "Minutos que un mensaje del mural sigue en pantalla:"
-msgstr ""
-
 msgid "Moderación"
 msgstr ""
 
@@ -348,6 +438,9 @@ msgid "Motivo"
 msgstr ""
 
 msgid "Mural"
+msgstr ""
+
+msgid "Más información"
 msgstr ""
 
 msgid "Nada coincide con el filtro."
@@ -423,6 +516,9 @@ msgstr ""
 msgid "Participa"
 msgstr ""
 
+msgid "Participación"
+msgstr ""
+
 msgid "Pendiente"
 msgstr ""
 
@@ -477,6 +573,9 @@ msgstr ""
 
 #, python-format
 msgid "Reflexión #%(id)s retirada de la pantalla."
+msgstr ""
+
+msgid "Refresco de mensajes (segundos)"
 msgstr ""
 
 msgid ""
@@ -547,10 +646,21 @@ msgstr ""
 msgid "Siguen en la pantalla hasta que decidas: los avisos no retiran nada solos."
 msgstr ""
 
+msgid "Tiempos de la pantalla"
+msgstr ""
+
+msgid "Tiempos guardados. La pantalla los aplica en unos segundos."
+msgstr ""
+
 msgid "Todavía no hay publicaciones."
 msgstr ""
 
 msgid "Todo"
+msgstr ""
+
+msgid ""
+"Todo espera a que lo apruebes; el filtro indica además qué coincide con "
+"estas palabras o reglas."
 msgstr ""
 
 msgid "Tu mensaje"
@@ -578,6 +688,12 @@ msgid "Ver menos"
 msgstr ""
 
 msgid "Ver texto completo"
+msgstr ""
+
+msgid "Vida de cada mensaje del mural (minutos)"
+msgstr ""
+
+msgid "Volver a admitir"
 msgstr ""
 
 msgid "Volver a la rotación automática"
@@ -630,6 +746,14 @@ msgid "¡Gracias por participar!"
 msgstr ""
 
 msgid "¡Gracias!"
+msgstr ""
+
+#, python-format
+msgid "«%(vista)s» vuelve a admitir envíos nuevos."
+msgstr ""
+
+#, python-format
+msgid "«%(vista)s» ya no admite envíos nuevos. Lo que ya está en pantalla sigue."
 msgstr ""
 
 msgid ""
