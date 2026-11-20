@@ -75,7 +75,7 @@
           {% endfor %}
         </fieldset>
         <label class="campo" for="foro-texto">{{ _('Tu reflexión') }}</label>
-        <textarea id="foro-texto" name="texto" maxlength="1000" required
+        <textarea id="foro-texto" name="texto" maxlength="{{ max_foro_texto }}" required
                   placeholder="{{ _('Escribe aquí tu reflexión…') }}" data-contador="cont-foro">{% if en_foro %}{{ request.form.get('texto', '') }}{% endif %}</textarea>
         <div class="contador" id="cont-foro" aria-live="polite"></div>
         <button class="boton boton-enviar" type="submit">{{ _('Enviar reflexión') }}</button>

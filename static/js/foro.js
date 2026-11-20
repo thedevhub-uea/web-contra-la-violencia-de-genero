@@ -13,6 +13,11 @@
 // Se puede llamar cada vez que lleguen datos nuevos de /api/foro: actualiza las
 // tarjetas sin reiniciar la rotación ni provocar parpadeos si nada ha cambiado.
 //
+// Pantalla grande: cada página muestra UNA pregunta (el título de las reflexiones, que solo puede ser
+// una de las 5 preguntas del foro) entera y en grande, y debajo hasta 4 respuestas en letra grande.
+// Los mensajes del mural van en sus propias páginas («Mensajes del mural»). El tamaño de letra de cada
+// respuesta depende de su longitud (.foro-tarjeta--corta / --media / --larga).
+//
 // Los estilos de la vista están en estilos.css (sección «Foro»); este archivo no inyecta ningún <style>.
 //
 // Prueba sin API: abrir /pantalla?demo-foro (o ?demo-foro=0, =1, =20 elementos mezclados).
@@ -21,16 +26,20 @@
 (function () {
   "use strict";
 
-  var TARJETAS_POR_PAGINA = 3;
+  var PESO_POR_PAGINA = 4;   // respuestas por página: corta/media pesan 1, larga 2 (máx. 4 cortas o 2 largas)
+  var CORTA = 40;            // hasta aquí, respuesta corta (letra muy grande)
+  var MEDIA = 140;           // hasta aquí, media; más, larga
+  var TITULO_MENSAJES = "Mensajes del mural / Wall messages";
   var SEGUNDOS_POR_PAGINA = 15;   // se cambia desde el panel: configurarForo({segundosPorPagina})
   var MAX_TITULO = 80;   // igual que el CHECK de bd/schema.sql
-  var MAX_TEXTO = 280;   // lo que se lee bien a distancia; el resto se corta con «…»
+  var MAX_TEXTO = 280;   // = db.MAX_FORO_TEXTO: lo que cabe entero en una tarjeta (lo antiguo, más largo, se corta con «…»)
   var MAX_MENSAJE = 200; // igual que el límite del mural (bd/schema.sql)
   var MENSAJE_VACIO = "Escanea el QR y comparte un mensaje o una reflexión";
   var MENSAJE_VACIO_EN = "Scan the QR and share a message or a reflection";
 
   var estado = {
     elementos: [],
+    paginas: [],      // [{tipo, titulo, elementos}] agrupadas por pregunta
     firma: null,      // para saber si los datos han cambiado entre llamadas
     pagina: 0,
     temporizador: null
@@ -68,8 +77,44 @@
     return limpias;
   }
 
+  function longitud(e) {
+    var n = Math.min(e.texto.length, e.tipo === "mensaje" ? MAX_MENSAJE : MAX_TEXTO);
+    return n <= CORTA ? "corta" : n <= MEDIA ? "media" : "larga";
+  }
+
+  // Agrupa por pregunta (en el orden en que aparece cada una: lo más reciente primero) y
+  // reparte cada grupo en páginas de PESO_POR_PAGINA. Los mensajes del mural, en su propio grupo.
+  function construirPaginas(elementos) {
+    var grupos = [];
+    var porClave = {};
+    elementos.forEach(function (e) {
+      var clave = e.tipo === "mensaje" ? "\u0000mensajes" : e.titulo;
+      if (!porClave[clave]) {
+        porClave[clave] = { tipo: e.tipo, titulo: e.tipo === "mensaje" ? TITULO_MENSAJES : e.titulo, elementos: [] };
+        grupos.push(porClave[clave]);
+      }
+      porClave[clave].elementos.push(e);
+    });
+    var paginas = [];
+    grupos.forEach(function (g) {
+      var actual = null;
+      var peso = 0;
+      g.elementos.forEach(function (e) {
+        var p = longitud(e) === "larga" ? 2 : 1;
+        if (!actual || peso + p > PESO_POR_PAGINA) {
+          actual = { tipo: g.tipo, titulo: g.titulo, elementos: [] };
+          paginas.push(actual);
+          peso = 0;
+        }
+        actual.elementos.push(e);
+        peso += p;
+      });
+    });
+    return paginas;
+  }
+
   function totalPaginas() {
-    return Math.max(1, Math.ceil(estado.elementos.length / TARJETAS_POR_PAGINA));
+    return Math.max(1, estado.paginas.length);
   }
 
   function contenedor() {
@@ -82,9 +127,15 @@
     if (!vista) return null;
     if (!vista.querySelector(".foro-tarjetas")) {
       vista.textContent = "";
-      var cabecera = document.createElement("h2");
+      var cabecera = document.createElement("header");
       cabecera.className = "foro-cabecera";
-      cabecera.textContent = "Reflexiones / Reflections";
+      var etiqueta = document.createElement("p");
+      etiqueta.className = "foro-etiqueta";
+      etiqueta.textContent = "Reflexiones / Reflections";
+      var pregunta = document.createElement("h2");
+      pregunta.className = "foro-pregunta";
+      cabecera.appendChild(etiqueta);
+      cabecera.appendChild(pregunta);
       var tarjetas = document.createElement("div");
       tarjetas.className = "foro-tarjetas";
       tarjetas.setAttribute("aria-live", "polite");
@@ -97,29 +148,14 @@
     return vista;
   }
 
+  // Tarjeta de una respuesta (la pregunta va arriba, en la cabecera de la página).
   function crearTarjeta(elemento) {
     var tarjeta = document.createElement("article");
-    tarjeta.className = "foro-tarjeta foro-tarjeta--" + elemento.tipo;
+    tarjeta.className = "foro-tarjeta foro-tarjeta--" + elemento.tipo + " foro-tarjeta--" + longitud(elemento);
     if (elemento.clave != null) tarjeta.dataset.id = elemento.clave;
-
     var texto = document.createElement("p");
     texto.className = "foro-texto";
-
-    if (elemento.tipo === "mensaje") {
-      // Mensaje del mural: corto, sin título.
-      texto.textContent = recortar(elemento.texto, MAX_MENSAJE);
-      tarjeta.appendChild(texto);
-      return tarjeta;
-    }
-
-    var titulo = document.createElement("h3");
-    titulo.className = "foro-titulo";
-    titulo.textContent = recortar(elemento.titulo, MAX_TITULO);
-    titulo.title = elemento.titulo;
-    titulo.hidden = !elemento.titulo;
-    texto.textContent = recortar(elemento.texto, MAX_TEXTO);
-
-    tarjeta.appendChild(titulo);
+    texto.textContent = recortar(elemento.texto, elemento.tipo === "mensaje" ? MAX_MENSAJE : MAX_TEXTO);
     tarjeta.appendChild(texto);
     return tarjeta;
   }
@@ -155,14 +191,21 @@
     var vista = prepararVista();
     if (!vista) return;
     var zona = vista.querySelector(".foro-tarjetas");
+    var pregunta = vista.querySelector(".foro-pregunta");
     zona.textContent = "";
 
-    if (estado.elementos.length === 0) {
+    if (estado.paginas.length === 0) {
+      pregunta.textContent = "";
+      pregunta.hidden = true;
       pintarVacio(zona);
     } else {
-      var inicio = estado.pagina * TARJETAS_POR_PAGINA;
-      var visibles = estado.elementos.slice(inicio, inicio + TARJETAS_POR_PAGINA);
-      zona.style.setProperty("--foro-columnas", visibles.length);
+      var pagina = estado.paginas[estado.pagina];
+      pregunta.hidden = false;
+      pregunta.textContent = recortar(pagina.titulo, MAX_TITULO);
+      pregunta.classList.toggle("foro-pregunta--mensajes", pagina.tipo === "mensaje");
+      var visibles = pagina.elementos;
+      // 1-3 respuestas en una fila; 4, en 2 × 2 (así la letra puede ser más grande)
+      zona.style.setProperty("--foro-columnas", visibles.length === 4 ? 2 : visibles.length);
       for (var i = 0; i < visibles.length; i++) zona.appendChild(crearTarjeta(visibles[i]));
     }
     pintarPuntos(vista);
@@ -174,10 +217,10 @@
     var zona = vista && vista.querySelector(".foro-tarjetas");
     estado.pagina = (estado.pagina + 1) % totalPaginas();
     if (!zona) { pintarPagina(); return; }
-    zona.classList.add("foro-oculto");
+    vista.classList.add("foro-cambiando");
     setTimeout(function () {
       pintarPagina();
-      zona.classList.remove("foro-oculto");
+      vista.classList.remove("foro-cambiando");
     }, 600);
   }
 
@@ -215,6 +258,7 @@
     }
     estado.firma = firma;
     estado.elementos = nuevas;
+    estado.paginas = construirPaginas(nuevas);
 
     // Se mantiene la página actual si sigue existiendo; si no, se vuelve a la primera.
     if (estado.pagina >= totalPaginas()) estado.pagina = 0;
@@ -235,16 +279,18 @@
   var pintarForoDemo = pintarForo;   // la función real: window.pintarForo ignora llamadas en modo demo
   function datosDePrueba(cuantas, tipo) {
     var ejemplos = [
-      ["No estás sola", "Si te pasa a ti, habla. Hay gente dispuesta a escucharte y a ayudarte."],
-      ["El silencio no protege", "Callar ante un comentario machista también es tomar partido. Hoy decido no callar."],
-      ["Para mi madre", "Gracias por enseñarme que el respeto no se negocia y que el amor nunca duele."],
-      ["Ni una menos", "Cada 25 de noviembre recordamos a las que ya no están y luchamos por las que siguen aquí."],
-      ["Un texto muy largo para probar el recorte de las tarjetas en la pantalla proyectada",
+      ["¿Qué piensas de la utilidad del feminismo hoy en día?", "Necesario"],
+      ["¿Cómo actuarías tú en ese lugar?", "Llamaría a la policía y me quedaría con ella hasta que llegara ayuda."],
+      ["¿Qué le dirías a una persona que está pasando algo así?", "No estás sola. Te creo."],
+      ["¿Son útiles los teléfonos de ayuda, los puntos morados y medidas similares?", "Sí, aunque mucha gente no sabe que existen. Habría que darlos a conocer más en los institutos y en las fiestas de los pueblos."],
+      ["¿Crees que estas situaciones siguen pasando hoy en día?",
         "Este es un texto deliberadamente largo para comprobar que la tarjeta lo recorta con puntos " +
         "suspensivos y que se sigue leyendo bien desde el fondo de la sala. La violencia de género no " +
         "es un problema privado: es un problema social que nos afecta a todas y a todos, y que solo " +
         "se resuelve con educación, con igualdad real y con el compromiso diario de cada persona de " +
-        "no mirar hacia otro lado cuando ve algo que no está bien. <b>Esto no debe salir en negrita</b>."]
+        "no mirar hacia otro lado cuando ve algo que no está bien. <b>Esto no debe salir en negrita</b>."],
+      ["¿Qué piensas de la utilidad del feminismo hoy en día?", "Útil"],
+      ["¿Cómo actuarías tú en ese lugar?", "Policía"]
     ];
     var mensajes = [
       "Ni una menos", "Vivas, libres y sin miedo", "Te creo", "Si nos tocan a una, nos tocan a todas",
@@ -260,7 +306,7 @@
         lista.push({ tipo: "mensaje", id: i + 1, titulo: null, texto: mensajes[i % mensajes.length] });
       } else {
         var e = ejemplos[i % ejemplos.length];
-        lista.push({ tipo: "reflexion", id: i + 1, titulo: e[0] + (i >= ejemplos.length ? " (" + (i + 1) + ")" : ""), texto: e[1] });
+        lista.push({ tipo: "reflexion", id: i + 1, titulo: e[0], texto: e[1] });
       }
     }
     return lista;

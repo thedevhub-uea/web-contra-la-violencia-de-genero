@@ -30,7 +30,7 @@ FILTROS_INICIALES_PATH = BD_DIR / "filtros_iniciales.txt"
 # Longitudes máximas (las mismas que en schema.sql y en el formulario de T06).
 MAX_MURAL_TEXTO = 200
 MAX_FORO_TITULO = 80
-MAX_FORO_TEXTO = 1000
+MAX_FORO_TEXTO = 280  # lo que cabe entero en una tarjeta del foro en la pantalla (el CHECK de schema.sql admite hasta 1000)
 
 # Lista permitida para el panel de administración (T03):
 # tabla -> {acción: sentencia SQL}. Nada que llegue en la URL se

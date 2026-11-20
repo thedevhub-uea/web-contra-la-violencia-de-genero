@@ -316,6 +316,7 @@ def create_app():
     def datos_idioma():
         return {"idiomas": IDIOMAS, "idioma_actual": str(get_locale() or IDIOMA_POR_DEFECTO),
                 "volver_aqui": _volver_aqui, "preguntas_foro": PREGUNTAS_FORO,
+                "max_foro_texto": db.MAX_FORO_TEXTO,
                 # Función (no valor): solo consulta la BD en las plantillas que la usan
                 "participacion": db.participacion}
 
