@@ -41,9 +41,9 @@ if [ ! -f .env ]; then
     echo "Creado .env a partir de .env.example."
 fi
 chmod 600 .env
-if grep -Eq '^(ADMIN_PASS|PANTALLA_PASS)=\s*$' .env; then
-    echo "AVISO: faltan contraseñas en $APP_DIR/.env (ADMIN_PASS y/o PANTALLA_PASS)."
-    echo "       Rellénalas y vuelve a ejecutar este script."
+if grep -Eq '^ADMIN_PASS=\s*$' .env; then
+    echo "AVISO: falta la contraseña ADMIN_PASS en $APP_DIR/.env."
+    echo "       Rellénala y vuelve a ejecutar este script."
     exit 1
 fi
 

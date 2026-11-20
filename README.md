@@ -119,8 +119,8 @@ Nombres de las rutas (el nombre de la función en `app.py` = endpoint de `url_fo
 | `avisar_elemento` | `/avisar/<tabla>/<int:id>` (público) | GET, POST | T03 |
 | `cambiar_idioma` | `/idioma/<codigo>?volver=<ruta>` (guarda la cookie y vuelve) | GET | i18n |
 
-Usuarios de HTTP Basic Auth: `admin` y `pantalla` (variables `ADMIN_USER`/`PANTALLA_USER` en `.env`),
-con las contraseñas `ADMIN_PASS` y `PANTALLA_PASS`.
+Usuario de HTTP Basic Auth: `admin` (variable `ADMIN_USER` en `.env`), con la contraseña `ADMIN_PASS`.
+`/pantalla` y `/api/*` son públicos (solo devuelven contenido publicable).
 
 ## Colores y contraste (T13)
 

@@ -15,7 +15,6 @@ PREFIJO="$(printf '%s' "$BASE" | sed -E 's|^https?://[^/]+||')"
 cd "$(dirname "$0")/.."
 [ -f .env ] && { set -a; . ./.env; set +a; }
 ADMIN_USER="${ADMIN_USER:-admin}"
-PANTALLA_USER="${PANTALLA_USER:-pantalla}"
 
 fallos=0
 ok()    { printf '  \033[32mOK\033[0m    %s\n' "$*"; }
@@ -43,20 +42,10 @@ else
 fi
 espera "CSS estático"                           200 /static/css/estilos.css
 
-espera "/pantalla sin credenciales"             401 /pantalla
-espera "/api/mural sin credenciales"            401 /api/mural
-espera "/api/foro sin credenciales"             401 /api/foro
+espera "/pantalla sin credenciales (pública)"   200 /pantalla
+espera "/api/mural sin credenciales (pública)"  200 /api/mural
+espera "/api/foro sin credenciales (pública)"   200 /api/foro
 espera "/admin sin credenciales"                401 /admin
-
-if [ -n "${PANTALLA_PASS:-}" ]; then
-    P="$PANTALLA_USER:$PANTALLA_PASS"
-    espera "/pantalla con credenciales de pantalla"  200 /pantalla "$P"
-    espera "/api/mural con credenciales de pantalla" 200 /api/mural "$P"
-    espera "/api/foro con credenciales de pantalla"  200 /api/foro "$P"
-    espera "/admin con credenciales de pantalla"     "401|403" /admin "$P"
-else
-    fallo "PANTALLA_PASS no está en .env: no se prueban las credenciales de pantalla"
-fi
 
 if [ -n "${ADMIN_PASS:-}" ]; then
     espera "/admin con credenciales de admin" 200 /admin "$ADMIN_USER:$ADMIN_PASS"
