@@ -2,7 +2,7 @@
 
 Responsables:
 - T01: creación de la app, init de la BD, POST /mural, POST /foro, /participa, /gracias
-- T02: decorador de HTTP Basic Auth, GET /api/mural, GET /api/foro, GET /pantalla
+- T02: decorador de HTTP Basic Auth, GET /api/mural, GET /api/foro, GET /pantalla (públicos)
 - T03: GET /admin y POST /admin/<tabla>/<id>/<accion>, más el filtro automático
        (/admin/filtros, /admin/ajustes) y los avisos del público (/avisar)
 - i18n: idiomas con Flask-Babel (español y inglés). Textos con _() / _l();
@@ -33,7 +33,7 @@ from bd import db
 
 # --- T02: HTTP Basic Auth -----------------------------------------------------
 # Usuarios y contraseñas solo desde variables de entorno (.env), nunca en el código.
-# Rol "admin": /admin, /pantalla y /api/*. Rol "pantalla": /pantalla y /api/*.
+# Solo existe el rol "admin" (/admin). /pantalla y /api/* son públicos (solo contenido publicable).
 # Si falta la contraseña de un rol, ese rol no puede entrar.
 
 def _cuentas():
@@ -41,7 +41,6 @@ def _cuentas():
     cuentas = {}
     for rol, var_usuario, var_pass in (
         ("admin", "ADMIN_USER", "ADMIN_PASS"),
-        ("pantalla", "PANTALLA_USER", "PANTALLA_PASS"),
     ):
         usuario = os.environ.get(var_usuario) or rol
         password = os.environ.get(var_pass)
@@ -401,15 +400,13 @@ def create_app():
     def gracias():
         return render_template("gracias.html")
 
-    # --- T02: pantalla y API JSON (solo contenido publicable) ---------------
+    # --- T02: pantalla y API JSON (públicas: solo contenido publicable) -----
 
     @app.get("/pantalla")
-    @requiere_rol("admin", "pantalla")
     def pantalla():
         return render_template("pantalla.html")
 
     @app.get("/api/mural")
-    @requiere_rol("admin", "pantalla")
     def api_mural():
         # T15: los mensajes caducados ya no salen; caduca_en = segundos que le quedan (None: no caduca).
         vida = db.vida_mensajes_min()
@@ -418,7 +415,6 @@ def create_app():
                         for m in mensajes])
 
     @app.get("/api/foro")
-    @requiere_rol("admin", "pantalla")
     def api_foro():
         # T14: reflexiones aprobadas y mensajes del mural visibles, mezclados. Los ids se repiten
         # entre tablas: el cliente debe identificar cada elemento por tipo + id.
@@ -434,7 +430,6 @@ def create_app():
         return jsonify(salida)
 
     @app.get("/api/pantalla")
-    @requiere_rol("admin", "pantalla")
     def api_pantalla():
         """Órdenes del panel: vista fijada, último salto pedido y tiempos (lo consulta pantalla.js)."""
         resp = jsonify({**db.estado_pantalla(), "tiempos": db.tiempos_pantalla()})

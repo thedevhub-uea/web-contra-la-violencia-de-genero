@@ -24,7 +24,7 @@ Móvil / pantalla ──HTTPS──▶ NGINX (443)
 ```bash
 git clone https://github.com/thedevhub-uea/web-contra-la-violencia-de-genero.git <carpeta>
 cd <carpeta>
-cp .env.example .env && nano .env      # contraseñas largas y distintas para admin y pantalla
+cp .env.example .env && nano .env      # contraseña larga para admin
 bash deploy/instalar.sh
 ```
 
@@ -67,7 +67,7 @@ cd <carpeta> && bash deploy/actualizar.sh https://thedevhub.santiagof.dev/colabo
 2. Escanear el QR desde **2–3 móviles con datos móviles** (sin wifi del centro), Android e iPhone.
 3. Enviar un mensaje burbuja y una reflexión desde cada uno → aparece `/gracias`.
 4. En `/admin` (credenciales de admin): ocultar un mensaje y aprobar una reflexión.
-5. En la pantalla real (`/pantalla`, credenciales de pantalla, F11): el mensaje oculto desaparece en ≤ 10 s
+5. En la pantalla real (`/pantalla`, sin credenciales, F11): el mensaje oculto desaparece en ≤ 10 s
    y la reflexión aprobada aparece; dejarla 15 min y comprobar que completa un ciclo entero con el vídeo.
    El vídeo tiene audio: pulsar el botón «Pantalla completa» (cualquier clic o tecla vale) para que el
    navegador deje sonar, o abrir Chrome con `--autoplay-policy=no-user-gesture-required`. Sin eso el
