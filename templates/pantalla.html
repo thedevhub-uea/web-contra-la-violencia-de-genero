@@ -39,8 +39,13 @@
 
   <!-- Transición entre vistas / pantalla de inicio: la portada (sin logos) y la etiqueta «Siguiente» -->
   <div id="transicion-pantalla" aria-hidden="true">
-    <img src="{{ url_for('static', filename='img/conecta/conecta_portada_sin_logos.png') }}" alt="">
+    <div class="trans-lienzo">
+      <img src="{{ url_for('static', filename='img/conecta/conecta_portada_sin_logos.png') }}" alt="">
+      <span class="trans-destello"></span>
+    </div>
     <p class="trans-etiqueta panel-conecta" hidden><span class="es"></span> <span aria-hidden="true">/</span> <span class="en"></span></p>
+    <div class="trans-progreso"><span></span></div>
+    <p class="trans-cuenta"></p>
   </div>
 
   <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>

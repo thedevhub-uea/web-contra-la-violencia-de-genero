@@ -585,3 +585,51 @@ body.trans-entrando .vista { animation: aparecer-vista 0.5s ease both; }
   #transicion-pantalla img { animation: none !important; }
   #transicion-pantalla, .vista { transition: none; }
 }
+
+/* Transición viva: el fondo se mueve (zoom + deriva lenta), un destello recorre el panel del título,
+ * una barra se llena durante todo el tiempo y la cuenta atrás avisa de lo que queda. */
+#transicion-pantalla .trans-lienzo { position: absolute; inset: 0; }
+#transicion-pantalla.trans-visible .trans-lienzo { animation: trans-deriva var(--trans-dur, 15s) ease-in-out forwards; }
+#transicion-pantalla.trans-visible img { animation: none; }
+@keyframes trans-deriva {
+  from { transform: scale(1) translate(0, 0); }
+  to { transform: scale(1.06) translate(-0.8%, -0.6%); }
+}
+#transicion-pantalla .trans-destello {
+  position: absolute;
+  left: 21%; top: 23%; width: 58%; height: 48%;   /* sobre el panel del título de la portada */
+  overflow: hidden;
+  border-radius: 6px;
+  pointer-events: none;
+}
+#transicion-pantalla .trans-destello::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; width: 30%;
+  background: linear-gradient(100deg, transparent, rgb(var(--blanco-rgb) / .16), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+}
+#transicion-pantalla.trans-visible:not(.trans-inicio) .trans-destello::after { animation: trans-destello 5s ease-in-out infinite; }
+@keyframes trans-destello { 0% { transform: translateX(-120%) skewX(-18deg); } 55%, 100% { transform: translateX(480%) skewX(-18deg); } }
+#transicion-pantalla .trans-etiqueta { animation: trans-etiqueta-in .8s ease-out .5s both; }
+@keyframes trans-etiqueta-in { from { opacity: 0; translate: 0 2vh; } to { opacity: 1; translate: 0 0; } }
+#transicion-pantalla .trans-progreso {
+  position: absolute; left: 12%; right: 12%; top: 88%;
+  height: 0.7vh; border-radius: 999px; overflow: hidden;
+  background: rgb(var(--blanco-rgb) / .18);
+}
+#transicion-pantalla .trans-progreso span {
+  display: block; height: 100%; width: 100%;
+  background: var(--degradado);
+  transform-origin: left; transform: scaleX(0);
+}
+#transicion-pantalla.trans-visible:not(.trans-inicio) .trans-progreso span { animation: trans-llenar var(--trans-dur, 15s) linear forwards; }
+@keyframes trans-llenar { to { transform: scaleX(1); } }
+#transicion-pantalla .trans-cuenta {
+  position: absolute; left: 0; right: 0; top: 90.5%; margin: 0; text-align: center;
+  color: var(--text-muted); font-size: clamp(0.9rem, 2.2vh, 1.6rem); font-weight: 700; letter-spacing: 0.1em;
+}
+#transicion-pantalla.trans-inicio .trans-progreso, #transicion-pantalla.trans-inicio .trans-cuenta { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  #transicion-pantalla .trans-lienzo, #transicion-pantalla .trans-destello::after, #transicion-pantalla .trans-etiqueta { animation: none !important; }
+}

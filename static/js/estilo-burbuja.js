@@ -57,13 +57,13 @@
     estrella: estrella(),
     hexagono: 'M50 2L92 26V74L50 98L8 74V26Z',
     gota: 'M50 2C50 2 14 42 14 64C14 84 30 98 50 98C70 98 86 84 86 64C86 42 50 2 50 2Z',
-    // Lazo morado: dos lóbulos que se cruzan arriba y dos colas.
-    lazo: 'M50 48C12 30 20 2 50 2C80 2 88 30 50 48L76 98L60 98L50 78L40 98L24 98Z',
+    // Lazo morado: lóbulo redondo arriba y dos colas que se cruzan.
+    lazo: 'M50 52C8 32 16 2 50 2C84 2 92 32 50 52Z M46 46L60 50L44 98L27 91Z M40 50L54 46L73 91L57 98Z',
   };
   // Margen interior del texto en % de la caja: [arriba, derecha, abajo, izquierda].
   var MARGEN_TEXTO = {
     circulo: [15, 15, 15, 15], cuadrado: [9, 9, 9, 9], corazon: [20, 17, 26, 17], nube: [9, 9, 30, 9],
-    estrella: [30, 28, 24, 28], hexagono: [15, 12, 15, 12], gota: [38, 17, 15, 17], lazo: [9, 22, 50, 22],
+    estrella: [30, 28, 24, 28], hexagono: [15, 12, 15, 12], gota: [38, 17, 15, 17], lazo: [9, 24, 48, 24],
   };
 
   var RE_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -162,7 +162,33 @@
       }
     }
     svg.appendChild(path);
-    var filtros = [];
+
+    // Relieve: volumen (sombra abajo a la derecha), luz suave arriba a la izquierda, borde de luz y brillo
+    // especular recortado con la propia forma. Así la burbuja no se ve plana.
+    function degradado(el, paradas) {
+      paradas.forEach(function (p) {
+        el.appendChild(nodo('stop', { offset: p[0], 'stop-color': p[1], 'stop-opacity': p[2] }));
+      });
+      return el;
+    }
+    var luz = degradado(nodo('radialGradient', { id: id + 'l', cx: '0.3', cy: '0.2', r: '0.75' }),
+      [['0', '#ffffff', '.55'], ['.45', '#ffffff', '.08'], ['1', '#ffffff', '0']]);
+    var vol = degradado(nodo('linearGradient', { id: id + 'v', x1: '0.15', y1: '0.1', x2: '0.85', y2: '0.95' }),
+      [['0', '#ffffff', '.25'], ['.45', '#000000', '0'], ['1', '#000000', '.5']]);
+    var brillo = degradado(nodo('linearGradient', { id: id + 'g', x1: '0', y1: '0', x2: '0', y2: '1' }),
+      [['0', '#ffffff', '.75'], ['1', '#ffffff', '0']]);
+    var recorte = nodo('clipPath', { id: id + 'c' });
+    recorte.appendChild(nodo('path', { d: TRAZADOS[s.forma] }));
+    [luz, vol, brillo, recorte].forEach(function (n) { defs.appendChild(n); });
+    var base = { d: TRAZADOS[s.forma], 'stroke-linejoin': 'round' };
+    svg.appendChild(nodo('path', Object.assign({ fill: 'url(#' + id + 'v)' }, base)));
+    svg.appendChild(nodo('path', Object.assign({ fill: 'url(#' + id + 'l)' }, base)));
+    svg.appendChild(nodo('path', Object.assign({ fill: 'none', stroke: '#ffffff', 'stroke-opacity': '.38', 'stroke-width': '1.2' }, base)));
+    var gloss = nodo('g', { 'clip-path': 'url(#' + id + 'c)' });
+    gloss.appendChild(nodo('ellipse', { cx: '36', cy: '21', rx: '23', ry: '9', fill: 'url(#' + id + 'g)',
+      opacity: '.55', transform: 'rotate(-22 36 21)' }));
+    svg.appendChild(gloss);
+    var filtros = ['drop-shadow(0 1.4cqmin 1.8cqmin rgba(0,0,0,.55))'];
     if (s.glow.intensidad > 0) filtros.push('drop-shadow(0 0 ' + (s.glow.intensidad * 0.12).toFixed(2) + 'cqmin ' + s.glow.color + ')');
     if (s.sombra > 0) filtros.push('drop-shadow(0 ' + (s.sombra * 0.1).toFixed(2) + 'cqmin ' + (s.sombra * 0.15).toFixed(2) + 'cqmin rgba(0,0,0,.65))');
     if (filtros.length) svg.style.filter = filtros.join(' ');
@@ -176,12 +202,13 @@
     var p = document.createElement('p');
     var largo = Math.max(1, String(texto).length);
     var factor = largo <= 18 ? 1 : Math.max(0.42, Math.sqrt(18 / largo));
-    p.style.fontSize = (11 * TAMANOS[s.texto.tam] * factor * (s.forma === 'estrella' ? 0.8 : 1)).toFixed(2) + 'cqmin';
+    p.style.fontSize = (11 * TAMANOS[s.texto.tam] * factor * (s.forma === 'estrella' ? 0.8 : s.forma === 'lazo' ? 0.7 : 1)).toFixed(2) + 'cqmin';
     p.style.color = s.texto.color;
     p.style.fontFamily = FUENTES[s.texto.fuente];
     p.style.fontWeight = s.texto.negrita ? '800' : '500';
     p.style.fontStyle = s.texto.cursiva ? 'italic' : 'normal';
     p.style.textAlign = ALINEACIONES[s.texto.alinea];
+    p.style.textShadow = '0 0.4cqmin 0.8cqmin rgba(0,0,0,.35)';
     p.textContent = texto;
     caja.appendChild(p);
     el.appendChild(caja);

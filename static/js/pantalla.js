@@ -91,7 +91,7 @@
   // que se muestra con un zoom muy lento; se cambia de vista por detrás y la portada se desvanece
   // (~500 ms) dejando ver la nueva. No se interrumpe nunca un vídeo en reproducción: solo se
   // transiciona al CAMBIAR de vista. Se activa y se ajusta desde el panel (/api/pantalla).
-  const TRANS = { activa: true, seg: 3, etiquetas: {}, enCurso: false, destino: null };
+  const TRANS = { activa: true, seg: 15, etiquetas: {}, enCurso: false, destino: null };
   const FUNDIDO = 500;
   const capaTrans = document.getElementById('transicion-pantalla');
 
@@ -107,6 +107,18 @@
     }
   }
 
+  // Cuenta atrás visible («12 s»): la pantalla de transición cambia con el tiempo, no es una imagen fija.
+  let reloj = null;
+  function iniciarCuentaAtras(total) {
+    const el = capaTrans && capaTrans.querySelector('.trans-cuenta');
+    clearInterval(reloj);
+    if (!el) return;
+    const fin = performance.now() + total;
+    const pintar = () => { el.textContent = Math.max(0, Math.ceil((fin - performance.now()) / 1000)) + ' s'; };
+    pintar();
+    reloj = setInterval(() => { pintar(); if (performance.now() >= fin) clearInterval(reloj); }, 250);
+  }
+
   // destino: {vista} o {pregunta: n}. aMitad() hace el cambio real mientras la portada lo tapa.
   // Devuelve false si no hay transición (el cambio lo hace quien llama) o si ya hay una en curso.
   function transicionar(destino, aMitad) {
@@ -117,6 +129,7 @@
     const retencion = Math.max(500, total - 2 * FUNDIDO);
     document.body.classList.add('trans-saliendo');          // la vista actual hace fade-out
     capaTrans.style.setProperty('--trans-dur', (total / 1000) + 's');
+    iniciarCuentaAtras(total);
     capaTrans.classList.remove('trans-fuera');
     capaTrans.classList.add('trans-visible');
     // Tras el fundido la portada es opaca; se espera y, justo antes de revelar, se cambia de vista
@@ -145,7 +158,7 @@
   function aplicarTransicion(t) {
     if (!t || typeof t !== 'object') return;
     TRANS.activa = t.activa !== false;
-    if (Number.isFinite(t.seg) && t.seg >= 1 && t.seg <= 10) TRANS.seg = t.seg;
+    if (Number.isFinite(t.seg) && t.seg >= 1 && t.seg <= 60) TRANS.seg = t.seg;
     if (t.etiquetas && typeof t.etiquetas === 'object') TRANS.etiquetas = t.etiquetas;
   }
 
@@ -451,7 +464,7 @@
   }
 
   // ---------- Arranque ----------
-  crearBotonPantallaCompleta();
+  // (sin botón de pantalla completa: F11)
   crearBarra();  // antes de la primera vista: mostrarVista() marca la activa
   crearAro();    // antes de la primera vista: programarFin() lo arranca o lo oculta
   siguiente();   // muestra la primera vista (detrás de la portada de inicio, que se retira sola)

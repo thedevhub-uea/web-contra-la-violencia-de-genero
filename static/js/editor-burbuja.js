@@ -99,7 +99,7 @@
   function colores(f, leer, poner, paleta) {
     var botones = (paleta || COLORES).map(function (c) {
       var b = el('button', { type: 'button', className: 'eb-color', title: c });
-      b.style.background = c;
+      b.style.backgroundColor = c;
       b.setAttribute('aria-label', c);
       b.onclick = function () { cambiar(function (e) { poner(e, c); }); };
       f.appendChild(b);
