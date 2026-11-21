@@ -8,13 +8,19 @@
     terminos   [{id, termino}] del filtro de palabras
     ajustes    {enlaces, correos, telefonos, usuarios, foro_manual, mural_manual, retirar_por_avisos: '1'|'0',
                 avisos_para_ocultar, mensajes_vida_min}
+    control    {fijada, salto_vista, salto_id} de /pantalla      tiempos  {mural, foro, foro_pagina, refresco}
+    transicion {activa, seg, …}                                  vistas   {clave: nombre} de las vistas de /pantalla
     csrf       token que lleva cada formulario (ver _token_csrf() en app.py)
-    aviso      (opcional) {texto, tipo: 'ok'|'error'} de la última acción
+    aviso      (opcional) {texto, tipo: 'ok'|'error'} de la última acción (solo sin JavaScript)
     resaltar   (opcional) 'mural-5' o 'foro-3': la fila de la última acción
 
   Todo el texto lo escapa Jinja: no usar |safe aquí.
-  Sin JavaScript todo funciona; static/js/admin.js añade filtros, búsqueda, avisos de novedades
-  y la confirmación antes de borrar.
+
+  Sin JavaScript todo funciona (cada botón es un formulario que recarga la página).
+  Con JavaScript (static/js/admin.js) nada recarga: los formularios se envían con fetch, el
+  servidor comprueba el cambio en la BD y el panel vuelve a pedir esta misma página y cambia solo
+  los bloques marcados con data-vivo="…" (los que tengan algo a medio escribir se respetan).
+  Lo mismo cada pocos segundos si /admin/estado dice que hay novedades.
 -#}
 {%- from '_idioma.html' import selector_idioma with context -%}
 {%- set avisados = elementos | selectattr('avisos') | list -%}
@@ -39,6 +45,10 @@
 {%- elif n == 'bandera' -%}<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>
 {%- elif n == 'escudo' -%}<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
 {%- elif n == 'mas' -%}<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+{%- elif n == 'pantalla' -%}<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
+{%- elif n == 'reloj' -%}<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+{%- elif n == 'puerta' -%}<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+{%- elif n == 'lista' -%}<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 {%- endif -%}
 </svg>
 {%- endmacro -%}
@@ -58,7 +68,7 @@
 {%- macro fila(e, seccion) -%}
 {%- set ref = e.tabla ~ '-' ~ e.id -%}
 <li class="adm-fila{{ ' adm-fila-oculta' if e.estado == 'oculto' and seccion == 'pub' }}{{ ' adm-fila-reciente' if resaltar == ref }}"
-    id="{{ seccion }}-{{ ref }}" data-tipo="{{ e.tabla }}" data-estado="{{ e.estado }}">
+    id="{{ seccion }}-{{ ref }}" data-clave="{{ ref }}" data-tipo="{{ e.tabla }}" data-estado="{{ e.estado }}">
   <div class="adm-fila-cuerpo">
     <div class="adm-meta">
       <span class="adm-tipo">{{ _('Mural') if e.tabla == 'mural' else _('Foro') }}</span>
@@ -103,12 +113,24 @@
 {%- endmacro -%}
 
 {#- Botón «i» de más información: el texto de ayuda largo se abre al pulsarlo (sin JS, con <details>). -#}
+{#- Botón «i» de más información: el texto de ayuda largo se abre al pulsarlo (sin JS, con <details>). -#}
 {%- macro info(texto) -%}
 <details class="adm-info"><summary aria-label="{{ _('Más información') }}" title="{{ _('Más información') }}">i</summary>
 <div class="adm-info-texto" role="note">{{ texto }}</div></details>
 {%- endmacro -%}
 {%- macro vacio(texto) -%}
 <p class="adm-vacio">{{ icono('bandeja') }}{{ texto }}</p>
+{%- endmacro -%}
+{#- Interruptor: un botón role="switch" que envía su formulario (abrir/cerrar, activar/desactivar). -#}
+{%- macro interruptor(accion_url, encendido, nombre, detalle_si, detalle_no, ocultos) -%}
+<form method="post" action="{{ accion_url }}" class="adm-interruptor-form">
+  <input type="hidden" name="csrf" value="{{ csrf }}">
+  {%- for k, v in ocultos.items() %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endfor %}
+  <button type="submit" class="adm-interruptor" role="switch" aria-checked="{{ 'true' if encendido else 'false' }}">
+    <span class="adm-interruptor-pista" aria-hidden="true"></span>
+    <span class="adm-interruptor-txt"><b>{{ nombre }}</b><small>{{ detalle_si if encendido else detalle_no }}</small></span>
+  </button>
+</form>
 {%- endmacro -%}
 <!DOCTYPE html>
 <html lang="{{ idioma_actual }}">
@@ -123,20 +145,19 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/burbuja-estilo.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
-<body class="admin" data-avisos="{{ avisados | length }}" data-retenidos="{{ retenidos | length }}"
-      data-api-estado="{{ url_for('admin_estado') }}"
+<body class="admin" data-api-estado="{{ url_for('admin_estado') }}" data-version="{{ version }}"
       data-textos='{{ {
-        "actualizado": _("Actualizado a las {hora}"),
+        "en_directo": _("En directo · {hora}"),
+        "sin_conexion": _("Sin conexión: reintentando…"),
         "cerrar_aviso": _("Cerrar aviso"),
-        "aviso_1": _("{n} aviso por revisar"),
-        "aviso_n": _("{n} avisos por revisar"),
-        "retenido_1": _("{n} retenido por el filtro"),
-        "retenido_n": _("{n} retenidos por el filtro"),
-        "novedades": _("Novedades ({hora}): {lista}."),
+        "nuevas_1": _("{n} publicación nueva"),
+        "nuevas_n": _("{n} publicaciones nuevas"),
         "titulo": _("Moderación"),
         "ver_completo": _("Ver texto completo"),
         "ver_menos": _("Ver menos"),
         "no_deshacer": _("Esta acción no se puede deshacer."),
+        "error_red": _("No se ha podido guardar: revisa la conexión y vuelve a intentarlo."),
+        "error_sesion": _("La sesión ha caducado. Recarga la página para volver a entrar."),
       } | tojson }}'>
   <header class="adm-barra">
     <div class="adm-barra-in">
@@ -145,13 +166,10 @@
         <div><strong>{{ _('Moderación') }}</strong><small>{{ _('Web contra la violencia de género') }}</small></div>
       </div>
       <div class="adm-barra-der">
+        <span class="adm-vivo" id="adm-vivo" role="status" hidden><span class="adm-vivo-punto" aria-hidden="true"></span><span id="adm-vivo-texto"></span></span>
         {{ selector_idioma('adm-idioma') }}
-        <span class="adm-hora" id="adm-hora" hidden></span>
-        <a class="adm-btn adm-btn-barra" href="{{ url_for('admin') }}">{{ icono('actualizar') }}<span>{{ _('Actualizar') }}</span></a>
+        <a class="adm-btn adm-btn-barra adm-solo-sin-js" href="{{ url_for('admin') }}">{{ icono('actualizar') }}<span>{{ _('Actualizar') }}</span></a>
       </div>
-    </div>
-    <div class="adm-novedades" id="adm-novedades" role="status" hidden>
-      <span id="adm-novedades-texto"></span> <a href="{{ url_for('admin') }}">{{ _('Actualizar') }}</a>
     </div>
   </header>
 
@@ -163,20 +181,22 @@
 
     <h1 class="solo-lectores">{{ _('Panel de moderación') }}</h1>
 
-    <ul class="adm-resumen" aria-label="{{ _('Resumen') }}">
+    <ul class="adm-resumen" aria-label="{{ _('Resumen') }}" data-vivo="resumen">
       <li><a class="adm-dato {{ 'adm-dato-peligro' if avisados }}" href="#avisos">
         <span class="adm-dato-num">{{ avisados | length }}</span><span class="adm-dato-txt">{{ _('Avisos por revisar') }}</span></a></li>
       <li><a class="adm-dato {{ 'adm-dato-alerta' if retenidos }}" href="#retenidos">
         <span class="adm-dato-num">{{ retenidos | length }}</span><span class="adm-dato-txt">{{ _('Pendientes de revisar') }}</span></a></li>
       <li><a class="adm-dato" href="#publicado">
         <span class="adm-dato-num">{{ en_pantalla | length }}</span><span class="adm-dato-txt">{{ _('En pantalla') }}</span></a></li>
-      <li><a class="adm-dato" href="#filtro">
-        <span class="adm-dato-num">{{ terminos | length }}</span><span class="adm-dato-txt">{{ _('Términos en el filtro') }}</span></a></li>
+      <li><a class="adm-dato" href="#control-pantalla">
+        <span class="adm-dato-num adm-dato-vista">{{ vistas[control.fijada] if control.fijada else _('Rotando') }}</span>
+        <span class="adm-dato-txt">{{ _('Pantalla fijada') if control.fijada else _('Pantalla') }}</span></a></li>
     </ul>
 
-    <div id="revision" class="adm-revision">
+    <div class="adm-columnas">
+    <div class="adm-col adm-col-principal" id="revision">
       {# ---------- 1. Avisos del público (/avisar) ---------- #}
-      <section id="avisos" class="adm-panel {{ 'adm-panel-peligro' if avisados }}" aria-labelledby="t-avisos">
+      <section id="avisos" class="adm-panel {{ 'adm-panel-peligro' if avisados }}" aria-labelledby="t-avisos" data-vivo="avisos">
         <header class="adm-panel-cab">
           <div>
             <h2 id="t-avisos">{{ icono('bandera') }} {{ _('Avisos del público') }} <span class="adm-cuenta">{{ avisados | length }}</span></h2>
@@ -193,7 +213,7 @@
       </section>
 
       {# ---------- 2. Pendientes: reflexiones por aprobar y lo que ha parado el filtro ---------- #}
-      <section id="retenidos" class="adm-panel {{ 'adm-panel-alerta' if retenidos }}" aria-labelledby="t-retenidos">
+      <section id="retenidos" class="adm-panel {{ 'adm-panel-alerta' if retenidos }}" aria-labelledby="t-retenidos" data-vivo="retenidos">
         <header class="adm-panel-cab">
           <div>
             <h2 id="t-retenidos">{{ icono('escudo') }} {{ _('Pendientes de revisar') }} <span class="adm-cuenta">{{ retenidos | length }}</span></h2>
@@ -210,38 +230,69 @@
           {{ vacio(_('No hay nada pendiente.')) }}
         {% endif %}
       </section>
+
+      {# ---------- 3. Todo lo publicado y lo retirado ---------- #}
+      <section id="publicado" class="adm-panel" aria-labelledby="t-publicado">
+        <header class="adm-panel-cab">
+          <div>
+            <h2 id="t-publicado">{{ icono('lista') }} {{ _('Publicaciones') }} <span class="adm-cuenta" data-vivo="cuenta-pub">{{ publicados | length }}</span></h2>
+            <p>{{ _('Lo que está en la pantalla y lo retirado. «Retirar» lo quita en la siguiente actualización sin borrarlo.') }}</p>
+          </div>
+          <div class="adm-herramientas" id="herramientas-pub" hidden>
+            <div class="adm-segmentos" role="group" aria-label="{{ _('Filtrar publicaciones') }}">
+              <button type="button" data-filtro="todo" aria-pressed="true">{{ _('Todo') }}</button>
+              <button type="button" data-filtro="mural" aria-pressed="false">{{ _('Mural') }}</button>
+              <button type="button" data-filtro="foro" aria-pressed="false">{{ _('Foro') }}</button>
+              <button type="button" data-filtro="oculto" aria-pressed="false">{{ _('Retirado') }} <span data-vivo="cuenta-retirados">{{ retirados | length }}</span></button>
+              <button type="button" data-filtro="caducado" aria-pressed="false">{{ _('Caducado') }} <span data-vivo="cuenta-caducados">{{ caducados | length }}</span></button>
+            </div>
+            <label class="adm-buscar">
+              <span class="solo-lectores">{{ _('Buscar en las publicaciones') }}</span>{{ icono('buscar') }}
+              <input type="search" id="buscar-pub" placeholder="{{ _('Buscar texto…') }}" autocomplete="off">
+            </label>
+          </div>
+        </header>
+        <div data-vivo="lista-pub">
+        {% if publicados %}
+          <ul class="adm-filas" id="lista-pub">
+            {% for e in publicados %}{{ fila(e, 'pub') }}{% endfor %}
+            <li class="adm-sin-resultados" hidden>{{ _('Nada coincide con el filtro.') }}</li>
+          </ul>
+        {% else %}
+          {{ vacio(_('Todavía no hay publicaciones.')) }}
+        {% endif %}
+        </div>
+      </section>
     </div>
 
-    {# ---------- Control de la pantalla: saltar a una vista o fijarla ---------- #}
-    <section id="control-pantalla" class="adm-panel" aria-labelledby="t-control">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-control">{{ _('Pantalla') }}
-            {%- if control.fijada %} <span class="adm-estado adm-estado-retenido">{{ _('Fijada en %(vista)s', vista=vistas[control.fijada]) }}</span>
-            {%- else %} <span class="adm-estado adm-estado-visible">{{ _('Rotación automática') }}</span>{% endif %}</h2>
-          <p>{{ _('«Saltar» cambia la vista una vez y sigue rotando desde ahí. «Fijar» la deja quieta hasta que vuelvas a la rotación. La pantalla obedece en unos segundos.') }}</p>
-        </div>
-      </header>
-      <div class="adm-control">
-        <div class="adm-control-vistas">
-        {% for clave, nombre in vistas.items() %}
-          <div class="adm-control-vista{{ ' adm-control-fijada' if control.fijada == clave }}">
-            <strong>{{ nombre }}</strong>
-            <div class="adm-control-botones">
-              {% for accion, texto in [('saltar', _('Saltar ahora')), ('fijar', _('Fijar'))] %}
-                <form method="post" action="{{ url_for('admin_pantalla') }}">
-                  <input type="hidden" name="csrf" value="{{ csrf }}">
-                  <input type="hidden" name="accion" value="{{ accion }}">
-                  <input type="hidden" name="vista" value="{{ clave }}">
-                  <button type="submit" class="adm-btn{{ ' adm-btn-principal' if accion == 'fijar' and control.fijada == clave }}"
-                          aria-label="{{ texto }}: {{ nombre }}"
-                          {%- if accion == 'fijar' and control.fijada == clave %} aria-pressed="true" disabled{% endif %}>{{ _('Fijada') if accion == 'fijar' and control.fijada == clave else texto }}</button>
-                </form>
-              {% endfor %}
-            </div>
+    <div class="adm-col adm-col-lateral">
+      {# ---------- Control de la pantalla: saltar a una vista o fijarla ---------- #}
+      <section id="control-pantalla" class="adm-panel" aria-labelledby="t-control" data-vivo="pantalla">
+        <header class="adm-panel-cab">
+          <div>
+            <h2 id="t-control">{{ icono('pantalla') }} {{ _('Pantalla') }}
+              {%- if control.fijada %} <span class="adm-estado adm-estado-retenido">{{ _('Fijada en %(vista)s', vista=vistas[control.fijada]) }}</span>
+              {%- else %} <span class="adm-estado adm-estado-visible">{{ _('Rotación automática') }}</span>{% endif %}</h2>
           </div>
+          {{ info(_('«Saltar» cambia la vista una vez y sigue rotando desde ahí. «Fijar» la deja quieta hasta que vuelvas a la rotación. La pantalla obedece en unos segundos.')) }}
+        </header>
+        <ul class="adm-vistas">
+        {% for clave, nombre in vistas.items() %}
+          <li class="adm-vista{{ ' adm-vista-fijada' if control.fijada == clave }}">
+            <strong>{{ nombre }}</strong>
+            {% for accion, texto in [('saltar', _('Saltar')), ('fijar', _('Fijar'))] %}
+              <form method="post" action="{{ url_for('admin_pantalla') }}">
+                <input type="hidden" name="csrf" value="{{ csrf }}">
+                <input type="hidden" name="accion" value="{{ accion }}">
+                <input type="hidden" name="vista" value="{{ clave }}">
+                <button type="submit" class="adm-btn adm-btn-peq{{ ' adm-btn-principal' if accion == 'fijar' and control.fijada == clave }}"
+                        aria-label="{{ texto }}: {{ nombre }}"
+                        {%- if accion == 'fijar' and control.fijada == clave %} aria-pressed="true" disabled{% endif %}>{{ _('Fijada') if accion == 'fijar' and control.fijada == clave else texto }}</button>
+              </form>
+            {% endfor %}
+          </li>
         {% endfor %}
-        </div>
+        </ul>
         {% if control.fijada %}
           <form method="post" action="{{ url_for('admin_pantalla') }}" class="adm-control-soltar">
             <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -249,188 +300,126 @@
             <button type="submit" class="adm-btn adm-btn-principal">{{ icono('actualizar') }}<span>{{ _('Volver a la rotación automática') }}</span></button>
           </form>
         {% endif %}
-      </div>
-    </section>
+      </section>
 
-    {# ---------- Participación: admitir o no envíos nuevos desde /participa ---------- #}
-    {% set abierto = participacion() %}
-    <section id="participacion" class="adm-panel" aria-labelledby="t-participacion">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-participacion">{{ _('Participación') }}</h2>
-          <p>{{ _('Decide si el público puede enviar mensajes nuevos al mural y reflexiones nuevas al foro. Cerrar no retira nada de lo que ya está en pantalla.') }}</p>
-        </div>
-      </header>
-      <div class="adm-control">
-        <div class="adm-control-vistas">
+      {# ---------- Participación: admitir o no envíos nuevos desde /participa ---------- #}
+      {% set abierto = participacion() %}
+      <section id="participacion" class="adm-panel" aria-labelledby="t-participacion" data-vivo="participacion">
+        <header class="adm-panel-cab">
+          <div><h2 id="t-participacion">{{ icono('puerta') }} {{ _('Participación') }}</h2></div>
+          {{ info(_('Decide si el público puede enviar mensajes nuevos al mural y reflexiones nuevas al foro. Cerrar no retira nada de lo que ya está en pantalla.')) }}
+        </header>
+        <div class="adm-interruptores">
         {% for clave, nombre in [('mural', _('Mensajes del mural')), ('foro', _('Reflexiones del foro'))] %}
-          <div class="adm-control-vista{{ ' adm-control-cerrada' if not abierto[clave] }}">
-            <strong>{{ nombre }}
-              {%- if abierto[clave] %} <span class="adm-estado adm-estado-visible">{{ _('Abierto') }}</span>
-              {%- else %} <span class="adm-estado adm-estado-retenido">{{ _('Cerrado') }}</span>{% endif %}</strong>
-            <form method="post" action="{{ url_for('admin_participacion') }}">
-              <input type="hidden" name="csrf" value="{{ csrf }}">
-              <input type="hidden" name="destino" value="{{ clave }}">
-              <input type="hidden" name="accion" value="{{ 'cerrar' if abierto[clave] else 'abrir' }}">
-              <button type="submit" class="adm-btn{{ ' adm-btn-principal' if not abierto[clave] }}">
-                {{- _('Dejar de admitir') if abierto[clave] else _('Volver a admitir') }}</button>
-            </form>
+          {{ interruptor(url_for('admin_participacion'), abierto[clave], nombre, _('Se admiten envíos nuevos'), _('Cerrado: no se admiten envíos'),
+                         {'destino': clave, 'accion': 'cerrar' if abierto[clave] else 'abrir'}) }}
+        {% endfor %}
+        </div>
+      </section>
+
+      {# ---------- Tiempos de la pantalla (y transición entre vistas) ---------- #}
+      <section id="tiempos" class="adm-panel" aria-labelledby="t-tiempos">
+        <header class="adm-panel-cab">
+          <div><h2 id="t-tiempos">{{ icono('reloj') }} {{ _('Tiempos de la pantalla') }}</h2></div>
+          {{ info(_('Cuánto dura cada vista y cada mensaje. La pantalla aplica los cambios en unos segundos, sin recargarla.')) }}
+        </header>
+        <div class="adm-interruptores" data-vivo="transicion">
+          {{ interruptor(url_for('admin_transicion'), transicion.activa, _('Transición entre vistas'), _('Portada de CONECTA entre mural, vídeo y foro'), _('Desactivada: cambia de vista directamente'),
+                         {'accion': 'desactivar' if transicion.activa else 'activar'}) }}
+        </div>
+        <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_tiempos') }}" data-vivo="tiempos">
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <div class="adm-tiempos-campos">
+          {% for clave, corto, texto, ayuda in [
+               ('tiempo_mural_seg', 'mural', _('Mural'), _('Segundos que dura el mural antes de pasar al vídeo. 300 = 5 min.')),
+               ('tiempo_foro_seg', 'foro', _('Foro'), _('Segundos que dura el foro antes de volver al mural. 300 = 5 min.')),
+               ('tiempo_foro_pagina_seg', 'foro_pagina', _('Página del foro'), _('Segundos de cada página del foro (una pregunta con sus respuestas).')),
+               ('tiempo_refresco_seg', 'refresco', _('Refresco'), _('Cada cuántos segundos busca la pantalla mensajes nuevos o retirados.')),
+             ] %}
+            {% set minimo, maximo = limites_tiempos[clave] %}
+            <label class="adm-tiempo">
+              <span class="adm-tiempo-nombre">{{ texto }} {{ info(ayuda ~ ' ' ~ _('De %(min)d a %(max)d.', min=minimo, max=maximo)) }}</span>
+              <span class="adm-unidad"><input type="number" name="{{ clave }}" min="{{ minimo }}" max="{{ maximo }}" inputmode="numeric" required value="{{ tiempos[corto] }}"><span>s</span></span>
+            </label>
+          {% endfor %}
+            <label class="adm-tiempo">
+              <span class="adm-tiempo-nombre">{{ _('Transición') }} {{ info(_('Duración de la portada entre vistas, con su cuenta atrás. De 1 a 60. Recomendado: 15.')) }}</span>
+              <span class="adm-unidad"><input type="number" name="transicion_seg" min="1" max="60" step="0.5" inputmode="decimal" required value="{{ transicion.seg | round(1) | string | replace('.0', '') }}"><span>s</span></span>
+            </label>
+            <label class="adm-tiempo">
+              <span class="adm-tiempo-nombre">{{ _('Vida de un mensaje') }} {{ info(_('La vida de un mensaje cuenta desde que se envía; al caducar deja de salir en el mural y en el foro, pero no se borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no caducan. 0 = no caducan.')) }}</span>
+              <span class="adm-unidad"><input type="number" name="mensajes_vida_min" min="0" max="{{ max_vida_min }}" inputmode="numeric" required value="{{ ajustes.mensajes_vida_min }}"><span>min</span></span>
+            </label>
           </div>
-        {% endfor %}
-        </div>
-      </div>
-    </section>
+          <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar tiempos') }}</button>
+        </form>
+      </section>
 
-    {# ---------- Tiempos de la pantalla: cuánto dura cada cosa ---------- #}
-    <section id="tiempos" class="adm-panel" aria-labelledby="t-tiempos">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-tiempos">{{ _('Tiempos de la pantalla') }}</h2>
-          <p>{{ _('Cuánto dura cada vista y cada mensaje. La pantalla aplica los cambios en unos segundos, sin recargarla.') }}</p>
-        </div>
-      </header>
-      <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_tiempos') }}">
-        <input type="hidden" name="csrf" value="{{ csrf }}">
-        <div class="adm-tiempos-campos">
-        {% for clave, corto, texto, ayuda in [
-             ('tiempo_mural_seg', 'mural', _('Duración del mural (segundos)'), _('Después pasa al vídeo. 300 = 5 min.')),
-             ('tiempo_foro_seg', 'foro', _('Duración del foro (segundos)'), _('Después vuelve al mural. 300 = 5 min.')),
-             ('tiempo_foro_pagina_seg', 'foro_pagina', _('Cambio de página del foro (segundos)'), _('Cada página enseña 3 tarjetas.')),
-             ('tiempo_refresco_seg', 'refresco', _('Refresco de mensajes (segundos)'), _('Cada cuánto busca la pantalla mensajes nuevos o retirados.')),
-           ] %}
-          {% set minimo, maximo = limites_tiempos[clave] %}
-          <label class="adm-tiempo">
-            <span class="adm-tiempo-nombre">{{ texto }} {{ info(ayuda) }}</span>
-            <input type="number" name="{{ clave }}" min="{{ minimo }}" max="{{ maximo }}" inputmode="numeric" required value="{{ tiempos[corto] }}">
-            <span class="adm-ayuda">{{ _('De %(min)d a %(max)d.', min=minimo, max=maximo) }}</span>
-          </label>
-        {% endfor %}
-          <label class="adm-tiempo">
-            <span class="adm-tiempo-nombre">{{ _('Vida de cada mensaje del mural (minutos)') }} {{ info(_('La vida de un mensaje cuenta desde que se envía; al caducar deja de salir en el mural y en el foro, pero no se borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no caducan. Conviene que dure al menos un ciclo completo de la pantalla (mural + vídeo + foro): si es menos, un mensaje puede caducar sin haberse visto.')) }}</span>
-            <input type="number" name="mensajes_vida_min" min="0" max="{{ max_vida_min }}" inputmode="numeric" required value="{{ ajustes.mensajes_vida_min }}">
-            <span class="adm-ayuda">{{ _('0 = no caducan. De 0 a %(max)d.', max=max_vida_min) }}</span>
-          </label>
-        </div>
-        <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar tiempos') }}</button>
-      </form>
-    </section>
-
-    {# ---------- CONECTA: transición entre vistas y preguntas del foro ---------- #}
-    <section id="transicion" class="adm-panel" aria-labelledby="t-transicion">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-transicion">{{ _('Transición entre vistas') }}</h2>
-          <p>{{ _('Pantalla intermedia con la portada que se ve al cambiar de vista. No afecta al móvil.') }}</p>
-        </div>
-      </header>
-      <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_transicion') }}">
-        <input type="hidden" name="csrf" value="{{ csrf }}">
-        <label class="adm-tiempo"><span class="adm-tiempo-nombre">
-          <input type="checkbox" name="transicion_activa" value="1"{% if transicion.activa %} checked{% endif %}>
-          {{ _('Activar la transición') }}</span></label>
-        <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ _('Duración (segundos)') }}</span>
-          <input type="number" name="transicion_seg" min="1" max="60" step="0.5" value="{{ transicion.seg }}">
-          <span class="adm-ayuda">{{ _('De 1 a 60. Recomendado: 15.') }}</span></label>
-        <div class="adm-tiempos-campos">
-        {% for v, nombre in [('mural', _('Mural')), ('video', _('Vídeo')), ('foro', _('Foro'))] %}
-          <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ nombre }} · ES</span>
-            <input type="text" name="trans_{{ v }}_es" maxlength="60" value="{{ transicion.etiquetas[v].es }}"></label>
-          <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ nombre }} · EN</span>
-            <input type="text" name="trans_{{ v }}_en" maxlength="60" value="{{ transicion.etiquetas[v].en }}"></label>
-        {% endfor %}
-        </div>
-        <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar transición') }}</button>
-      </form>
-    </section>
-
-    <section id="preguntas" class="adm-panel" aria-labelledby="t-preguntas">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-preguntas">{{ _('Preguntas del foro (ES / EN)') }}</h2>
-          <p>{{ _('Salen juntas en español e inglés en la pantalla y en el móvil. Las respuestas ya enviadas se mantienen.') }}</p>
-        </div>
-      </header>
-      <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_preguntas') }}">
-        <input type="hidden" name="csrf" value="{{ csrf }}">
-        {% for p in preguntas %}
-        <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ p.id }} · ES</span>
-          <textarea name="es_{{ p.id }}" maxlength="400" rows="2" required>{{ p.text_es }}</textarea></label>
-        <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ p.id }} · EN</span>
-          <textarea name="en_{{ p.id }}" maxlength="400" rows="2">{{ p.text_en }}</textarea></label>
-        {% endfor %}
-        <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar preguntas') }}</button>
-      </form>
-    </section>
-
-    {# ---------- 3. Todo lo publicado y lo retirado ---------- #}
-    <section id="publicado" class="adm-panel" aria-labelledby="t-publicado">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-publicado">{{ _('Publicaciones') }} <span class="adm-cuenta">{{ publicados | length }}</span></h2>
-          <p>{{ _('Lo que está en la pantalla y lo retirado. «Retirar» lo quita en la siguiente actualización sin borrarlo.') }}</p>
-        </div>
-        {% if publicados %}
-        <div class="adm-herramientas" id="herramientas-pub" hidden>
-          <div class="adm-segmentos" role="group" aria-label="{{ _('Filtrar publicaciones') }}">
-            <button type="button" data-filtro="todo" aria-pressed="true">{{ _('Todo') }}</button>
-            <button type="button" data-filtro="mural" aria-pressed="false">{{ _('Mural') }}</button>
-            <button type="button" data-filtro="foro" aria-pressed="false">{{ _('Foro') }}</button>
-            <button type="button" data-filtro="oculto" aria-pressed="false">{{ _('Retirado') }} <span>{{ retirados | length }}</span></button>
-            <button type="button" data-filtro="caducado" aria-pressed="false">{{ _('Caducado') }} <span>{{ caducados | length }}</span></button>
-          </div>
-          <label class="adm-buscar">
-            <span class="solo-lectores">{{ _('Buscar en las publicaciones') }}</span>{{ icono('buscar') }}
-            <input type="search" id="buscar-pub" placeholder="{{ _('Buscar texto…') }}" autocomplete="off">
-          </label>
-        </div>
-        {% endif %}
-      </header>
-      {% if publicados %}
-        <ul class="adm-filas" id="lista-pub">
-          {% for e in publicados %}{{ fila(e, 'pub') }}{% endfor %}
-          <li class="adm-sin-resultados" hidden>{{ _('Nada coincide con el filtro.') }}</li>
-        </ul>
-      {% else %}
-        {{ vacio(_('Todavía no hay publicaciones.')) }}
-      {% endif %}
-    </section>
-
-    {# ---------- 4. Filtro automático ---------- #}
-    <section id="filtro" class="adm-panel" aria-labelledby="t-filtro">
-      <header class="adm-panel-cab">
-        <div>
-          <h2 id="t-filtro">{{ _('Filtro automático') }}</h2>
-          <p>{% if ajustes.foro_manual == '1' and ajustes.mural_manual == '1' %}{{ _('Todo espera a que lo apruebes; el filtro indica además qué coincide con estas palabras o reglas.') }}
+      {# ---------- Filtro automático ---------- #}
+      <section id="filtro" class="adm-panel" aria-labelledby="t-filtro">
+        <header class="adm-panel-cab">
+          <div><h2 id="t-filtro">{{ icono('escudo') }} {{ _('Filtro automático') }}</h2></div>
+        </header>
+        <form class="adm-bloque adm-reglas" method="post" action="{{ url_for('admin_ajustes') }}" data-vivo="ajustes" data-auto>
+          <input type="hidden" name="csrf" value="{{ csrf }}">
+          <p class="adm-ayuda adm-ayuda-primera">
+            {%- if ajustes.foro_manual == '1' and ajustes.mural_manual == '1' %}{{ _('Todo espera a que lo apruebes; el filtro indica además qué coincide con estas palabras o reglas.') }}
             {%- elif ajustes.foro_manual == '1' %}{{ _('Los mensajes del mural se publican solos, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}
             {%- elif ajustes.mural_manual == '1' %}{{ _('Las reflexiones del foro se publican solas, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}
             {%- else %}{{ _('Los mensajes y las reflexiones se publican solos, salvo lo que coincide con estas palabras o reglas: eso queda pendiente para que decidas.') }}{% endif %}</p>
-        </div>
-      </header>
-      <div class="adm-filtro">
+          <h3>{{ _('Aprobación a mano') }}</h3>
+          <label class="adm-check">
+            <input type="checkbox" name="foro_manual" value="1" {{ 'checked' if ajustes.foro_manual == '1' }}>
+            <span>{{ _('Todas las reflexiones del foro') }}</span>
+            {{ info(_('Recomendado: las reflexiones pueden contar casos reales con nombres o lugares que el filtro no detecta.')) }}
+          </label>
+          <label class="adm-check">
+            <input type="checkbox" name="mural_manual" value="1" {{ 'checked' if ajustes.mural_manual == '1' }}>
+            <span>{{ _('Todos los mensajes del mural') }}</span>
+            {{ info(_('Apagado, los mensajes que pasan el filtro salen solos en la pantalla. Encendido, todos esperan en «Pendientes de revisar». La vida de un mensaje cuenta desde que se envía: si tardas en aprobarlo, sale menos tiempo.')) }}
+          </label>
+
+          <h3>{{ _('Privacidad') }} {{ info(_('Reglas de privacidad: retienen lo que pueda identificar o localizar a alguien.')) }}</h3>
+          {% for clave, texto in [('enlaces', _('Retener enlaces (www…, http…, .com)')), ('correos', _('Retener correos electrónicos')),
+                                  ('telefonos', _('Retener números de teléfono')), ('usuarios', _('Retener @usuarios de redes sociales'))] %}
+            <label class="adm-check">
+              <input type="checkbox" name="{{ clave }}" value="1" {{ 'checked' if ajustes[clave] == '1' }}>
+              <span>{{ texto }}</span>
+            </label>
+          {% endfor %}
+
+          <h3>{{ _('Avisos del público') }}</h3>
+          <label class="adm-check">
+            <input type="checkbox" name="retirar_por_avisos" value="1" {{ 'checked' if ajustes.retirar_por_avisos == '1' }}>
+            <span>{{ _('Retirar sola de la pantalla una publicación con muchos avisos') }}</span>
+            {{ info(_('Mejor dejarlo apagado: una sola persona podría vaciar la pantalla enviando avisos. Lo retirado así no se borra: espera a que decidas.')) }}
+          </label>
+          <label class="adm-numero">
+            <span>{{ _('Cuántos avisos:') }}</span>
+            <input type="number" name="avisos_para_ocultar" min="1" max="50" inputmode="numeric" required value="{{ ajustes.avisos_para_ocultar }}">
+          </label>
+          <button type="submit" class="adm-btn adm-btn-principal adm-solo-sin-js">{{ _('Guardar ajustes') }}</button>
+        </form>
+
         <div class="adm-bloque">
-          <h3>{{ _('Palabras y expresiones') }} <span class="adm-cuenta">{{ terminos | length }}</span></h3>
-          <form method="post" action="{{ url_for('admin_filtro_anadir') }}" class="adm-anadir">
+          <h3>{{ _('Palabras y expresiones') }} <span class="adm-cuenta" data-vivo="cuenta-terminos">{{ terminos | length }}</span>
+            {{ info(_('No hace falta escribir tildes, plurales ni trucos: «zorra» ya cubre «ZORRAS», «z0rra» o «z.o.r.r.a». Con * al final cubre todo lo que empiece igual («maric*»). Al añadir un término también se retira lo que ya esté en pantalla y lo contenga.')) }}</h3>
+          <form method="post" action="{{ url_for('admin_filtro_anadir') }}" class="adm-anadir" data-limpiar>
             <input type="hidden" name="csrf" value="{{ csrf }}">
             <label class="solo-lectores" for="nuevo-termino">{{ _('Palabra o expresión para filtrar') }}</label>
             <input id="nuevo-termino" name="termino" type="text" required maxlength="61" autocomplete="off"
                    autocapitalize="off" spellcheck="false" placeholder="{{ _('Palabra o expresión') }}">
             <button type="submit" class="adm-btn adm-btn-principal">{{ icono('mas') }}<span>{{ _('Añadir') }}</span></button>
           </form>
-          <p class="adm-ayuda">
-            {{ _('No hace falta escribir tildes, plurales ni trucos: %(ejemplo)s ya cubre «ZORRAS», «z0rra» o «z.o.r.r.a».', ejemplo='<b>zorra</b>'|safe) }}
-            {{ _('Con %(asterisco)s al final cubre todo lo que empiece igual (%(ejemplo)s).', asterisco='<b>*</b>'|safe, ejemplo='<b>maric*</b>'|safe) }}
-            {{ _('Al añadir un término también se retira lo que ya esté en pantalla y lo contenga.') }}
-          </p>
-          {% if terminos | length > 12 %}
           <label class="adm-buscar adm-buscar-filtro" hidden>
             <span class="solo-lectores">{{ _('Buscar en el filtro') }}</span>{{ icono('buscar') }}
             <input type="search" id="buscar-filtro" placeholder="{{ _('Buscar en el filtro…') }}" autocomplete="off">
           </label>
-          {% endif %}
+          <div data-vivo="terminos">
           {% if terminos %}
             <ul class="adm-chips" id="lista-filtro">
             {% for t in terminos %}
-              <li class="adm-chip">
+              <li class="adm-chip" data-clave="filtro-{{ t.id }}">
                 <span>{{ t.termino }}</span>
                 <form method="post" action="{{ url_for('admin_filtro_quitar', id=t.id) }}">
                   <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -442,46 +431,14 @@
           {% else %}
             {{ vacio(_('El filtro de palabras está vacío.')) }}
           {% endif %}
+          </div>
         </div>
-
-        <form class="adm-bloque adm-reglas" method="post" action="{{ url_for('admin_ajustes') }}">
-          <input type="hidden" name="csrf" value="{{ csrf }}">
-          <h3>{{ _('Ajustes') }}</h3>
-          <label class="adm-check">
-            <input type="checkbox" name="foro_manual" value="1" {{ 'checked' if ajustes.foro_manual == '1' }}>
-            <span>{{ _('Aprobar a mano todas las reflexiones del foro') }}</span>
-            {{ info(_('Recomendado: las reflexiones pueden contar casos reales con nombres o lugares que el filtro no detecta.')) }}
-          </label>
-          <label class="adm-check">
-            <input type="checkbox" name="mural_manual" value="1" {{ 'checked' if ajustes.mural_manual == '1' }}>
-            <span>{{ _('Aprobar a mano todos los mensajes del mural') }}</span>
-            {{ info(_('Apagado, los mensajes que pasan el filtro salen solos en la pantalla. Encendido, todos esperan en «Pendientes de revisar». La vida de un mensaje cuenta desde que se envía: si tardas en aprobarlo, sale menos tiempo.')) }}
-          </label>
-
-          <p class="adm-ayuda">{{ _('Reglas de privacidad: retienen lo que pueda identificar o localizar a alguien.') }}</p>
-          {% for clave, texto in [('enlaces', _('Retener enlaces (www…, http…, .com)')), ('correos', _('Retener correos electrónicos')),
-                                  ('telefonos', _('Retener números de teléfono')), ('usuarios', _('Retener @usuarios de redes sociales'))] %}
-            <label class="adm-check">
-              <input type="checkbox" name="{{ clave }}" value="1" {{ 'checked' if ajustes[clave] == '1' }}>
-              <span>{{ texto }}</span>
-            </label>
-          {% endfor %}
-
-          <p class="adm-ayuda">{{ _('Avisos del público: por defecto solo marcan la publicación aquí, en «Avisos del público».') }}</p>
-          <label class="adm-check">
-            <input type="checkbox" name="retirar_por_avisos" value="1" {{ 'checked' if ajustes.retirar_por_avisos == '1' }}>
-            <span>{{ _('Retirar sola de la pantalla una publicación con muchos avisos') }}</span>
-            {{ info(_('Mejor dejarlo apagado: una sola persona podría vaciar la pantalla enviando avisos. Lo retirado así no se borra: espera a que decidas.')) }}
-          </label>
-          <label class="adm-numero">
-            <span>{{ _('Cuántos avisos:') }}</span>
-            <input type="number" name="avisos_para_ocultar" min="1" max="50" inputmode="numeric" required value="{{ ajustes.avisos_para_ocultar }}">
-          </label>
-          <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar ajustes') }}</button>
-        </form>
-      </div>
-    </section>
+      </section>
+    </div>
+    </div>
   </main>
+
+  <div class="adm-toasts" id="adm-toasts" aria-live="polite"></div>
 
   <dialog class="adm-dialogo" id="adm-confirmar" aria-labelledby="adm-confirmar-titulo">
     <form method="dialog">
@@ -495,13 +452,8 @@
     </form>
   </dialog>
 
-  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
   {% include '_logos.html' %}
   <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>
-  <script>
-    document.querySelectorAll('[data-eb-style]').forEach(function (c) {
-      try { c.appendChild(EstiloBurbuja.crear(c.dataset.ebTexto, JSON.parse(c.dataset.ebStyle))); } catch (e) {}
-    });
-  </script>
+  <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
 </body>
 </html>

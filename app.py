@@ -4,7 +4,9 @@ Responsables:
 - T01: creación de la app, init de la BD, POST /mural, POST /foro, /participa, /gracias
 - T02: decorador de HTTP Basic Auth, GET /api/mural, GET /api/foro, GET /pantalla (públicos)
 - T03: GET /admin y POST /admin/<tabla>/<id>/<accion>, más el filtro automático
-       (/admin/filtros, /admin/ajustes) y los avisos del público (/avisar)
+       (/admin/filtros, /admin/ajustes) y los avisos del público (/avisar).
+       Con JavaScript, el panel envía cada acción con fetch (cabecera X-Panel: fetch), recibe JSON
+       con el resultado ya comprobado en la BD y se repinta sin recargar (ver static/js/admin.js).
 - i18n: idiomas con Flask-Babel (español y inglés). Textos con _() / _l();
         catálogos en traducciones/ (ver README, «Idiomas»).
 
@@ -123,8 +125,8 @@ _AVISOS_PANEL = {
     ("participacion", "abrir"): _l("«%(vista)s» vuelve a admitir envíos nuevos."),
     ("participacion", "cerrar"): _l("«%(vista)s» ya no admite envíos nuevos. Lo que ya está en pantalla sigue."),
     ("mural", "quitar_estilo"): _l("Estilo del mensaje #%(id)s restablecido al por defecto."),
-    ("transicion", "guardada"): _l("Transición guardada. La pantalla la aplica en unos segundos."),
-    ("preguntas", "guardadas"): _l("Preguntas del foro guardadas."),
+    ("transicion", "activar"): _l("Transición entre vistas activada."),
+    ("transicion", "desactivar"): _l("Transición entre vistas desactivada: la pantalla cambia de vista directamente."),
     ("tiempos", "guardados"): _l("Tiempos guardados. La pantalla los aplica en unos segundos."),
     ("pantalla", "saltar"): _l("La pantalla salta a «%(vista)s» y después sigue la rotación."),
     ("pantalla", "fijar"): _l("La pantalla se queda en «%(vista)s» hasta que vuelvas a la rotación automática."),
@@ -134,7 +136,7 @@ _AVISOS_PANEL = {
 _NOMBRES_VISTAS = {"mural": _l("Mural"), "video": _l("Vídeo"), "foro": _l("Foro")}
 
 # Preguntas del foro: son las ÚNICAS de las que se puede hablar. Están en la tabla foro_preguntas
-# (español e inglés, editables desde el panel). Quien participa elige una (el formulario manda su
+# (español e inglés; no se editan desde el panel). Quien participa elige una (el formulario manda su
 # número) y la reflexión se guarda con su «titulo» (máx. 80 caracteres), que es la clave estable
 # con la que la pantalla agrupa las respuestas.
 def _pregunta_foro(valor):
@@ -148,11 +150,28 @@ def _pregunta_foro(valor):
 
 _AVISOS_ERROR = {("filtro", "invalido"), ("filtro", "repetido")}
 _ANCLA_PANEL = {"mural": "revision", "foro": "revision", "filtro": "filtro", "ajustes": "filtro", "tiempos": "tiempos", "participacion": "participacion",
-                "pantalla": "control-pantalla", "preguntas": "preguntas", "transicion": "transicion"}
+                "pantalla": "control-pantalla", "transicion": "tiempos"}
 _HECHO = re.compile(r"^([a-z]+)\.([a-z]+)\.(\d{1,12})$")
 
 
-def _volver_al_panel(objeto, accion, id_=0, retirados=0):
+def _es_fetch():
+    """El panel con JavaScript envía sus formularios con fetch y la cabecera X-Panel: fetch.
+    Entonces se responde en JSON (sin recargar la página); sin JavaScript, se redirige al panel."""
+    return request.headers.get("X-Panel") == "fetch"
+
+
+def _volver_al_panel(objeto, accion, id_=0, retirados=0, comprobado=True):
+    """Respuesta a una acción del panel.
+
+    `comprobado` dice si, después de guardar, se ha vuelto a leer la BD y el cambio está hecho.
+    Con fetch: JSON {ok, tipo, texto, resaltar}; si no se ha podido comprobar, ok=False (409).
+    Sin JavaScript: redirección a /admin?hecho=… (el aviso se pinta al cargar)."""
+    if _es_fetch():
+        if not comprobado:
+            return jsonify({"ok": False, "tipo": "error",
+                            "texto": _("No se ha podido comprobar que el cambio se haya guardado. Vuelve a intentarlo.")}), 409
+        aviso = _texto_aviso(objeto, accion, id_, retirados) or {"texto": "", "tipo": "ok", "resaltar": None}
+        return jsonify({"ok": aviso["tipo"] == "ok", **aviso})
     parametros = {"hecho": "%s.%s.%d" % (objeto, accion, id_)}
     if retirados:
         parametros["n"] = int(retirados)
@@ -164,12 +183,16 @@ def _ultima_accion():
     hecho = _HECHO.match(request.args.get("hecho", ""))
     if not hecho:
         return None
-    objeto, accion, id_ = hecho.group(1), hecho.group(2), int(hecho.group(3))
+    n = request.args.get("n", "")
+    n = int(n) if n.isdigit() and len(n) < 7 else 0
+    return _texto_aviso(hecho.group(1), hecho.group(2), int(hecho.group(3)), n)
+
+
+def _texto_aviso(objeto, accion, id_, n=0):
+    """{texto, tipo: 'ok'|'error', resaltar} del aviso de una acción del panel, o None."""
     plantilla = _AVISOS_PANEL.get((objeto, accion))
     if plantilla is None:
         return None
-    n = request.args.get("n", "")
-    n = int(n) if n.isdigit() and len(n) < 7 else 0
     retirados = ""
     if n:
         retirados = " " + ngettext("Se ha retirado %(num)d publicación que ya estaba en pantalla.",
@@ -270,6 +293,29 @@ def _volver_aqui():
         return "/"  # p. ej. un error tras enviar el formulario: se vuelve al inicio
     args = [(k, v) for k, v in request.args.items(multi=True) if k not in ("hecho", "n", "enviado")]
     return request.path + ("?" + urlencode(args) if args else "")
+
+
+def _guardar_y_comprobar(nuevos):
+    """Guarda ajustes y los vuelve a leer de la BD: True si todos han quedado como se pidió."""
+    db.guardar_ajustes(nuevos)
+    guardados = db.leer_ajustes()
+    return all(guardados.get(clave) == valor for clave, valor in nuevos.items())
+
+
+# Cómo debe quedar un elemento tras cada acción del panel (se comprueba leyéndolo otra vez de la BD).
+_TRAS_ACCION = {
+    "mostrar": lambda e: e is not None and e["publicado"] == 1,
+    "aprobar": lambda e: e is not None and e["publicado"] == 1,
+    "ocultar": lambda e: e is not None and e["publicado"] == 0 and e["retenido"] == 0,
+    "retirar": lambda e: e is not None and e["publicado"] == 0 and e["retenido"] == 0,
+    "borrar": lambda e: e is None,
+    "quitar_estilo": lambda e: e is not None and e["style"] in (None, "", "{}"),
+}
+
+
+def _accion_hecha(tabla, id_, accion):
+    comprobar = _TRAS_ACCION.get(accion)
+    return bool(comprobar and comprobar(db.leer_elemento(tabla, id_)))
 
 
 class Limitador:
@@ -458,6 +504,7 @@ def create_app():
     @requiere_rol("admin")
     def admin():
         aviso = _ultima_accion()
+        version = db.version_panel()   # antes de leer los datos: si algo llega entre medias, se vuelve a pedir
         return render_template(
             "admin.html",
             elementos=db.listar_para_panel(),
@@ -466,20 +513,21 @@ def create_app():
             control=db.estado_pantalla(),
             tiempos=db.tiempos_pantalla(),
             transicion=db.transicion(),
-            preguntas=db.listar_preguntas(),
             limites_tiempos=db.TIEMPOS_PANTALLA,
             max_vida_min=db.MAX_VIDA_MENSAJES_MIN,
             vistas=_NOMBRES_VISTAS,
             csrf=_token_csrf(),
             aviso=aviso,
             resaltar=aviso["resaltar"] if aviso else None,
+            version=version,
         )
 
     @app.get("/admin/estado")
     @requiere_rol("admin")
     def admin_estado():
-        """Contadores en JSON: el panel avisa si llegan avisos o retenidos nuevos."""
-        return jsonify(db.contadores())
+        """Contadores y «versión» de lo que muestra el panel: si la versión cambia (llega un mensaje,
+        un aviso, otra persona modera…), admin.js vuelve a pedir el panel y lo pinta sin recargar."""
+        return jsonify({**db.contadores(), "version": db.version_panel()})
 
     @app.post("/admin/<tabla>/<int:id>/<accion>")
     @requiere_rol("admin")
@@ -489,7 +537,7 @@ def create_app():
             db.aplicar_accion(tabla, id, accion)
         except ValueError:
             abort(404)
-        return _volver_al_panel(tabla, accion, id)
+        return _volver_al_panel(tabla, accion, id, comprobado=_accion_hecha(tabla, id, accion))
 
     @app.post("/admin/filtros")
     @requiere_rol("admin")
@@ -498,14 +546,15 @@ def create_app():
         id_, error = db.anadir_filtro(request.form.get("termino", ""))
         if error:
             return _volver_al_panel("filtro", error)
-        return _volver_al_panel("filtro", "anadido", id_, db.revisar_publicados())
+        return _volver_al_panel("filtro", "anadido", id_, db.revisar_publicados(),
+                                comprobado=db.termino_filtro(id_) is not None)
 
     @app.post("/admin/filtros/<int:id>/borrar")
     @requiere_rol("admin")
     def admin_filtro_quitar(id):
         _comprobar_csrf()
         db.quitar_filtro(id)
-        return _volver_al_panel("filtro", "quitado")
+        return _volver_al_panel("filtro", "quitado", comprobado=db.termino_filtro(id) is None)
 
     @app.post("/admin/ajustes")
     @requiere_rol("admin")
@@ -517,19 +566,8 @@ def create_app():
         umbral = request.form.get("avisos_para_ocultar", "")
         if umbral.isdigit() and 1 <= int(umbral) <= 50:
             nuevos["avisos_para_ocultar"] = str(int(umbral))
-        db.guardar_ajustes(nuevos)
-        return _volver_al_panel("ajustes", "guardados", 0, db.revisar_publicados())
-
-    @app.post("/admin/preguntas")
-    @requiere_rol("admin")
-    def admin_preguntas():
-        _comprobar_csrf()
-        for p in db.listar_preguntas():
-            es = request.form.get(f"es_{p['id']}", "").strip()
-            en = request.form.get(f"en_{p['id']}", "").strip()
-            if es and len(es) <= 400 and len(en) <= 400:
-                db.guardar_pregunta(p["id"], es, en)
-        return _volver_al_panel("preguntas", "guardadas")
+        comprobado = _guardar_y_comprobar(nuevos)
+        return _volver_al_panel("ajustes", "guardados", 0, db.revisar_publicados(), comprobado=comprobado)
 
     @app.post("/admin/participacion")
     @requiere_rol("admin")
@@ -540,14 +578,14 @@ def create_app():
         destino = request.form.get("destino", "")
         if accion not in ("abrir", "cerrar") or destino not in ("mural", "foro"):
             abort(400)
-        db.guardar_ajustes({"admitir_" + destino: "1" if accion == "abrir" else "0"})
-        return _volver_al_panel("participacion", accion, db.VISTAS_PANTALLA.index(destino))
+        comprobado = _guardar_y_comprobar({"admitir_" + destino: "1" if accion == "abrir" else "0"})
+        return _volver_al_panel("participacion", accion, db.VISTAS_PANTALLA.index(destino), comprobado=comprobado)
 
     @app.post("/admin/tiempos")
     @requiere_rol("admin")
     def admin_tiempos():
-        """Tiempos de /pantalla (duración de cada vista, páginas del foro, refresco) y vida de los mensajes.
-        Un valor fuera de rango no se guarda (se queda el anterior)."""
+        """Tiempos de /pantalla (duración de cada vista, páginas del foro, refresco, transición) y vida
+        de los mensajes. Un valor fuera de rango no se guarda (se queda el anterior)."""
         _comprobar_csrf()
         nuevos = {}
         for clave, (minimo, maximo) in db.TIEMPOS_PANTALLA.items():
@@ -557,27 +595,24 @@ def create_app():
         vida = request.form.get("mensajes_vida_min", "").strip()   # T15: 0 = no caducan
         if vida.isdigit() and 0 <= int(vida) <= db.MAX_VIDA_MENSAJES_MIN:
             nuevos["mensajes_vida_min"] = str(int(vida))
-        db.guardar_ajustes(nuevos)
-        return _volver_al_panel("tiempos", "guardados")
-
-    @app.post("/admin/transicion")
-    @requiere_rol("admin")
-    def admin_transicion():
-        """Transición entre vistas: activar/desactivar, duración y textos de la etiqueta «Siguiente»."""
-        _comprobar_csrf()
-        nuevos = {"transicion_activa": "1" if request.form.get("transicion_activa") == "1" else "0"}
         try:
             seg = float(request.form.get("transicion_seg", "").replace(",", "."))
             if db.TRANSICION_LIMITES[0] <= seg <= db.TRANSICION_LIMITES[1]:
                 nuevos["transicion_seg"] = ("%.1f" % seg).rstrip("0").rstrip(".")
         except ValueError:
             pass
-        for clave in db.CLAVES_ETIQUETAS:
-            valor = request.form.get(clave, "").strip()
-            if 0 < len(valor) <= 60:
-                nuevos[clave] = valor
-        db.guardar_ajustes(nuevos)
-        return _volver_al_panel("transicion", "guardada")
+        return _volver_al_panel("tiempos", "guardados", comprobado=_guardar_y_comprobar(nuevos))
+
+    @app.post("/admin/transicion")
+    @requiere_rol("admin")
+    def admin_transicion():
+        """Activar o desactivar la transición (portada) entre vistas. Su duración va con los tiempos."""
+        _comprobar_csrf()
+        accion = request.form.get("accion", "")
+        if accion not in ("activar", "desactivar"):
+            abort(400)
+        comprobado = _guardar_y_comprobar({"transicion_activa": "1" if accion == "activar" else "0"})
+        return _volver_al_panel("transicion", accion, comprobado=comprobado)
 
     @app.post("/admin/pantalla")
     @requiere_rol("admin")
@@ -586,12 +621,16 @@ def create_app():
         _comprobar_csrf()
         accion = request.form.get("accion", "")
         vista = request.form.get("vista", "")
+        antes = db.estado_pantalla()
         try:
             db.ordenar_pantalla(accion, vista)
         except ValueError:
             abort(400)
+        ahora = db.estado_pantalla()
+        comprobado = ahora["fijada"] == (vista if accion == "fijar" else None) and (
+            accion != "saltar" or (ahora["salto_vista"] == vista and ahora["salto_id"] > antes["salto_id"]))
         posicion = db.VISTAS_PANTALLA.index(vista) if vista in db.VISTAS_PANTALLA else 0
-        return _volver_al_panel("pantalla", accion, posicion)
+        return _volver_al_panel("pantalla", accion, posicion, comprobado=comprobado)
 
     # --- T03: avisos del público (sin contraseña) ---------------------------
     # Quien vea en la pantalla algo inapropiado lo busca en /avisar y lo marca: aparece en
