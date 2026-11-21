@@ -12,12 +12,13 @@
 -- (En una base de datos anterior, bd/db.py añade retenido, motivo y revisado al arrancar.)
 CREATE TABLE IF NOT EXISTS mural (
     id       INTEGER PRIMARY KEY AUTOINCREMENT,
-    texto    TEXT    NOT NULL CHECK (length(trim(texto)) BETWEEN 1 AND 200),
+    texto    TEXT    NOT NULL CHECK (length(trim(texto)) BETWEEN 1 AND 280),
     creado   TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
     visible  INTEGER NOT NULL DEFAULT 1 CHECK (visible IN (0, 1)),
     retenido INTEGER NOT NULL DEFAULT 0 CHECK (retenido IN (0, 1)),
     motivo   TEXT,
-    revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))
+    revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1)),
+    style    TEXT    NOT NULL DEFAULT '{}'   -- CONECTA: estilo de la burbuja (JSON saneado, ver bd/estilo.py)
 );
 
 -- Reflexiones del foro (T01, T02, T03, T09).
@@ -65,4 +66,14 @@ CREATE TABLE IF NOT EXISTS filtros (
 CREATE TABLE IF NOT EXISTS ajustes (
     clave TEXT PRIMARY KEY,
     valor TEXT NOT NULL
+);
+
+-- CONECTA: preguntas del foro en español e inglés, editables desde el panel (ver bd/db.py).
+-- «titulo» es el texto con el que se guardan las respuestas en foro.titulo (máx. 80 caracteres);
+-- las respuestas antiguas se siguen asociando a su pregunta por ese título.
+CREATE TABLE IF NOT EXISTS foro_preguntas (
+    id      INTEGER PRIMARY KEY,
+    titulo  TEXT NOT NULL CHECK (length(trim(titulo)) BETWEEN 1 AND 80),
+    text_es TEXT NOT NULL CHECK (length(trim(text_es)) BETWEEN 1 AND 400),
+    text_en TEXT NOT NULL DEFAULT '' CHECK (length(text_en) <= 400)
 );

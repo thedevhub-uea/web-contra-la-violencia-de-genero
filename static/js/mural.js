@@ -91,7 +91,7 @@
     ocupacion: 0.38,      // parte de la pantalla que cubren las burbujas
   };
 
-  const MAX_TEXTO = 200;
+  const MAX_TEXTO = 280;
   const SUBPASOS = 3;     // la física se calcula varias veces por fotograma: choques más suaves
   const AVISO_CADUCIDAD = 20_000;  // ms antes de caducar en que la burbuja empieza a atenuarse
   const GUARDA_CADUCADA = 30_000;  // ms que se ignora una burbuja recién caducada si una respuesta atrasada la trae
@@ -367,6 +367,8 @@
       fuente: FUENTES[m.fuente] ? m.fuente : null,
       forma: Object.prototype.hasOwnProperty.call(FORMAS, m.forma) ? m.forma : null,
       emoji: limpiarEmoji(m.emoji),
+      // estilo personalizado del participante (CONECTA): ya validado por el servidor y vuelto a sanear aquí
+      estilo: (m.style && typeof m.style === 'object' && window.EstiloBurbuja) ? window.EstiloBurbuja.sanear(m.style) : null,
       // segundos que le quedan (T15); null = no caduca
       caducaEn: (typeof m.caduca_en === 'number' && isFinite(m.caduca_en) && m.caduca_en >= 0) ? m.caduca_en : null,
     };
@@ -616,7 +618,16 @@
     s.setProperty('--fuente', FUENTES[m.fuente || CONFIG.fuente] || FUENTES.moderna);
     b.el.classList.toggle('burbuja-texto-claro', elegido.claro);   // texto blanco o texto oscuro
 
-    const forma = m.forma || CONFIG.forma;
+    // Estilo personalizado: se dibuja con EstiloBurbuja (el mismo dibujo que la vista previa del móvil
+    // y el panel) y se ocultan las capas de cristal. La física sigue tratándola como círculo.
+    const previo = b.cuerpo.querySelector('.eb');
+    if (previo) previo.remove();
+    b.el.classList.toggle('burbuja--estilo', !!m.estilo);
+    const forma = m.estilo ? 'circulo' : (m.forma || CONFIG.forma);
+    if (m.estilo) {
+      b.cuerpo.appendChild(window.EstiloBurbuja.crear(m.texto, m.estilo));
+      b.el.classList.remove('burbuja-texto-claro');
+    }
     if (forma !== b.forma) {
       b.forma = forma;
       b.el.dataset.forma = forma;
@@ -630,6 +641,7 @@
     // Los mensajes largos y con emoji necesitan algo más de sitio; la estrella también.
     const largo = Math.min(m.texto.length, MAX_TEXTO) / MAX_TEXTO;
     b.peso = (0.8 + 0.6 * Math.sqrt(largo) + (m.emoji ? 0.08 : 0)) * (forma === 'estrella' ? 1.12 : 1);
+    if (m.estilo) b.peso *= m.estilo.escala;
     b.porAjustar = true;
   }
 

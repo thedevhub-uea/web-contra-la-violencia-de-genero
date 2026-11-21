@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/burbuja-estilo.css') }}">
 </head>
 <body class="pantalla" data-api-mural="{{ url_for('api_mural') }}" data-api-foro="{{ url_for('api_foro') }}"
       data-api-control="{{ url_for('api_pantalla') }}"
@@ -36,6 +37,7 @@
     <p>Leave your message / Deja tu mensaje</p>
   </aside>
 
+  <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>
   <script src="{{ url_for('static', filename='js/mural.js') }}"></script>
   <script src="{{ url_for('static', filename='js/video.js') }}"></script>
   <script src="{{ url_for('static', filename='js/foro.js') }}"></script>

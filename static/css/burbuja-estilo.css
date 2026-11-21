@@ -1,0 +1,58 @@
+/* CONECTA · burbuja con estilo personalizado (.eb) y editor de /participa. Colores desde paleta.css. */
+.eb {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  container-type: size;   /* los tamaños de letra y brillo usan cqmin: escalan con la burbuja */
+  transform: scale(var(--eb-escala, 1));
+}
+.eb-forma { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.eb-texto { position: absolute; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.eb-texto p { margin: 0; width: 100%; line-height: 1.12; overflow-wrap: anywhere; hyphens: auto; }
+.eb-emoji { position: absolute; font-size: 17cqmin; line-height: 1; }
+.eb-emoji-centro { left: 50%; top: 50%; transform: translate(-50%, -50%); opacity: .35; font-size: 40cqmin; }
+.eb-emoji-sup-izq { left: 6%; top: 6%; }
+.eb-emoji-sup-der { right: 6%; top: 6%; }
+.eb-emoji-inf-izq { left: 6%; bottom: 6%; }
+.eb-emoji-inf-der { right: 6%; bottom: 6%; }
+
+@keyframes eb-flotar { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-4cqmin); } }
+@keyframes eb-latido { 0%, 100% { transform: scale(1); } 15% { transform: scale(1.07); } 30% { transform: scale(1); } 45% { transform: scale(1.05); } }
+@keyframes eb-pulso { 0%, 100% { opacity: 1; } 50% { opacity: .72; } }
+@keyframes eb-brillo { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
+.eb-anim-flotar .eb-forma, .eb-anim-flotar .eb-texto, .eb-anim-flotar .eb-emoji { animation: eb-flotar 5s ease-in-out infinite; }
+.eb-anim-latido .eb-forma, .eb-anim-latido .eb-texto { animation: eb-latido 2.2s ease-in-out infinite; }
+.eb-anim-pulso { animation: eb-pulso 2.4s ease-in-out infinite; }
+.eb-anim-brillo { animation: eb-brillo 2.8s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .eb, .eb * { animation: none !important; } }
+
+/* ---------- Editor en /participa ---------- */
+.editor-burbuja { display: grid; gap: .9rem; margin-top: .8rem; }
+.eb-vista { width: min(70vw, 240px); aspect-ratio: 1; margin: .4rem auto; position: sticky; top: .5rem; z-index: 3; }
+.eb-grupo { border: var(--panel-borde); border-radius: var(--panel-radio); padding: .6rem .8rem; background: var(--surface); }
+.eb-grupo > summary { cursor: pointer; font-weight: 700; color: var(--texto); padding: .3rem 0; }
+.eb-fila { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin: .5rem 0; }
+.eb-fila > label, .eb-fila > .eb-etiqueta { flex: 0 0 100%; font-size: .85rem; color: var(--texto-sec); }
+.eb-op { min-width: 44px; min-height: 44px; border-radius: var(--panel-radio); border: 1px solid var(--borde);
+  background: var(--superficie-2); color: var(--texto); font: inherit; cursor: pointer; padding: .2rem .6rem; }
+.eb-op[aria-pressed="true"] { outline: 3px solid var(--acento); outline-offset: 1px; }
+.eb-op svg { width: 28px; height: 28px; display: block; margin: auto; fill: var(--acento); }
+.eb-color { width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--borde); cursor: pointer; padding: 0; }
+.eb-color[aria-pressed="true"] { outline: 3px solid var(--texto); outline-offset: 2px; }
+.eb-grupo input[type="color"] { width: 44px; height: 44px; padding: 0; border: 0; background: none; }
+.eb-grupo input[type="range"] { flex: 1 1 140px; min-width: 120px; accent-color: var(--acento); }
+.eb-aviso { color: var(--error-texto); background: var(--error-fondo); padding: .5rem .7rem; border-radius: var(--panel-radio); font-size: .9rem; }
+.eb-aviso[hidden] { display: none; }
+.eb-acciones { display: flex; gap: .6rem; flex-wrap: wrap; }
+.eb-acciones .eb-op { flex: 1 1 140px; }
+
+/* Burbuja con estilo dentro del mural proyectado (la caja ya tiene el tamaño de la burbuja). */
+#vista-mural .burbuja .eb { position: absolute; inset: 0; }
+#vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo > :not(.eb) { display: none !important; }
+#vista-mural .burbuja.burbuja--estilo .burbuja-sombra { display: none; }
+
+/* Vista del admin */
+.adm-eb { width: 96px; height: 96px; flex: 0 0 96px; }
+#vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo { background: none; box-shadow: none; border: 0; clip-path: none; overflow: visible; }
+#vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo::before,
+#vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo::after { display: none; }

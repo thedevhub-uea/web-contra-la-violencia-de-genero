@@ -43,3 +43,11 @@ h1, h2, h3 { font-weight: 800; letter-spacing: .04em; }
 /* Las páginas de móvil y el admin dejan sitio abajo para que los logos no tapen contenido. */
 body:not(.pantalla) { padding-bottom: 64px; }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+
+/* Fuentes de las burbujas (también se declaran en mural.css; aquí para /participa y /admin). */
+@font-face { font-family: "Poppins"; font-weight: 600; font-display: swap; src: url("../fonts/poppins.woff2") format("woff2"); }
+@font-face { font-family: "Nunito"; font-weight: 700; font-display: swap; src: url("../fonts/nunito.woff2") format("woff2"); }
+@font-face { font-family: "Playfair Display"; font-weight: 600; font-display: swap; src: url("../fonts/playfair-display.woff2") format("woff2"); }
+@font-face { font-family: "Caveat"; font-weight: 600; font-display: swap; src: url("../fonts/caveat.woff2") format("woff2"); }
+@font-face { font-family: "Bebas Neue"; font-weight: 400; font-display: swap; src: url("../fonts/bebas-neue.woff2") format("woff2"); }
+@font-face { font-family: "Space Mono"; font-weight: 700; font-display: swap; src: url("../fonts/space-mono.woff2") format("woff2"); }

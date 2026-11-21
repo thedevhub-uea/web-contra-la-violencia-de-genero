@@ -340,3 +340,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   .icono { width: 52px; height: 52px; font-size: 1.8rem; margin-bottom: 8px; }
   .tarjeta .boton { margin-top: 12px; }
 }
+
+/* CONECTA: preguntas del foro en las dos lenguas y título del editor de burbuja */
+.pregunta-en { display: block; margin-top: .2rem; font-size: .85em; color: var(--texto-sec); font-weight: 500; }
+.eb-titulo { margin: 1rem 0 0; font-size: 1.05rem; }
