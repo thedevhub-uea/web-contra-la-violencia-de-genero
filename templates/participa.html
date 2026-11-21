@@ -13,7 +13,9 @@
   <meta name="theme-color" content="#4a1a6b">
   <title>{{ _('Participa') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/burbuja-estilo.css') }}">
 </head>
 <body>
   <header class="cabecera">
@@ -45,9 +47,34 @@
         <h2 id="titulo-mural">{{ _('Mensaje burbuja') }}</h2>
         <p class="desc">{{ _('Un mensaje corto que aparecerá en el mural de la pantalla.') }}</p>
         <label class="campo" for="mural-texto">{{ _('Tu mensaje') }}</label>
-        <textarea id="mural-texto" name="texto" maxlength="200" required
+        <textarea id="mural-texto" name="texto" maxlength="{{ max_mural_texto }}" required
                   placeholder="{{ _('Escribe aquí tu mensaje…') }}" data-contador="cont-mural">{% if en_mural %}{{ request.form.get('texto', '') }}{% endif %}</textarea>
         <div class="contador" id="cont-mural" aria-live="polite"></div>
+        <input type="hidden" name="style" value="">
+        <h3 class="eb-titulo">{{ _('Personaliza tu burbuja') }}</h3>
+        <div id="editor-burbuja" class="editor-burbuja" data-textos='{{ {
+            "ejemplo": _("Tu mensaje"), "vista": _("Vista previa de tu burbuja"),
+            "contraste": _("Ese color de texto se lee mal sobre el fondo."), "usar_legible": _("Usar un color legible"),
+            "libre": _("Color libre"), "forma": _("Forma"), "fondo": _("Color de fondo"), "texto": _("Texto"),
+            "borde": _("Borde y brillo"), "extras": _("Pegatina y animación"),
+            "f_circulo": _("Círculo"), "f_cuadrado": _("Cuadrado"), "f_corazon": _("Corazón"), "f_nube": _("Bocadillo"),
+            "f_estrella": _("Estrella"), "f_hexagono": _("Hexágono"), "f_gota": _("Gota"),
+            "solido": _("Color liso"), "degradado": _("Degradado"), "color_1": _("Color 1"), "color_2": _("Color 2"),
+            "degradados": _("Degradados"), "opacidad": _("Opacidad"), "color_texto": _("Color del texto"),
+            "fuente": _("Fuente"), "fu_sans": _("Moderna"), "fu_serif": _("Con serifa"), "fu_manuscrita": _("Manuscrita"),
+            "fu_display": _("Titular"), "fu_redonda": _("Redondeada"), "fu_mono": _("Máquina"),
+            "tamano": _("Tamaño del texto"), "estilo_texto": _("Estilo"), "negrita": _("Negrita"), "cursiva": _("Cursiva"),
+            "alineacion": _("Alineación"), "al_izq": _("Izquierda"), "al_centro": _("Centro"), "al_der": _("Derecha"),
+            "color_borde": _("Color del borde"), "grosor": _("Grosor del borde"), "estilo_borde": _("Estilo del borde"),
+            "b_solido": _("Continuo"), "b_discontinuo": _("Discontinuo"), "b_punteado": _("Punteado"),
+            "color_glow": _("Color del brillo"), "glow": _("Brillo (glow)"), "sombra": _("Sombra"),
+            "emoji": _("Emoji"), "sin_emoji": _("Sin emoji"), "pos_emoji": _("Posición del emoji"),
+            "p_centro": _("Centro"), "p_sup-izq": _("Arriba izq."), "p_sup-der": _("Arriba der."),
+            "p_inf-izq": _("Abajo izq."), "p_inf-der": _("Abajo der."),
+            "animacion": _("Animación"), "an_ninguna": _("Ninguna"), "an_flotar": _("Flotar"), "an_latido": _("Latido"),
+            "an_pulso": _("Pulso"), "an_brillo": _("Brillo"), "tam_burbuja": _("Tamaño de la burbuja"),
+            "sorprendeme": _("Sorpréndeme"), "restablecer": _("Restablecer"),
+          } | tojson }}'></div>
         <button class="boton boton-enviar" type="submit">{{ _('Enviar mensaje') }}</button>
       </form>
       {% else %}
@@ -66,11 +93,11 @@
         {% set pregunta_elegida = request.form.get('pregunta', '') if en_foro else '' %}
         <fieldset class="preguntas">
           <legend class="campo">{{ _('Elige la pregunta a la que respondes') }}</legend>
-          {% for p in preguntas_foro %}
+          {% for p in preguntas_foro() %}
           <label class="pregunta">
             <input type="radio" name="pregunta" value="{{ loop.index }}" required
                    {%- if pregunta_elegida == loop.index | string %} checked{% endif %}>
-            <span>{{ p.texto }}</span>
+            <span>{{ p.text_es }}{% if p.text_en %}<small class="pregunta-en" lang="en">{{ p.text_en }}</small>{% endif %}</span>
           </label>
           {% endfor %}
         </fieldset>
@@ -96,5 +123,8 @@
   <footer class="pie">#25N · {{ _('Juntas contra la violencia de género') }}</footer>
 
   <script src="{{ url_for('static', filename='js/participa.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/editor-burbuja.js') }}"></script>
+  {% include '_logos.html' %}
 </body>
 </html>

@@ -91,7 +91,7 @@
     ocupacion: 0.38,      // parte de la pantalla que cubren las burbujas
   };
 
-  const MAX_TEXTO = 200;
+  const MAX_TEXTO = 280;
   const SUBPASOS = 3;     // la física se calcula varias veces por fotograma: choques más suaves
   const AVISO_CADUCIDAD = 20_000;  // ms antes de caducar en que la burbuja empieza a atenuarse
   const GUARDA_CADUCADA = 30_000;  // ms que se ignora una burbuja recién caducada si una respuesta atrasada la trae
@@ -107,7 +107,7 @@
   let alto = 0;
   let ultimoTiempo = 0;
   let iniciado = false;
-  let obstaculo = null;   // rectángulo del QR en coordenadas del mural: {x0, y0, x1, y1}
+  let obstaculos = [];    // rectángulos del QR y de los logos en coordenadas del mural: {x0, y0, x1, y1}
   let reloj = null;       // setInterval de 1 s que retira lo caducado (solo existe si hay burbujas que caducan)
   const caducadas = new Map();   // id -> hasta cuándo se ignora (performance.now()), tras caducar aquí
   let vacio = null;       // mensaje «Escanea el QR…» (sale solo con 0 burbujas)
@@ -226,44 +226,49 @@
   // Rectángulo del QR (con margen) dentro del mural. Si entre el QR y un borde no
   // cabe una burbuja, se alarga hasta ese borde para que no se quede ninguna atrapada.
   function medirObstaculo() {
-    const antes = JSON.stringify(obstaculo);
-    obstaculo = null;
-    const qr = document.getElementById('qr');
-    if (qr && !qr.hidden) {
-      const q = qr.getBoundingClientRect();
-      const c = contenedor.getBoundingClientRect();
-      if (q.width > 0 && q.height > 0) {
-        const menor = Math.min(ancho, alto);
-        const margen = menor * 0.02;
-        const hueco = menor * 0.15;
-        let x0 = q.left - c.left - margen;
-        let y0 = q.top - c.top - margen;
-        let x1 = q.right - c.left + margen;
-        let y1 = q.bottom - c.top + margen;
-        if (x0 < hueco) x0 = -1e4;
-        if (y0 < hueco) y0 = -1e4;
-        if (ancho - x1 < hueco) x1 = 1e4;
-        if (alto - y1 < hueco) y1 = 1e4;
-        if (x1 > 0 && y1 > 0 && x0 < ancho && y0 < alto) obstaculo = { x0: x0, y0: y0, x1: x1, y1: y1 };
-      }
-    }
-    return JSON.stringify(obstaculo) !== antes;
+    const antes = JSON.stringify(obstaculos);
+    obstaculos = [];
+    const c = contenedor.getBoundingClientRect();
+    const menor = Math.min(ancho, alto);
+    const margen = menor * 0.02;
+    const hueco = menor * 0.15;
+    // El QR y los logos fijos (#logos-conecta) son obstáculos: las burbujas no los tapan.
+    ['qr', 'logos-conecta'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el || el.hidden) return;
+      const q = el.getBoundingClientRect();
+      if (q.width <= 0 || q.height <= 0) return;
+      let x0 = q.left - c.left - margen;
+      let y0 = q.top - c.top - margen;
+      let x1 = q.right - c.left + margen;
+      let y1 = q.bottom - c.top + margen;
+      if (x0 < hueco) x0 = -1e4;
+      if (y0 < hueco) y0 = -1e4;
+      if (ancho - x1 < hueco) x1 = 1e4;
+      if (alto - y1 < hueco) y1 = 1e4;
+      if (x1 > 0 && y1 > 0 && x0 < ancho && y0 < alto) obstaculos.push({ x0: x0, y0: y0, x1: x1, y1: y1 });
+    });
+    return JSON.stringify(obstaculos) !== antes;
   }
 
-  // Distancia con signo de un punto al obstáculo (negativa si está dentro).
+  // Distancia con signo de un punto a los obstáculos (negativa si está dentro).
   function distanciaObstaculo(x, y) {
-    const o = obstaculo;
-    if (!o) return Infinity;
-    const dx = Math.max(o.x0 - x, 0, x - o.x1);
-    const dy = Math.max(o.y0 - y, 0, y - o.y1);
-    if (dx || dy) return Math.hypot(dx, dy);
-    return -Math.min(x - o.x0, o.x1 - x, y - o.y0, o.y1 - y);
+    let mejor = Infinity;
+    for (const o of obstaculos) {
+      const dx = Math.max(o.x0 - x, 0, x - o.x1);
+      const dy = Math.max(o.y0 - y, 0, y - o.y1);
+      const d = (dx || dy) ? Math.hypot(dx, dy) : -Math.min(x - o.x0, o.x1 - x, y - o.y0, o.y1 - y);
+      if (d < mejor) mejor = d;
+    }
+    return mejor;
   }
 
-  // Rebote contra el rectángulo del QR, como contra un borde.
+  // Rebote contra los rectángulos (QR y logos), como contra un borde.
   function chocarConObstaculo(b, t) {
-    const o = obstaculo;
-    if (!o) return;
+    for (const o of obstaculos) chocarConRect(b, t, o);
+  }
+
+  function chocarConRect(b, t, o) {
     const cx = limitar(b.x, o.x0, o.x1);
     const cy = limitar(b.y, o.y0, o.y1);
     let nx = b.x - cx;
@@ -362,6 +367,8 @@
       fuente: FUENTES[m.fuente] ? m.fuente : null,
       forma: Object.prototype.hasOwnProperty.call(FORMAS, m.forma) ? m.forma : null,
       emoji: limpiarEmoji(m.emoji),
+      // estilo personalizado del participante (CONECTA): ya validado por el servidor y vuelto a sanear aquí
+      estilo: (m.style && typeof m.style === 'object' && window.EstiloBurbuja) ? window.EstiloBurbuja.sanear(m.style) : null,
       // segundos que le quedan (T15); null = no caduca
       caducaEn: (typeof m.caduca_en === 'number' && isFinite(m.caduca_en) && m.caduca_en >= 0) ? m.caduca_en : null,
     };
@@ -611,7 +618,16 @@
     s.setProperty('--fuente', FUENTES[m.fuente || CONFIG.fuente] || FUENTES.moderna);
     b.el.classList.toggle('burbuja-texto-claro', elegido.claro);   // texto blanco o texto oscuro
 
-    const forma = m.forma || CONFIG.forma;
+    // Estilo personalizado: se dibuja con EstiloBurbuja (el mismo dibujo que la vista previa del móvil
+    // y el panel) y se ocultan las capas de cristal. La física sigue tratándola como círculo.
+    const previo = b.cuerpo.querySelector('.eb');
+    if (previo) previo.remove();
+    b.el.classList.toggle('burbuja--estilo', !!m.estilo);
+    const forma = m.estilo ? 'circulo' : (m.forma || CONFIG.forma);
+    if (m.estilo) {
+      b.cuerpo.appendChild(window.EstiloBurbuja.crear(m.texto, m.estilo));
+      b.el.classList.remove('burbuja-texto-claro');
+    }
     if (forma !== b.forma) {
       b.forma = forma;
       b.el.dataset.forma = forma;
@@ -625,6 +641,7 @@
     // Los mensajes largos y con emoji necesitan algo más de sitio; la estrella también.
     const largo = Math.min(m.texto.length, MAX_TEXTO) / MAX_TEXTO;
     b.peso = (0.8 + 0.6 * Math.sqrt(largo) + (m.emoji ? 0.08 : 0)) * (forma === 'estrella' ? 1.12 : 1);
+    if (m.estilo) b.peso *= m.estilo.escala;
     b.porAjustar = true;
   }
 
@@ -645,7 +662,7 @@
     if (!suma) return;
     const menor = Math.min(ancho, alto);
     let area = ancho * alto;
-    if (obstaculo) {
+    for (const obstaculo of obstaculos) {
       area -= Math.max(0, Math.min(ancho, obstaculo.x1) - Math.max(0, obstaculo.x0)) *
         Math.max(0, Math.min(alto, obstaculo.y1) - Math.max(0, obstaculo.y0));
     }

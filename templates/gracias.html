@@ -8,6 +8,7 @@
   <meta name="theme-color" content="#4a1a6b">
   <title>{{ _('¡Gracias!') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
 </head>
 <body class="pagina-gracias">
@@ -21,5 +22,6 @@
     {# T03: enlace para avisar de un mensaje inapropiado que haya salido en la pantalla #}
     <p><a class="enlace" href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a></p>
   </main>
+  {% include '_logos.html' %}
 </body>
 </html>

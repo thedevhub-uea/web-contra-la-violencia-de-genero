@@ -46,7 +46,7 @@
 {#- Un botón = un formulario pequeño. "publicar" y "ocultar" se traducen a las acciones
     de cada tabla en bd/db.py (_ACCIONES): mural mostrar/ocultar, foro aprobar/retirar. -#}
 {%- macro boton(e, accion, texto, clase='', icono_n='') -%}
-{%- set nombres = {'mural': {'publicar': 'mostrar', 'ocultar': 'ocultar', 'borrar': 'borrar'},
+{%- set nombres = {'mural': {'publicar': 'mostrar', 'ocultar': 'ocultar', 'borrar': 'borrar', 'quitar_estilo': 'quitar_estilo'},
                    'foro': {'publicar': 'aprobar', 'ocultar': 'retirar', 'borrar': 'borrar'}} -%}
 <form method="post" action="{{ url_for('admin_accion', tabla=e.tabla, id=e.id, accion=nombres[e.tabla][accion]) }}" class="adm-accion"
       {%- if accion == 'borrar' %} data-confirmar="{{ _('¿Borrar este mensaje?') if e.tabla == 'mural' else _('¿Borrar esta reflexión?') }}"{% endif %}>
@@ -70,6 +70,9 @@
       {%- if e.creado %}<span aria-hidden="true">·</span><time datetime="{{ e.creado }}">{{ e.creado | fecha }}</time>{% endif %}
     </div>
     {% if e.titulo %}<h3 class="adm-titulo">{{ e.titulo }}</h3>{% endif %}
+    {%- if e.tabla == 'mural' and e.style and e.style != '{}' %}
+    <div class="adm-eb" data-eb-texto="{{ e.texto }}" data-eb-style="{{ e.style }}" title="{{ _('Así se ve en el mural') }}"></div>
+    {%- endif %}
     <p class="adm-texto{{ ' adm-recortado' if seccion == 'pub' and e.titulo }}">{{ e.texto }}</p>
     {%- if seccion == 'avisos' %}
       <p class="adm-motivo adm-motivo-aviso">{{ icono('bandera') }}<span><b>{{ ngettext('%(num)d aviso:', '%(num)d avisos:', e.avisos) }}</b>
@@ -94,6 +97,7 @@
       {%- if e.estado in ('visible', 'caducado') %}{{ boton(e, 'ocultar', _('Retirar')) }}{% else %}{{ boton(e, 'publicar', _('Publicar')) }}{% endif %}
       {{ boton(e, 'borrar', _('Borrar'), 'adm-btn-peligro') }}
     {%- endif %}
+    {%- if e.tabla == 'mural' and e.style and e.style != '{}' %}{{ boton(e, 'quitar_estilo', _('Quitar estilo'), '', 'ocultar') }}{% endif %}
   </div>
 </li>
 {%- endmacro -%}
@@ -115,6 +119,8 @@
   <meta name="robots" content="noindex, nofollow">
   <title>{% if pendientes %}({{ pendientes }}) {% endif %}{{ _('Moderación') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/burbuja-estilo.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body class="admin" data-avisos="{{ avisados | length }}" data-retenidos="{{ retenidos | length }}"
@@ -309,6 +315,53 @@
       </form>
     </section>
 
+    {# ---------- CONECTA: transición entre vistas y preguntas del foro ---------- #}
+    <section id="transicion" class="adm-panel" aria-labelledby="t-transicion">
+      <header class="adm-panel-cab">
+        <div>
+          <h2 id="t-transicion">{{ _('Transición entre vistas') }}</h2>
+          <p>{{ _('Pantalla intermedia con la portada que se ve al cambiar de vista. No afecta al móvil.') }}</p>
+        </div>
+      </header>
+      <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_transicion') }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        <label class="adm-tiempo"><span class="adm-tiempo-nombre">
+          <input type="checkbox" name="transicion_activa" value="1"{% if transicion.activa %} checked{% endif %}>
+          {{ _('Activar la transición') }}</span></label>
+        <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ _('Duración (segundos)') }}</span>
+          <input type="number" name="transicion_seg" min="1" max="60" step="0.5" value="{{ transicion.seg }}">
+          <span class="adm-ayuda">{{ _('De 1 a 60. Recomendado: 15.') }}</span></label>
+        <div class="adm-tiempos-campos">
+        {% for v, nombre in [('mural', _('Mural')), ('video', _('Vídeo')), ('foro', _('Foro'))] %}
+          <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ nombre }} · ES</span>
+            <input type="text" name="trans_{{ v }}_es" maxlength="60" value="{{ transicion.etiquetas[v].es }}"></label>
+          <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ nombre }} · EN</span>
+            <input type="text" name="trans_{{ v }}_en" maxlength="60" value="{{ transicion.etiquetas[v].en }}"></label>
+        {% endfor %}
+        </div>
+        <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar transición') }}</button>
+      </form>
+    </section>
+
+    <section id="preguntas" class="adm-panel" aria-labelledby="t-preguntas">
+      <header class="adm-panel-cab">
+        <div>
+          <h2 id="t-preguntas">{{ _('Preguntas del foro (ES / EN)') }}</h2>
+          <p>{{ _('Salen juntas en español e inglés en la pantalla y en el móvil. Las respuestas ya enviadas se mantienen.') }}</p>
+        </div>
+      </header>
+      <form class="adm-bloque adm-tiempos" method="post" action="{{ url_for('admin_preguntas') }}">
+        <input type="hidden" name="csrf" value="{{ csrf }}">
+        {% for p in preguntas %}
+        <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ p.id }} · ES</span>
+          <textarea name="es_{{ p.id }}" maxlength="400" rows="2" required>{{ p.text_es }}</textarea></label>
+        <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ p.id }} · EN</span>
+          <textarea name="en_{{ p.id }}" maxlength="400" rows="2">{{ p.text_en }}</textarea></label>
+        {% endfor %}
+        <button type="submit" class="adm-btn adm-btn-principal">{{ _('Guardar preguntas') }}</button>
+      </form>
+    </section>
+
     {# ---------- 3. Todo lo publicado y lo retirado ---------- #}
     <section id="publicado" class="adm-panel" aria-labelledby="t-publicado">
       <header class="adm-panel-cab">
@@ -443,5 +496,12 @@
   </dialog>
 
   <script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+  {% include '_logos.html' %}
+  <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>
+  <script>
+    document.querySelectorAll('[data-eb-style]').forEach(function (c) {
+      try { c.appendChild(EstiloBurbuja.crear(c.dataset.ebTexto, JSON.parse(c.dataset.ebStyle))); } catch (e) {}
+    });
+  </script>
 </body>
 </html>

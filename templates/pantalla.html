@@ -7,9 +7,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>25N · {{ _('Pantalla') }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/burbuja-estilo.css') }}">
 </head>
-<body data-api-mural="{{ url_for('api_mural') }}" data-api-foro="{{ url_for('api_foro') }}"
+<body class="pantalla" data-api-mural="{{ url_for('api_mural') }}" data-api-foro="{{ url_for('api_foro') }}"
       data-api-control="{{ url_for('api_pantalla') }}"
       data-textos='{{ {
         "pantalla_completa": _("Pantalla completa (o pulsa F11)"),
@@ -35,10 +37,23 @@
     <p>Leave your message / Deja tu mensaje</p>
   </aside>
 
+  <!-- Transición entre vistas / pantalla de inicio: la portada (sin logos) y la etiqueta «Siguiente» -->
+  <div id="transicion-pantalla" aria-hidden="true">
+    <div class="trans-lienzo">
+      <img src="{{ url_for('static', filename='img/conecta/conecta_portada_sin_logos.png') }}" alt="">
+      <span class="trans-destello"></span>
+    </div>
+    <p class="trans-etiqueta panel-conecta" hidden><span class="es"></span> <span aria-hidden="true">/</span> <span class="en"></span></p>
+    <div class="trans-progreso"><span></span></div>
+    <p class="trans-cuenta"></p>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>
   <script src="{{ url_for('static', filename='js/mural.js') }}"></script>
   <script src="{{ url_for('static', filename='js/video.js') }}"></script>
   <script src="{{ url_for('static', filename='js/foro.js') }}"></script>
   <!-- T04: va el último porque usa pintarMural, pintarForo, iniciarVideo y pararVideo -->
   <script src="{{ url_for('static', filename='js/pantalla.js') }}"></script>
+  {% include '_logos.html' %}
 </body>
 </html>

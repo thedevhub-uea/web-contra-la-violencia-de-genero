@@ -19,6 +19,7 @@ import os
 import sqlite3
 from pathlib import Path
 
+from bd import estilo
 from bd.filtro import Filtro, limpiar_termino
 
 BD_DIR = Path(__file__).resolve().parent
@@ -28,7 +29,7 @@ SCHEMA_PATH = BD_DIR / "schema.sql"
 FILTROS_INICIALES_PATH = BD_DIR / "filtros_iniciales.txt"
 
 # Longitudes máximas (las mismas que en schema.sql y en el formulario de T06).
-MAX_MURAL_TEXTO = 200
+MAX_MURAL_TEXTO = 280
 MAX_FORO_TITULO = 80
 MAX_FORO_TEXTO = 280  # lo que cabe entero en una tarjeta del foro en la pantalla (el CHECK de schema.sql admite hasta 1000)
 
@@ -41,6 +42,7 @@ _ACCIONES = {
         "ocultar": "UPDATE mural SET visible = 0, retenido = 0, motivo = 'Retirado por moderación' WHERE id = ?",
         "mostrar": "UPDATE mural SET visible = 1, retenido = 0, motivo = NULL, revisado = 1 WHERE id = ?",
         "borrar": "DELETE FROM mural WHERE id = ?",
+        "quitar_estilo": "UPDATE mural SET style = '{}' WHERE id = ?",
     },
     "foro": {
         "aprobar": "UPDATE foro SET aprobado = 1, retenido = 0, motivo = NULL, revisado = 1 WHERE id = ?",
@@ -79,6 +81,13 @@ AJUSTES_POR_DEFECTO = {
     "tiempo_foro_seg": "300",        # lo que dura el foro antes de volver al mural
     "tiempo_foro_pagina_seg": "15",  # cada cuánto cambia la página de tarjetas del foro
     "tiempo_refresco_seg": "10",     # cada cuánto pide la pantalla los mensajes nuevos
+    # CONECTA: transición entre vistas de /pantalla (portada de fondo + etiqueta «Siguiente»).
+    "transicion_activa": "1",
+    "transicion_seg": "15",          # duración total, en segundos (de 1 a 60)
+    "trans_mural_es": "Mural", "trans_mural_en": "Mural",
+    "trans_video_es": "Vídeo", "trans_video_en": "Video",
+    "trans_foro_es": "Foro de reflexión", "trans_foro_en": "Reflection forum",
+    "trans_pregunta_es": "Pregunta {n}", "trans_pregunta_en": "Question {n}",   # {n} = número de pregunta
     # Control de /pantalla desde el panel (ver ordenar_pantalla()).
     "pantalla_fijada": "",       # '' = rotación automática; o 'mural' | 'video' | 'foro'
     "pantalla_salto_vista": "",  # última vista a la que se pidió saltar
@@ -114,7 +123,7 @@ _SQL = {
             "revisado": "ALTER TABLE mural ADD COLUMN revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))",
         },
         # edad: segundos desde el envío (calculada aquí: «creado» es UTC sin zona y no se parsea en JS)
-        "panel": ("SELECT id, NULL AS titulo, texto, creado, visible AS publicado, retenido, motivo, "
+        "panel": ("SELECT id, NULL AS titulo, texto, creado, visible AS publicado, retenido, motivo, style, "
                   "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
                   "FROM mural"),
         "publico": "SELECT id, NULL AS titulo, texto FROM mural WHERE id = ? AND visible = 1",
@@ -165,8 +174,63 @@ def init_db():
             con.execute("PRAGMA journal_mode = WAL")
         con.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
         _migrar_t03(con)
+        _migrar_conecta(con)
     finally:
         con.close()
+
+
+PREGUNTAS_INICIALES = (
+    (1, "¿Qué piensas de la utilidad del feminismo hoy en día?",
+     "¿Qué piensas de la utilidad del feminismo hoy en día?",
+     "What do you think about the usefulness of feminism today?"),
+    (2, "¿Cómo actuarías tú en ese lugar?",
+     "¿Cómo actuarías tú en ese lugar?",
+     "How would you act in that situation?"),
+    (3, "¿Qué le dirías a una persona que está pasando algo así?",
+     "¿Qué le dirías a una persona que está pasando algo así?",
+     "What would you say to someone going through something like this?"),
+    # El título (máx. 80) es el que ya usaban las respuestas existentes de la pregunta 4.
+    (4, "¿Son útiles los teléfonos de ayuda, los puntos morados y medidas similares?",
+     "¿Crees que son de utilidad los teléfonos de ayuda y las asistencias similares (puntos morados, "
+     "puerta en los vestuarios, aparcamientos cerca de la entrada, etc.) y que son un apoyo?",
+     "Do you think helplines and similar assistance (purple points, a door in the changing rooms, "
+     "parking near the entrance, etc.) are useful, and that they offer real support?"),
+    (5, "¿Crees que estas situaciones siguen pasando hoy en día?",
+     "¿Crees que estas situaciones siguen pasando hoy en día?",
+     "Do you think these situations still happen today?"),
+)
+
+
+def _migrar_conecta(con):
+    """Migraciones CONECTA, idempotentes y retrocompatibles:
+    1. mural: texto hasta 280 caracteres (el CHECK de SQLite no se puede cambiar con ALTER: se
+       reconstruye la tabla copiando todas las filas) y columna style (por defecto '{}').
+    2. foro_preguntas: carga las 5 preguntas con su texto en español e inglés (solo si está vacía)."""
+    sql = con.execute("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'mural'").fetchone()[0]
+    columnas = {f[1] for f in con.execute("PRAGMA table_info(mural)")}
+    if "BETWEEN 1 AND 200" in sql or "style" not in columnas:
+        con.execute("PRAGMA foreign_keys = OFF")
+        with con:
+            con.execute("DROP TABLE IF EXISTS mural_nuevo")
+            con.execute("""CREATE TABLE mural_nuevo (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                texto TEXT NOT NULL CHECK (length(trim(texto)) BETWEEN 1 AND 280),
+                creado TEXT NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now')),
+                visible INTEGER NOT NULL DEFAULT 1 CHECK (visible IN (0, 1)),
+                retenido INTEGER NOT NULL DEFAULT 0 CHECK (retenido IN (0, 1)),
+                motivo TEXT,
+                revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1)),
+                style TEXT NOT NULL DEFAULT '{}')""")
+            estilo_col = "style" if "style" in columnas else "'{}'"
+            con.execute("INSERT INTO mural_nuevo (id, texto, creado, visible, retenido, motivo, revisado, style) "
+                        f"SELECT id, texto, creado, visible, retenido, motivo, revisado, {estilo_col} FROM mural")
+            con.execute("DROP TABLE mural")
+            con.execute("ALTER TABLE mural_nuevo RENAME TO mural")
+            con.execute("CREATE INDEX IF NOT EXISTS idx_mural_visible_creado ON mural (visible, creado DESC)")
+    with con:
+        if con.execute("SELECT COUNT(*) FROM foro_preguntas").fetchone()[0] == 0:
+            con.executemany("INSERT INTO foro_preguntas (id, titulo, text_es, text_en) VALUES (?, ?, ?, ?)",
+                            PREGUNTAS_INICIALES)
 
 
 def _migrar_t03(con):
@@ -214,9 +278,25 @@ def _consultar(sql, params=()):
         con.close()
 
 
+# --- CONECTA: preguntas del foro (ES/EN) -------------------------------------
+
+def listar_preguntas():
+    """Las preguntas del foro por orden: [{id, titulo, text_es, text_en, texto}]. «texto» = text_es."""
+    filas = _consultar("SELECT id, titulo, text_es, text_en FROM foro_preguntas ORDER BY id")
+    for f in filas:
+        f["texto"] = f["text_es"]
+    return filas
+
+
+def guardar_pregunta(id_, text_es, text_en):
+    """Edita el texto (ES/EN) de una pregunta. El título que identifica las respuestas no cambia."""
+    _ejecutar("UPDATE foro_preguntas SET text_es = ?, text_en = ? WHERE id = ?",
+              (text_es.strip(), text_en.strip(), int(id_)))
+
+
 # --- Escritura pública (T01) -------------------------------------------------
 
-def insertar_mural(texto):
+def insertar_mural(texto, style=None):
     """Guarda un mensaje del mural y devuelve su id.
 
     T03: si no pasa el filtro automático (o si la aprobación manual del mural está
@@ -227,8 +307,8 @@ def insertar_mural(texto):
     if motivo is None and leer_ajustes()["mural_manual"] == "1":
         motivo = MOTIVO_PENDIENTE
     return _ejecutar(
-        "INSERT INTO mural (texto, visible, retenido, motivo) VALUES (?, ?, ?, ?)",
-        (texto, 0 if motivo else 1, 1 if motivo else 0, motivo),
+        "INSERT INTO mural (texto, visible, retenido, motivo, style) VALUES (?, ?, ?, ?, ?)",
+        (texto, 0 if motivo else 1, 1 if motivo else 0, motivo, estilo.a_json(style)),
     ).lastrowid
 
 
@@ -257,7 +337,7 @@ def listar_mural(solo_visibles=True, limite=None, vida_min=None):
     Con vida_min > 0 se excluyen los mensajes que ya han caducado (edad ≥ vida): el filtro va
     en el WHERE, antes del LIMIT, para que los caducados no ocupen sitio. No borra nada.
     """
-    sql = ("SELECT id, texto, creado, visible, "
+    sql = ("SELECT id, texto, creado, visible, style, "
            "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
            "FROM mural")
     condiciones = []
@@ -334,7 +414,8 @@ def aplicar_accion(tabla, id_, accion):
     try:
         with con:
             cambiadas = con.execute(sql, (int(id_),)).rowcount
-            con.execute("DELETE FROM avisos WHERE tabla = ? AND elemento_id = ?", (tabla, int(id_)))
+            if accion != "quitar_estilo":   # quitar el estilo no resuelve los avisos pendientes
+                con.execute("DELETE FROM avisos WHERE tabla = ? AND elemento_id = ?", (tabla, int(id_)))
         return cambiadas > 0
     finally:
         con.close()
@@ -421,6 +502,24 @@ def tiempos_pantalla():
             valor = AJUSTES_POR_DEFECTO[clave]
         tiempos[clave[len("tiempo_"):-len("_seg")]] = int(valor)
     return tiempos
+
+
+TRANSICION_LIMITES = (1.0, 60.0)
+CLAVES_ETIQUETAS = tuple(f"trans_{v}_{i}" for v in ("mural", "video", "foro") for i in ("es", "en"))
+
+
+def transicion():
+    """Ajustes de la transición de /pantalla: {activa, seg, etiquetas: {vista: {es, en}}}."""
+    a = leer_ajustes()
+    try:
+        seg = float(a["transicion_seg"])
+    except ValueError:
+        seg = float(AJUSTES_POR_DEFECTO["transicion_seg"])
+    if not (TRANSICION_LIMITES[0] <= seg <= TRANSICION_LIMITES[1]):
+        seg = float(AJUSTES_POR_DEFECTO["transicion_seg"])
+    etiquetas = {v: {"es": a[f"trans_{v}_es"], "en": a[f"trans_{v}_en"]}
+                 for v in ("mural", "video", "foro")}
+    return {"activa": a["transicion_activa"] == "1", "seg": seg, "etiquetas": etiquetas}
 
 
 def vida_mensajes_min():

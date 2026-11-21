@@ -14,6 +14,7 @@
   <meta name="robots" content="noindex">
   <title>{{ _('Avisar de un mensaje') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/avisar.css') }}">
 </head>
@@ -87,5 +88,6 @@
   <footer class="pie">#25N · {{ _('Juntas contra la violencia de género') }}</footer>
 
   <script src="{{ url_for('static', filename='js/avisar.js') }}"></script>
+  {% include '_logos.html' %}
 </body>
 </html>

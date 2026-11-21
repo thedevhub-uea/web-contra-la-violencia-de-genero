@@ -72,7 +72,10 @@
         if (vistas[clave]) continue;   // la misma identidad dos veces: se queda la primera
         vistas[clave] = true;
       }
-      limpias.push({ clave: clave, tipo: tipo, titulo: titulo, texto: texto });
+      var es = tipo === "reflexion" && e.pregunta_es ? String(e.pregunta_es).trim() : "";
+      var en = tipo === "reflexion" && e.pregunta_en ? String(e.pregunta_en).trim() : "";
+      limpias.push({ clave: clave, tipo: tipo, titulo: titulo, texto: texto, es: es, en: en,
+        pn: e.pregunta_id == null ? null : Number(e.pregunta_id) });
     }
     return limpias;
   }
@@ -90,7 +93,8 @@
     elementos.forEach(function (e) {
       var clave = e.tipo === "mensaje" ? "\u0000mensajes" : e.titulo;
       if (!porClave[clave]) {
-        porClave[clave] = { tipo: e.tipo, titulo: e.tipo === "mensaje" ? TITULO_MENSAJES : e.titulo, elementos: [] };
+        porClave[clave] = { tipo: e.tipo, titulo: e.tipo === "mensaje" ? TITULO_MENSAJES : e.titulo,
+          es: e.es, en: e.en, pn: e.pn, elementos: [] };
         grupos.push(porClave[clave]);
       }
       porClave[clave].elementos.push(e);
@@ -102,7 +106,7 @@
       g.elementos.forEach(function (e) {
         var p = longitud(e) === "larga" ? 2 : 1;
         if (!actual || peso + p > PESO_POR_PAGINA) {
-          actual = { tipo: g.tipo, titulo: g.titulo, elementos: [] };
+          actual = { tipo: g.tipo, titulo: g.titulo, es: g.es, en: g.en, pn: g.pn, elementos: [] };
           paginas.push(actual);
           peso = 0;
         }
@@ -186,6 +190,30 @@
     }
   }
 
+  // La pregunta en las dos lenguas a la vez: español arriba (grande) e inglés debajo (más pequeño).
+  // Si el texto es largo (la pregunta 4) se reduce la letra hasta que quepa sin desbordar.
+  function pintarPregunta(h2, pagina) {
+    h2.textContent = "";
+    var es = document.createElement("span");
+    es.className = "foro-pregunta-es";
+    es.textContent = pagina.tipo === "mensaje" ? recortar(pagina.titulo, MAX_TITULO) : (pagina.es || recortar(pagina.titulo, MAX_TITULO));
+    h2.appendChild(es);
+    if (pagina.en) {
+      var en = document.createElement("span");
+      en.className = "foro-pregunta-en";
+      en.lang = "en";
+      en.textContent = pagina.en;
+      h2.appendChild(en);
+    }
+    h2.style.removeProperty("--foro-pregunta-escala");
+    var escala = 1;
+    var maxAlto = window.innerHeight * 0.34;   // alto máximo de la pregunta (ES + EN)
+    while (h2.scrollHeight > maxAlto && escala > 0.4) {
+      escala -= 0.05;
+      h2.style.setProperty("--foro-pregunta-escala", escala.toFixed(2));
+    }
+  }
+
   // Pinta la página actual (sin animación).
   function pintarPagina() {
     var vista = prepararVista();
@@ -201,7 +229,7 @@
     } else {
       var pagina = estado.paginas[estado.pagina];
       pregunta.hidden = false;
-      pregunta.textContent = recortar(pagina.titulo, MAX_TITULO);
+      pintarPregunta(pregunta, pagina);
       pregunta.classList.toggle("foro-pregunta--mensajes", pagina.tipo === "mensaje");
       var visibles = pagina.elementos;
       // 1-3 respuestas en una fila; 4, en 2 × 2 (así la letra puede ser más grande)
@@ -215,7 +243,8 @@
   function siguientePagina() {
     var vista = contenedor();
     var zona = vista && vista.querySelector(".foro-tarjetas");
-    estado.pagina = (estado.pagina + 1) % totalPaginas();
+    var indiceNuevo = (estado.pagina + 1) % totalPaginas();
+    estado.pagina = indiceNuevo;
     if (!zona) { pintarPagina(); return; }
     vista.classList.add("foro-cambiando");
     setTimeout(function () {

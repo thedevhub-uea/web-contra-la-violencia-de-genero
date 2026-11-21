@@ -28,7 +28,7 @@ from babel.dates import format_datetime, format_time
 from flask import Flask, Response, abort, jsonify, redirect, render_template, request, url_for
 from flask_babel import Babel, get_locale, gettext as _, lazy_gettext as _l, ngettext
 
-from bd import db
+from bd import db, estilo
 
 
 # --- T02: HTTP Basic Auth -----------------------------------------------------
@@ -122,6 +122,9 @@ _AVISOS_PANEL = {
     ("ajustes", "guardados"): _l("Ajustes guardados.%(retirados)s"),
     ("participacion", "abrir"): _l("«%(vista)s» vuelve a admitir envíos nuevos."),
     ("participacion", "cerrar"): _l("«%(vista)s» ya no admite envíos nuevos. Lo que ya está en pantalla sigue."),
+    ("mural", "quitar_estilo"): _l("Estilo del mensaje #%(id)s restablecido al por defecto."),
+    ("transicion", "guardada"): _l("Transición guardada. La pantalla la aplica en unos segundos."),
+    ("preguntas", "guardadas"): _l("Preguntas del foro guardadas."),
     ("tiempos", "guardados"): _l("Tiempos guardados. La pantalla los aplica en unos segundos."),
     ("pantalla", "saltar"): _l("La pantalla salta a «%(vista)s» y después sigue la rotación."),
     ("pantalla", "fijar"): _l("La pantalla se queda en «%(vista)s» hasta que vuelvas a la rotación automática."),
@@ -130,35 +133,22 @@ _AVISOS_PANEL = {
 # Nombre de cada vista de /pantalla en el panel. En ?hecho=pantalla.<accion>.<n> va su posición.
 _NOMBRES_VISTAS = {"mural": _l("Mural"), "video": _l("Vídeo"), "foro": _l("Foro")}
 
-# Preguntas del foro: son las ÚNICAS de las que se puede hablar. Quien participa elige una
-# (el formulario manda su número, 1-5) y la reflexión se guarda con su «titulo», que es lo que
-# sale en la pantalla (máx. 80 caracteres, igual que el CHECK de bd/schema.sql).
-# «texto» es la pregunta completa que se ve en el formulario (traducible).
-PREGUNTAS_FORO = (
-    {"titulo": "¿Qué piensas de la utilidad del feminismo hoy en día?",
-     "texto": _l("¿Qué piensas de la utilidad del feminismo hoy en día?")},
-    {"titulo": "¿Cómo actuarías tú en ese lugar?",
-     "texto": _l("¿Cómo actuarías tú en ese lugar?")},
-    {"titulo": "¿Qué le dirías a una persona que está pasando algo así?",
-     "texto": _l("¿Qué le dirías a una persona que está pasando algo así?")},
-    {"titulo": "¿Son útiles los teléfonos de ayuda, los puntos morados y medidas similares?",
-     "texto": _l("¿Crees que son de utilidad los teléfonos de ayuda y las asistencias similares "
-                 "(puntos morados, puerta en los vestuarios, aparcamientos cerca de la entrada, etc.)? "
-                 "¿Crees que son de apoyo?")},
-    {"titulo": "¿Crees que estas situaciones siguen pasando hoy en día?",
-     "texto": _l("¿Crees que estas situaciones siguen pasando hoy en día?")},
-)
-assert all(len(p["titulo"]) <= 80 for p in PREGUNTAS_FORO)
-
-
+# Preguntas del foro: son las ÚNICAS de las que se puede hablar. Están en la tabla foro_preguntas
+# (español e inglés, editables desde el panel). Quien participa elige una (el formulario manda su
+# número) y la reflexión se guarda con su «titulo» (máx. 80 caracteres), que es la clave estable
+# con la que la pantalla agrupa las respuestas.
 def _pregunta_foro(valor):
-    """Número de pregunta (texto «1»..«5») → su dict de PREGUNTAS_FORO, o None si no es válida."""
-    if valor.isdigit() and 1 <= int(valor) <= len(PREGUNTAS_FORO):
-        return PREGUNTAS_FORO[int(valor) - 1]
+    """Número de pregunta (texto «1»..«5») → su dict de foro_preguntas, o None si no es válida."""
+    if valor.isdigit():
+        for p in db.listar_preguntas():
+            if p["id"] == int(valor):
+                return p
     return None
+
+
 _AVISOS_ERROR = {("filtro", "invalido"), ("filtro", "repetido")}
 _ANCLA_PANEL = {"mural": "revision", "foro": "revision", "filtro": "filtro", "ajustes": "filtro", "tiempos": "tiempos", "participacion": "participacion",
-                "pantalla": "control-pantalla"}
+                "pantalla": "control-pantalla", "preguntas": "preguntas", "transicion": "transicion"}
 _HECHO = re.compile(r"^([a-z]+)\.([a-z]+)\.(\d{1,12})$")
 
 
@@ -314,8 +304,8 @@ def create_app():
     @app.context_processor
     def datos_idioma():
         return {"idiomas": IDIOMAS, "idioma_actual": str(get_locale() or IDIOMA_POR_DEFECTO),
-                "volver_aqui": _volver_aqui, "preguntas_foro": PREGUNTAS_FORO,
-                "max_foro_texto": db.MAX_FORO_TEXTO,
+                "volver_aqui": _volver_aqui, "preguntas_foro": db.listar_preguntas,
+                "max_foro_texto": db.MAX_FORO_TEXTO, "max_mural_texto": db.MAX_MURAL_TEXTO,
                 # Función (no valor): solo consulta la BD en las plantillas que la usan
                 "participacion": db.participacion}
 
@@ -363,7 +353,8 @@ def create_app():
                                 num=db.MAX_MURAL_TEXTO),
             ), 400
 
-        db.insertar_mural(texto)
+        # El estilo llega como JSON en un campo oculto; db.insertar_mural lo sanea (lista blanca).
+        db.insertar_mural(texto, request.form.get("style", ""))
         return redirect(url_for("gracias"))
 
     @app.post("/foro")
@@ -411,8 +402,8 @@ def create_app():
         # T15: los mensajes caducados ya no salen; caduca_en = segundos que le quedan (None: no caduca).
         vida = db.vida_mensajes_min()
         mensajes = db.listar_mural(solo_visibles=True, limite=30, vida_min=vida)
-        return jsonify([{"id": m["id"], "texto": m["texto"], "caduca_en": db.caduca_en(m["edad"], vida)}
-                        for m in mensajes])
+        return jsonify([{"id": m["id"], "texto": m["texto"], "caduca_en": db.caduca_en(m["edad"], vida),
+                         "style": estilo.leer(m["style"])} for m in mensajes])
 
     @app.get("/api/foro")
     def api_foro():
@@ -421,9 +412,15 @@ def create_app():
         # T15: los mensajes caducados ya no salen (las reflexiones no caducan) y cada mensaje
         # lleva caduca_en (segundos que le quedan; None si no caduca).
         vida = db.vida_mensajes_min()
+        preguntas = {p["titulo"]: p for p in db.listar_preguntas()}
         salida = []
         for e in db.listar_foro_mixto(vida_min=vida):
             fila = {"tipo": e["tipo"], "id": e["id"], "titulo": e["titulo"], "texto": e["texto"]}
+            if e["tipo"] == "reflexion":
+                p = preguntas.get(e["titulo"])
+                fila["pregunta_id"] = p["id"] if p else None
+                fila["pregunta_es"] = p["text_es"] if p else e["titulo"]
+                fila["pregunta_en"] = p["text_en"] if p else ""
             if e["tipo"] == "mensaje":
                 fila["caduca_en"] = db.caduca_en(e["edad"], vida)
             salida.append(fila)
@@ -432,7 +429,8 @@ def create_app():
     @app.get("/api/pantalla")
     def api_pantalla():
         """Órdenes del panel: vista fijada, último salto pedido y tiempos (lo consulta pantalla.js)."""
-        resp = jsonify({**db.estado_pantalla(), "tiempos": db.tiempos_pantalla()})
+        resp = jsonify({**db.estado_pantalla(), "tiempos": db.tiempos_pantalla(),
+                        "transicion": db.transicion()})
         resp.headers["Cache-Control"] = "no-store"
         return resp
 
@@ -467,6 +465,8 @@ def create_app():
             ajustes=db.leer_ajustes(),
             control=db.estado_pantalla(),
             tiempos=db.tiempos_pantalla(),
+            transicion=db.transicion(),
+            preguntas=db.listar_preguntas(),
             limites_tiempos=db.TIEMPOS_PANTALLA,
             max_vida_min=db.MAX_VIDA_MENSAJES_MIN,
             vistas=_NOMBRES_VISTAS,
@@ -520,6 +520,17 @@ def create_app():
         db.guardar_ajustes(nuevos)
         return _volver_al_panel("ajustes", "guardados", 0, db.revisar_publicados())
 
+    @app.post("/admin/preguntas")
+    @requiere_rol("admin")
+    def admin_preguntas():
+        _comprobar_csrf()
+        for p in db.listar_preguntas():
+            es = request.form.get(f"es_{p['id']}", "").strip()
+            en = request.form.get(f"en_{p['id']}", "").strip()
+            if es and len(es) <= 400 and len(en) <= 400:
+                db.guardar_pregunta(p["id"], es, en)
+        return _volver_al_panel("preguntas", "guardadas")
+
     @app.post("/admin/participacion")
     @requiere_rol("admin")
     def admin_participacion():
@@ -548,6 +559,25 @@ def create_app():
             nuevos["mensajes_vida_min"] = str(int(vida))
         db.guardar_ajustes(nuevos)
         return _volver_al_panel("tiempos", "guardados")
+
+    @app.post("/admin/transicion")
+    @requiere_rol("admin")
+    def admin_transicion():
+        """Transición entre vistas: activar/desactivar, duración y textos de la etiqueta «Siguiente»."""
+        _comprobar_csrf()
+        nuevos = {"transicion_activa": "1" if request.form.get("transicion_activa") == "1" else "0"}
+        try:
+            seg = float(request.form.get("transicion_seg", "").replace(",", "."))
+            if db.TRANSICION_LIMITES[0] <= seg <= db.TRANSICION_LIMITES[1]:
+                nuevos["transicion_seg"] = ("%.1f" % seg).rstrip("0").rstrip(".")
+        except ValueError:
+            pass
+        for clave in db.CLAVES_ETIQUETAS:
+            valor = request.form.get(clave, "").strip()
+            if 0 < len(valor) <= 60:
+                nuevos[clave] = valor
+        db.guardar_ajustes(nuevos)
+        return _volver_al_panel("transicion", "guardada")
 
     @app.post("/admin/pantalla")
     @requiere_rol("admin")

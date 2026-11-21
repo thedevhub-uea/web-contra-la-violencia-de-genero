@@ -53,8 +53,10 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 
 /* --- Cabecera ------------------------------------------------------------ */
 .cabecera {
-  background: var(--acento-osc);
-  color: var(--texto-inverso);
+  background: var(--bg-2);
+  color: var(--text);
+  border-bottom: 3px solid transparent;
+  border-image: var(--degradado) 1;
   padding: max(16px, env(safe-area-inset-top)) var(--lado-der) 14px var(--lado-izq);
   text-align: center;
 }
@@ -247,8 +249,8 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   padding: 8px 16px;
   border: 0;
   border-radius: var(--radio);
-  background: var(--acento);
-  color: var(--texto-inverso);
+  background: var(--degradado);   /* crimson → morado, como la portada */
+  color: var(--text);
   font: inherit;
   font-size: 1.1rem;
   font-weight: 700;
@@ -259,7 +261,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   -webkit-appearance: none;
   appearance: none;
 }
-.boton:active { background: var(--acento-osc); }
+.boton:active { filter: brightness(1.2); }
 .boton:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; }
 
 /* Botón de enviar del formulario: se queda pegado abajo de la pantalla mientras se
@@ -267,7 +269,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
    Cuando se llega al final del formulario vuelve a su sitio. */
 .boton-enviar {
   position: sticky;
-  bottom: calc(10px + var(--abajo));
+  bottom: calc(60px + var(--abajo));   /* por encima de los logos fijos */
   z-index: 2;
   box-shadow: 0 0 0 6px var(--superficie), 0 6px 16px rgb(var(--acento-osc-rgb) / .3);
 }
@@ -340,3 +342,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   .icono { width: 52px; height: 52px; font-size: 1.8rem; margin-bottom: 8px; }
   .tarjeta .boton { margin-top: 12px; }
 }
+
+/* CONECTA: preguntas del foro en las dos lenguas y título del editor de burbuja */
+.pregunta-en { display: block; margin-top: .2rem; font-size: .85em; color: var(--texto-sec); font-weight: 500; }
+.eb-titulo { margin: 1rem 0 0; font-size: 1.05rem; }

@@ -17,7 +17,7 @@
 
 /* ---------- Medidas (los colores están en paleta.css) ---------- */
 :root {
-  --fuente: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --fuente: var(--fuente-conecta);
 
   /* Letra grande, legible desde el fondo de la sala */
   --texto-base: clamp(1.25rem, 2.6vh, 2.25rem);
@@ -157,7 +157,7 @@ body {
 #vista-foro.vista {
   min-height: 0;
   gap: 3.5vh;
-  padding: 4vh 4vw 4vh;
+  padding: 4vh 4vw 11vh; /* abajo: sitio para los logos fijos */
   padding-right: var(--qr-hueco); /* las tarjetas no pasan por debajo del QR */
 }
 
@@ -184,23 +184,37 @@ body {
   padding: 0.6vh 1.8vh;
   border-radius: 999px;
   background: rgb(var(--acento-rgb) / 0.12);
-  color: var(--acento-osc);
+  color: var(--acento);
   font-size: clamp(1rem, 2.4vh, 2rem);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-/* La pregunta: entera (máx. 80 caracteres), muy grande y con contraste alto */
+/* La pregunta, en español (grande, --text) e inglés debajo (más pequeña, --text-muted).
+ * foro.js reduce --foro-pregunta-escala si el texto es largo, para que nunca desborde. */
 #vista-foro.vista .foro-pregunta {
+  --foro-pregunta-escala: 1;
   margin: 0;
-  max-width: 30ch;
-  color: var(--acento-osc);
-  font-size: clamp(2.25rem, 6.4vh, 6rem);
+  max-width: 100%;
+  color: var(--text);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
   text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+#vista-foro.vista .foro-pregunta-es {
+  display: block;
+  font-size: calc(clamp(2rem, 5.6vh, 5rem) * var(--foro-pregunta-escala));
+}
+#vista-foro.vista .foro-pregunta-en {
+  display: block;
+  margin-top: 1vh;
+  color: var(--text-muted);
+  font-size: calc(clamp(1.3rem, 3.4vh, 3rem) * var(--foro-pregunta-escala));
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 #vista-foro.vista .foro-pregunta[hidden] {
@@ -479,7 +493,8 @@ body {
 .boton-pantalla-completa {
   position: fixed;
   bottom: calc(var(--aro-grosor) + var(--margen));
-  left: calc(var(--aro-grosor) + var(--margen));
+  left: 50%;                 /* centrado: la esquina inferior izquierda es de los logos fijos */
+  transform: translateX(-50%);
   z-index: 20;
   height: 2.2em;
   padding: 0 1em;
@@ -515,4 +530,106 @@ body {
   .aro-tiempo.aro-activo .aro-progreso {
     animation-timing-function: steps(100, end);
   }
+}
+
+/* ---------- Transición entre vistas y pantalla de inicio (CONECTA) ----------
+ * La portada (sin logos) cubre toda la proyección con object-fit: cover y un zoom muy lento
+ * (1.00 → 1.06). Va por encima de las vistas y del QR, pero por debajo de los logos fijos. */
+#transicion-pantalla {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  background: var(--bg-0);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+#transicion-pantalla.trans-visible { opacity: 1; visibility: visible; transition: opacity 0.5s ease, visibility 0s; }
+#transicion-pantalla.trans-fuera { visibility: visible; }
+#transicion-pantalla img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+}
+#transicion-pantalla.trans-visible img { animation: trans-zoom var(--trans-dur, 3s) linear forwards; }
+#transicion-pantalla.trans-inicio img { animation-duration: 3s; }
+@keyframes trans-zoom { from { transform: scale(1); } to { transform: scale(1.06); } }
+
+/* Etiqueta «Siguiente: … / Next: …», centrada bajo el panel del título (que acaba hacia el 72 % del alto) */
+#transicion-pantalla .trans-etiqueta {
+  position: absolute;
+  left: 50%;
+  top: 77%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 1.1vh 2.4vw;
+  color: var(--rose);
+  font-size: clamp(0.85rem, 2.2vh, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+#transicion-pantalla .trans-etiqueta[hidden] { display: none; }
+
+/* La vista en curso se desvanece al salir y entra con fundido */
+.vista { transition: opacity 0.5s ease; }
+body.trans-saliendo .vista, body.trans-saliendo #qr { opacity: 0; }
+body.trans-entrando .vista { animation: aparecer-vista 0.5s ease both; }
+@keyframes aparecer-vista { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  #transicion-pantalla img { animation: none !important; }
+  #transicion-pantalla, .vista { transition: none; }
+}
+
+/* Transición viva: el fondo se mueve (zoom + deriva lenta), un destello recorre el panel del título,
+ * una barra se llena durante todo el tiempo y la cuenta atrás avisa de lo que queda. */
+#transicion-pantalla .trans-lienzo { position: absolute; inset: 0; }
+#transicion-pantalla.trans-visible .trans-lienzo { animation: trans-deriva var(--trans-dur, 15s) ease-in-out forwards; }
+#transicion-pantalla.trans-visible img { animation: none; }
+@keyframes trans-deriva {
+  from { transform: scale(1) translate(0, 0); }
+  to { transform: scale(1.06) translate(-0.8%, -0.6%); }
+}
+#transicion-pantalla .trans-destello {
+  position: absolute;
+  left: 21%; top: 23%; width: 58%; height: 48%;   /* sobre el panel del título de la portada */
+  overflow: hidden;
+  border-radius: 6px;
+  pointer-events: none;
+}
+#transicion-pantalla .trans-destello::after {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; width: 30%;
+  background: linear-gradient(100deg, transparent, rgb(var(--blanco-rgb) / .16), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+}
+#transicion-pantalla.trans-visible:not(.trans-inicio) .trans-destello::after { animation: trans-destello 5s ease-in-out infinite; }
+@keyframes trans-destello { 0% { transform: translateX(-120%) skewX(-18deg); } 55%, 100% { transform: translateX(480%) skewX(-18deg); } }
+#transicion-pantalla .trans-etiqueta { animation: trans-etiqueta-in .8s ease-out .5s both; }
+@keyframes trans-etiqueta-in { from { opacity: 0; translate: 0 2vh; } to { opacity: 1; translate: 0 0; } }
+#transicion-pantalla .trans-progreso {
+  position: absolute; left: 12%; right: 12%; top: 88%;
+  height: 0.7vh; border-radius: 999px; overflow: hidden;
+  background: rgb(var(--blanco-rgb) / .18);
+}
+#transicion-pantalla .trans-progreso span {
+  display: block; height: 100%; width: 100%;
+  background: var(--degradado);
+  transform-origin: left; transform: scaleX(0);
+}
+#transicion-pantalla.trans-visible:not(.trans-inicio) .trans-progreso span { animation: trans-llenar var(--trans-dur, 15s) linear forwards; }
+@keyframes trans-llenar { to { transform: scaleX(1); } }
+#transicion-pantalla .trans-cuenta {
+  position: absolute; left: 0; right: 0; top: 90.5%; margin: 0; text-align: center;
+  color: var(--text-muted); font-size: clamp(0.9rem, 2.2vh, 1.6rem); font-weight: 700; letter-spacing: 0.1em;
+}
+#transicion-pantalla.trans-inicio .trans-progreso, #transicion-pantalla.trans-inicio .trans-cuenta { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  #transicion-pantalla .trans-lienzo, #transicion-pantalla .trans-destello::after, #transicion-pantalla .trans-etiqueta { animation: none !important; }
 }
