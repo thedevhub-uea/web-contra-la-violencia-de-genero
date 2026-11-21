@@ -53,6 +53,9 @@
 
 /* Vista del admin */
 .adm-eb { width: 96px; height: 96px; flex: 0 0 96px; }
-#vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo { background: none; box-shadow: none; border: 0; clip-path: none; overflow: visible; }
+#vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo {
+  background: none; box-shadow: none; border: 0; border-radius: 0; clip-path: none; overflow: visible;
+  -webkit-backdrop-filter: none; backdrop-filter: none;
+}
 #vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo::before,
 #vista-mural .burbuja.burbuja--estilo .burbuja-cuerpo::after { display: none; }

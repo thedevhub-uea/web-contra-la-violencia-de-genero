@@ -49,7 +49,7 @@ body.admin [hidden] { display: none !important; }
   top: 0;
   z-index: 20;
   background: var(--noche);
-  color: var(--texto-inverso);
+  color: var(--texto);
   box-shadow: 0 1px 0 rgb(var(--negro-rgb) / .25), 0 4px 16px rgb(var(--noche-rgb) / .18);
 }
 .adm-barra-in {
@@ -89,7 +89,7 @@ body.admin [hidden] { display: none !important; }
   min-height: 32px;
   padding: 0 8px;
   border-radius: 6px;
-  color: var(--texto-inverso);
+  color: var(--texto);
 }
 .adm-idioma a { color: var(--acento-claro); }
 .adm-idioma a:hover { background: rgb(var(--blanco-rgb) / .12); }
@@ -560,7 +560,7 @@ body.admin [hidden] { display: none !important; }
   width: auto;
   background: rgb(var(--blanco-rgb) / .08);
   border-color: rgb(var(--blanco-rgb) / .35);
-  color: var(--texto-inverso);
+  color: var(--texto);
 }
 .adm-btn-barra:hover { background: rgb(var(--blanco-rgb) / .16); }
 

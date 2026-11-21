@@ -58,13 +58,12 @@
     hexagono: 'M50 2L92 26V74L50 98L8 74V26Z',
     gota: 'M50 2C50 2 14 42 14 64C14 84 30 98 50 98C70 98 86 84 86 64C86 42 50 2 50 2Z',
     // Lazo morado: dos lóbulos que se cruzan arriba y dos colas.
-    lazo: 'M50 44C30 30 18 14 28 6C40 -2 56 20 50 44Z M50 44C70 30 82 14 72 6C60 -2 44 20 50 44Z ' +
-      'M50 44L24 97Q38 99 50 82Q62 99 76 97L50 44Z',
+    lazo: 'M50 48C12 30 20 2 50 2C80 2 88 30 50 48L76 98L60 98L50 78L40 98L24 98Z',
   };
   // Margen interior del texto en % de la caja: [arriba, derecha, abajo, izquierda].
   var MARGEN_TEXTO = {
     circulo: [15, 15, 15, 15], cuadrado: [9, 9, 9, 9], corazon: [20, 17, 26, 17], nube: [9, 9, 30, 9],
-    estrella: [30, 28, 24, 28], hexagono: [15, 12, 15, 12], gota: [38, 17, 15, 17], lazo: [24, 30, 26, 30],
+    estrella: [30, 28, 24, 28], hexagono: [15, 12, 15, 12], gota: [38, 17, 15, 17], lazo: [9, 22, 50, 22],
   };
 
   var RE_COLOR = /^#[0-9a-fA-F]{6}$/;

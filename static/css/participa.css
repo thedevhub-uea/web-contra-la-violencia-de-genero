@@ -53,8 +53,10 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 
 /* --- Cabecera ------------------------------------------------------------ */
 .cabecera {
-  background: var(--acento-osc);
-  color: var(--texto-inverso);
+  background: var(--bg-2);
+  color: var(--text);
+  border-bottom: 3px solid transparent;
+  border-image: var(--degradado) 1;
   padding: max(16px, env(safe-area-inset-top)) var(--lado-der) 14px var(--lado-izq);
   text-align: center;
 }
@@ -247,8 +249,8 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   padding: 8px 16px;
   border: 0;
   border-radius: var(--radio);
-  background: var(--acento);
-  color: var(--texto-inverso);
+  background: var(--degradado);   /* crimson → morado, como la portada */
+  color: var(--text);
   font: inherit;
   font-size: 1.1rem;
   font-weight: 700;
@@ -259,7 +261,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   -webkit-appearance: none;
   appearance: none;
 }
-.boton:active { background: var(--acento-osc); }
+.boton:active { filter: brightness(1.2); }
 .boton:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; }
 
 /* Botón de enviar del formulario: se queda pegado abajo de la pantalla mientras se

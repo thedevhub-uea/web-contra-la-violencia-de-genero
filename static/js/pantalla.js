@@ -85,7 +85,83 @@
     arrancarAro(ms); // T17: en mural y foro el aro dura exactamente lo que el temporizador
   }
 
+  // ---------- Transición entre vistas (CONECTA) ----------
+  // Pantalla intermedia con la portada (sin logos: los pone el componente fijo) y una etiqueta
+  // «Siguiente: X / Next: Y». La vista actual se desvanece (~500 ms) mientras aparece la portada,
+  // que se muestra con un zoom muy lento; se cambia de vista por detrás y la portada se desvanece
+  // (~500 ms) dejando ver la nueva. No se interrumpe nunca un vídeo en reproducción: solo se
+  // transiciona al CAMBIAR de vista. Se activa y se ajusta desde el panel (/api/pantalla).
+  const TRANS = { activa: true, seg: 3, etiquetas: {}, enCurso: false, destino: null };
+  const FUNDIDO = 500;
+  const capaTrans = document.getElementById('transicion-pantalla');
+
+  function mostrarEtiqueta(clave, n) {
+    if (!capaTrans) return;
+    const et = capaTrans.querySelector('.trans-etiqueta');
+    const e = TRANS.etiquetas[clave];
+    et.hidden = !e;
+    if (e) {
+      const poner = t => String(t).replace('{n}', n == null ? '' : n);
+      et.querySelector('.es').textContent = 'Siguiente: ' + poner(e.es);
+      et.querySelector('.en').textContent = 'Next: ' + poner(e.en);
+    }
+  }
+
+  // destino: {vista} o {pregunta: n}. aMitad() hace el cambio real mientras la portada lo tapa.
+  // Devuelve false si no hay transición (el cambio lo hace quien llama) o si ya hay una en curso.
+  function transicionar(destino, aMitad) {
+    if (!capaTrans || !TRANS.activa || TRANS.enCurso) return false;
+    TRANS.enCurso = true;
+    mostrarEtiqueta(destino.pregunta != null ? 'pregunta' : destino.vista, destino.pregunta);
+    const total = TRANS.seg * 1000;
+    const retencion = Math.max(500, total - 2 * FUNDIDO);
+    document.body.classList.add('trans-saliendo');          // la vista actual hace fade-out
+    capaTrans.style.setProperty('--trans-dur', (total / 1000) + 's');
+    capaTrans.classList.remove('trans-fuera');
+    capaTrans.classList.add('trans-visible');
+    // Tras el fundido la portada es opaca; se espera y, justo antes de revelar, se cambia de vista
+    // (así el vídeo no empieza a reproducirse «a ciegas» debajo de la portada).
+    setTimeout(() => {
+      aMitad();
+      document.body.classList.remove('trans-saliendo');
+      document.body.classList.add('trans-entrando');         // la nueva vista hace fade-in
+      capaTrans.classList.remove('trans-visible');
+      capaTrans.classList.add('trans-fuera');
+      setTimeout(() => {
+        document.body.classList.remove('trans-entrando');
+        capaTrans.classList.remove('trans-fuera');
+        TRANS.enCurso = false;
+      }, FUNDIDO);
+    }, FUNDIDO + retencion);
+    return true;
+  }
+
+  window.pantallaTransicion = {
+    activa: () => TRANS.activa && !!capaTrans,
+    enCurso: () => TRANS.enCurso,
+    ir: (destino, aMitad) => transicionar(destino, aMitad),
+  };
+
+  function aplicarTransicion(t) {
+    if (!t || typeof t !== 'object') return;
+    TRANS.activa = t.activa !== false;
+    if (Number.isFinite(t.seg) && t.seg >= 1 && t.seg <= 10) TRANS.seg = t.seg;
+    if (t.etiquetas && typeof t.etiquetas === 'object') TRANS.etiquetas = t.etiquetas;
+  }
+
+  // Cambio de vista: con transición si ya había una vista y es distinta. Si llega otra orden
+  // mientras dura la transición, solo se actualiza el destino.
   function mostrarVista(nombre) {
+    if (TRANS.enCurso) { TRANS.destino = nombre; return; }
+    if (vistaActual && vistaActual !== nombre && TRANS.activa) {
+      TRANS.destino = nombre;
+      limpiarTemporizadores();               // sin aro ni temporizador mientras se tapa la vista
+      if (transicionar({ vista: nombre }, () => cambiarVista(TRANS.destino))) return;
+    }
+    cambiarVista(nombre);
+  }
+
+  function cambiarVista(nombre) {
     limpiarTemporizadores();
     if (vistaActual === 'video') detenerVideo();
 
@@ -244,6 +320,7 @@
       if (!res.ok) throw new Error('HTTP ' + res.status);
       const d = await res.json();
       aplicarTiempos(d.tiempos);
+      aplicarTransicion(d.transicion);
       aplicarOrdenes(d);
     } catch (e) {
       // Sin respuesta: se sigue con lo que hubiera (rotación o vista fijada)
@@ -377,7 +454,16 @@
   crearBotonPantallaCompleta();
   crearBarra();  // antes de la primera vista: mostrarVista() marca la activa
   crearAro();    // antes de la primera vista: programarFin() lo arranca o lo oculta
-  siguiente();   // muestra la primera vista
+  siguiente();   // muestra la primera vista (detrás de la portada de inicio, que se retira sola)
+  if (capaTrans) {
+    // Pantalla de inicio / reposo: la portada sin etiqueta «Siguiente», visible al cargar.
+    capaTrans.classList.add('trans-visible', 'trans-inicio');
+    setTimeout(() => {
+      capaTrans.classList.remove('trans-visible', 'trans-inicio');
+      capaTrans.classList.add('trans-fuera');
+      setTimeout(() => capaTrans.classList.remove('trans-fuera'), FUNDIDO);
+    }, 2500);
+  }
   cicloDatos();  // primera carga de datos inmediata, luego cada 10 s
   cicloControl(); // órdenes del panel: al arrancar y luego cada 3 s
 })();

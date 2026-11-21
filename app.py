@@ -422,6 +422,7 @@ def create_app():
             fila = {"tipo": e["tipo"], "id": e["id"], "titulo": e["titulo"], "texto": e["texto"]}
             if e["tipo"] == "reflexion":
                 p = preguntas.get(e["titulo"])
+                fila["pregunta_id"] = p["id"] if p else None
                 fila["pregunta_es"] = p["text_es"] if p else e["titulo"]
                 fila["pregunta_en"] = p["text_en"] if p else ""
             if e["tipo"] == "mensaje":

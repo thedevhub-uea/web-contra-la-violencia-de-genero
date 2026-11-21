@@ -17,7 +17,7 @@
 
 /* ---------- Medidas (los colores están en paleta.css) ---------- */
 :root {
-  --fuente: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --fuente: var(--fuente-conecta);
 
   /* Letra grande, legible desde el fondo de la sala */
   --texto-base: clamp(1.25rem, 2.6vh, 2.25rem);
@@ -157,7 +157,7 @@ body {
 #vista-foro.vista {
   min-height: 0;
   gap: 3.5vh;
-  padding: 4vh 4vw 4vh;
+  padding: 4vh 4vw 11vh; /* abajo: sitio para los logos fijos */
   padding-right: var(--qr-hueco); /* las tarjetas no pasan por debajo del QR */
 }
 
@@ -184,23 +184,37 @@ body {
   padding: 0.6vh 1.8vh;
   border-radius: 999px;
   background: rgb(var(--acento-rgb) / 0.12);
-  color: var(--acento-osc);
+  color: var(--acento);
   font-size: clamp(1rem, 2.4vh, 2rem);
   font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-/* La pregunta: entera (máx. 80 caracteres), muy grande y con contraste alto */
+/* La pregunta, en español (grande, --text) e inglés debajo (más pequeña, --text-muted).
+ * foro.js reduce --foro-pregunta-escala si el texto es largo, para que nunca desborde. */
 #vista-foro.vista .foro-pregunta {
+  --foro-pregunta-escala: 1;
   margin: 0;
-  max-width: 30ch;
-  color: var(--acento-osc);
-  font-size: clamp(2.25rem, 6.4vh, 6rem);
+  max-width: 100%;
+  color: var(--text);
   font-weight: 800;
-  line-height: 1.08;
-  letter-spacing: -0.01em;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
   text-wrap: balance;
+  overflow-wrap: anywhere;
+}
+#vista-foro.vista .foro-pregunta-es {
+  display: block;
+  font-size: calc(clamp(2rem, 5.6vh, 5rem) * var(--foro-pregunta-escala));
+}
+#vista-foro.vista .foro-pregunta-en {
+  display: block;
+  margin-top: 1vh;
+  color: var(--text-muted);
+  font-size: calc(clamp(1.3rem, 3.4vh, 3rem) * var(--foro-pregunta-escala));
+  font-weight: 500;
+  letter-spacing: 0;
 }
 
 #vista-foro.vista .foro-pregunta[hidden] {
@@ -479,7 +493,8 @@ body {
 .boton-pantalla-completa {
   position: fixed;
   bottom: calc(var(--aro-grosor) + var(--margen));
-  left: calc(var(--aro-grosor) + var(--margen));
+  left: 50%;                 /* centrado: la esquina inferior izquierda es de los logos fijos */
+  transform: translateX(-50%);
   z-index: 20;
   height: 2.2em;
   padding: 0 1em;
@@ -515,4 +530,58 @@ body {
   .aro-tiempo.aro-activo .aro-progreso {
     animation-timing-function: steps(100, end);
   }
+}
+
+/* ---------- Transición entre vistas y pantalla de inicio (CONECTA) ----------
+ * La portada (sin logos) cubre toda la proyección con object-fit: cover y un zoom muy lento
+ * (1.00 → 1.06). Va por encima de las vistas y del QR, pero por debajo de los logos fijos. */
+#transicion-pantalla {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  background: var(--bg-0);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.5s ease, visibility 0s linear 0.5s;
+}
+#transicion-pantalla.trans-visible { opacity: 1; visibility: visible; transition: opacity 0.5s ease, visibility 0s; }
+#transicion-pantalla.trans-fuera { visibility: visible; }
+#transicion-pantalla img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1);
+}
+#transicion-pantalla.trans-visible img { animation: trans-zoom var(--trans-dur, 3s) linear forwards; }
+#transicion-pantalla.trans-inicio img { animation-duration: 3s; }
+@keyframes trans-zoom { from { transform: scale(1); } to { transform: scale(1.06); } }
+
+/* Etiqueta «Siguiente: … / Next: …», centrada bajo el panel del título (que acaba hacia el 72 % del alto) */
+#transicion-pantalla .trans-etiqueta {
+  position: absolute;
+  left: 50%;
+  top: 77%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 1.1vh 2.4vw;
+  color: var(--rose);
+  font-size: clamp(0.85rem, 2.2vh, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+}
+#transicion-pantalla .trans-etiqueta[hidden] { display: none; }
+
+/* La vista en curso se desvanece al salir y entra con fundido */
+.vista { transition: opacity 0.5s ease; }
+body.trans-saliendo .vista, body.trans-saliendo #qr { opacity: 0; }
+body.trans-entrando .vista { animation: aparecer-vista 0.5s ease both; }
+@keyframes aparecer-vista { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  #transicion-pantalla img { animation: none !important; }
+  #transicion-pantalla, .vista { transition: none; }
 }
