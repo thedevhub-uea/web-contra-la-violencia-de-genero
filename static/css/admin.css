@@ -661,3 +661,171 @@ body.admin [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
   .adm-fila-reciente { animation: none; background: var(--adm-resalte-2); }
 }
+
+/* =====================================================================
+ * Panel en vivo: dos columnas, interruptores, avisos flotantes y novedades
+ * ===================================================================== */
+.adm, .adm-barra-in { max-width: 1360px; }
+body.adm-js .adm-solo-sin-js { display: none !important; }
+
+/* Las «i» abren una burbuja por debajo: el panel no la recorta */
+.adm-panel { overflow: visible; }
+.adm-panel-cab { position: relative; border-radius: var(--adm-radio) var(--adm-radio) 0 0; }
+.adm-panel-cab > .adm-info { align-self: flex-start; }
+.adm-panel-cab > .adm-info .adm-info-texto { left: 16px; right: 16px; }
+.adm-bloque h3 { position: relative; }
+
+/* Columnas: moderación a la izquierda; pantalla, participación, tiempos y filtro a la derecha */
+.adm-columnas { display: grid; grid-template-columns: minmax(0, 1fr); gap: 0 20px; align-items: start; }
+@media (min-width: 1100px) {
+  .adm-columnas { grid-template-columns: minmax(0, 1fr) minmax(340px, 400px); }
+  .adm-col-lateral .adm-fila { grid-template-columns: minmax(0, 1fr); }
+}
+.adm-col-lateral .adm-panel-cab { padding: 12px 16px; }
+.adm-col-lateral .adm-panel-cab h2 { font-size: 16px; flex-wrap: wrap; }
+
+/* Resumen: la cuarta cifra es la vista de la pantalla (texto, no número) */
+.adm-dato-vista { font-size: 22px; }
+
+/* Indicador «En directo» */
+.adm-vivo { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--acento-claro); white-space: nowrap; }
+.adm-vivo-punto { width: 9px; height: 9px; border-radius: 50%; background: var(--adm-verde); box-shadow: 0 0 0 0 var(--adm-verde); animation: adm-latido 2s ease-out infinite; }
+.adm-vivo-error { color: var(--adm-rojo-texto); }
+.adm-vivo-error .adm-vivo-punto { background: var(--adm-rojo); animation: none; }
+@keyframes adm-latido { 0% { box-shadow: 0 0 0 0 rgb(var(--acento-rgb) / .55); } 100% { box-shadow: 0 0 0 8px rgb(var(--acento-rgb) / 0); } }
+
+/* Avisos flotantes (toasts) abajo a la derecha */
+.adm-toasts {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: min(420px, calc(100vw - 32px));
+  pointer-events: none;
+}
+.adm-toasts .adm-aviso {
+  position: static;
+  width: auto;
+  transform: none;
+  pointer-events: auto;
+  animation: adm-toast-entra .25s ease-out;
+}
+.adm-toasts .adm-aviso.adm-saliendo { opacity: 0; transform: translateY(12px); }
+.adm-aviso-info { background: var(--acento); color: var(--texto-inverso); }
+@keyframes adm-toast-entra { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+/* Filas: mientras se guarda una acción, y lo que acaba de llegar */
+.adm-ocupada { opacity: .5; pointer-events: none; transition: opacity .2s; }
+.adm-fila-nueva { animation: adm-entra 1.6s ease-out; }
+@keyframes adm-entra {
+  0% { background: var(--adm-resalte); box-shadow: inset 4px 0 0 var(--acento); }
+  100% { background: transparent; box-shadow: inset 4px 0 0 transparent; }
+}
+.adm-guardando { opacity: .7; transition: opacity .2s; }
+.adm-btn[aria-busy="true"] { cursor: progress; }
+
+/* Pantalla: una fila por vista con «Saltar» y «Fijar» */
+.adm-vistas { list-style: none; margin: 0; padding: 4px 0; }
+.adm-vista {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+}
+.adm-vista + .adm-vista { border-top: 1px solid var(--adm-borde); }
+.adm-vista form { margin: 0; }
+.adm-vista-fijada { background: var(--adm-resalte-2); box-shadow: inset 3px 0 0 var(--acento); }
+.adm-vista .adm-btn[aria-pressed="true"]:disabled { opacity: 1; cursor: default; }
+.adm-btn-peq { width: auto; min-width: 76px; min-height: 36px; padding: 0 12px; font-size: 14px; }
+.adm-control-soltar { margin: 0; padding: 4px 16px 16px; }
+
+/* Interruptores (participación, transición) */
+.adm-interruptores { display: grid; gap: 2px; padding: 8px 16px; }
+.adm-interruptores + form { border-top: 1px solid var(--adm-borde); }
+.adm-interruptor-form { margin: 0; }
+.adm-interruptor {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 52px;
+  padding: 6px 0;
+  border: 0;
+  background: none;
+  color: var(--adm-texto);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.adm-interruptor-txt { display: flex; flex-direction: column; min-width: 0; }
+.adm-interruptor-txt b { font-size: 15px; font-weight: 700; }
+.adm-interruptor-txt small { font-size: 13px; color: var(--adm-suave); }
+.adm-interruptor-pista,
+.adm-check input[type="checkbox"] {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  margin: 0;
+  border-radius: 999px;
+  background: var(--adm-gris-fondo);
+  box-shadow: inset 0 0 0 1px var(--adm-borde-fuerte);
+  transition: background .2s;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.adm-interruptor-pista::after,
+.adm-check input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--adm-gris-texto);
+  transition: transform .2s, background .2s;
+}
+.adm-interruptor[aria-checked="true"] .adm-interruptor-pista,
+.adm-check input[type="checkbox"]:checked { background: var(--adm-verde); box-shadow: none; }
+.adm-interruptor[aria-checked="true"] .adm-interruptor-pista::after,
+.adm-check input[type="checkbox"]:checked::after { transform: translateX(18px); background: var(--texto-inverso); }
+.adm-interruptor[aria-checked="false"] .adm-interruptor-txt small { color: var(--adm-ambar-texto); }
+
+/* Ajustes del filtro: casillas con forma de interruptor, agrupadas */
+.adm-reglas h3 { margin: 18px 0 4px; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--adm-suave); }
+.adm-reglas .adm-ayuda-primera { margin-top: 0; }
+.adm-check { justify-content: space-between; gap: 12px; }
+.adm-check span { flex: 1; }
+.adm-check input[type="checkbox"] { order: 3; }
+.adm-check .adm-info { order: 2; }
+
+/* Tiempos: rejilla compacta con la unidad al lado */
+.adm-col-lateral .adm-tiempos-campos { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.adm-col-lateral .adm-tiempo { padding: 10px; }
+.adm-unidad { display: inline-flex; align-items: center; gap: 6px; color: var(--adm-suave); font-size: 14px; }
+.adm-unidad input { width: 90px !important; }
+.adm-tiempos .adm-btn { width: 100%; }
+
+/* Filtro de palabras en la columna lateral */
+.adm-col-lateral .adm-filtro, .adm-col-lateral .adm-bloque + .adm-bloque { border-left: 0; }
+.adm-col-lateral .adm-bloque + .adm-bloque { border-top: 1px solid var(--adm-borde); }
+.adm-anadir { margin-bottom: 12px; }
+.adm-chip-nuevo { animation: adm-entra 1.6s ease-out; }
+
+@media (pointer: coarse) {
+  .adm-btn-peq { min-height: 44px; }
+}
+@media (max-width: 719px) {
+  .adm-toasts { right: 16px; left: 16px; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adm-vivo-punto, .adm-fila-nueva, .adm-toasts .adm-aviso { animation: none; }
+  .adm-interruptor-pista, .adm-interruptor-pista::after,
+  .adm-check input[type="checkbox"], .adm-check input[type="checkbox"]::after { transition: none; }
+}

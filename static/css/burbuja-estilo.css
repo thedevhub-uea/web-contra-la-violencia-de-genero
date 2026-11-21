@@ -27,10 +27,35 @@
 @media (prefers-reduced-motion: reduce) { .eb, .eb * { animation: none !important; } }
 
 /* ---------- Editor en /participa ---------- */
-.editor-burbuja { display: grid; gap: .9rem; margin-top: .8rem; }
-.eb-vista { width: min(70vw, 240px); aspect-ratio: 1; margin: .4rem auto; }
-.eb-grupo { border: var(--panel-borde); border-radius: var(--panel-radio); padding: .6rem .8rem; background: var(--surface); }
-.eb-grupo > summary { cursor: pointer; font-weight: 700; color: var(--texto); padding: .3rem 0; }
+.editor-burbuja { display: grid; gap: .7rem; margin-top: .8rem; }
+.eb-vista { width: min(40vw, 160px); aspect-ratio: 1; margin: .2rem auto; }
+/* Pestañas de la personalización: Forma · Fondo · Texto · Borde · Extras (una a la vez) */
+.eb-pestanas {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -12px;
+  padding: 2px 12px;
+}
+.eb-pestanas::-webkit-scrollbar { display: none; }
+.eb-pestana {
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--border-violet);
+  border-radius: 999px;
+  background: none;
+  color: var(--texto-sec);
+  font: inherit;
+  font-size: .9rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.eb-pestana[aria-selected="true"] { background: var(--acento); border-color: var(--acento); color: var(--texto-inverso); }
+.eb-pestana:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; }
+.eb-grupo { padding: 0; }
+.eb-grupo[hidden] { display: none; }
 .eb-fila { display: flex; flex-wrap: wrap; gap: .45rem; align-items: center; margin: .5rem 0; }
 .eb-fila > label, .eb-fila > .eb-etiqueta { flex: 0 0 100%; font-size: .85rem; color: var(--texto-sec); }
 .eb-op {
@@ -59,7 +84,7 @@
 .eb-aviso { color: var(--error-texto); background: var(--error-fondo); padding: .5rem .7rem; border-radius: var(--panel-radio); font-size: .9rem; }
 .eb-aviso[hidden] { display: none; }
 .eb-acciones { display: flex; gap: .6rem; flex-wrap: wrap; }
-.eb-acciones .eb-op { flex: 1 1 140px; }
+.eb-acciones .eb-op { flex: 1 1 120px; min-height: 40px; font-size: .9rem; }
 
 /* Burbuja con estilo dentro del mural proyectado (la caja ya tiene el tamaño de la burbuja). */
 #vista-mural .burbuja .eb { position: absolute; inset: 0; }

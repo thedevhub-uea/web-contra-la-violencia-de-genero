@@ -22,17 +22,32 @@
   var ETIQ_FORMAS = { circulo: T.f_circulo, cuadrado: T.f_cuadrado, corazon: T.f_corazon, nube: T.f_nube,
     estrella: T.f_estrella, hexagono: T.f_hexagono, gota: T.f_gota };
 
+  // La vista previa va arriba del formulario (#eb-vista-sitio) si la plantilla deja el sitio;
+  // la personalización (opcional) va plegada en <details id="personalizar">, oculta sin JS.
+  var sitio = document.getElementById('eb-vista-sitio') || raiz;
   var vista = document.createElement('div');
   vista.className = 'eb-vista';
   vista.setAttribute('role', 'img');
   vista.setAttribute('aria-label', T.vista || 'Vista previa');
-  raiz.appendChild(vista);
+  sitio.appendChild(vista);
+  sitio.hidden = false;
+  var plegable = document.getElementById('personalizar');
+  if (plegable) plegable.hidden = false;
 
   var aviso = document.createElement('p');
   aviso.className = 'eb-aviso';
   aviso.setAttribute('role', 'status');
   aviso.hidden = true;
-  raiz.appendChild(aviso);
+  sitio.appendChild(aviso);
+
+  // Acciones rápidas arriba; debajo, una pestaña por parte de la burbuja (una a la vez).
+  var acc = el('div', { className: 'eb-acciones' });
+  raiz.appendChild(acc);
+  var barra = el('div', { className: 'eb-pestanas' });
+  barra.setAttribute('role', 'tablist');
+  barra.setAttribute('aria-label', T.categorias || 'Partes de la burbuja');
+  raiz.appendChild(barra);
+  var paneles = [];
 
   var refrescos = [];   // funciones que actualizan los controles cuando cambia el estilo
 
@@ -66,9 +81,34 @@
 
   // --- Constructores de controles ---
   function grupo(titulo, abierto) {
-    var d = el('details', { className: 'eb-grupo', open: !!abierto }, [el('summary', { textContent: titulo })]);
-    raiz.appendChild(d);
-    return d;
+    var n = paneles.length;
+    var pestana = el('button', { type: 'button', className: 'eb-pestana', textContent: titulo, id: 'eb-pestana-' + n });
+    pestana.setAttribute('role', 'tab');
+    pestana.setAttribute('aria-controls', 'eb-panel-' + n);
+    var panel = el('div', { className: 'eb-grupo', id: 'eb-panel-' + n });
+    panel.setAttribute('role', 'tabpanel');
+    panel.setAttribute('aria-labelledby', pestana.id);
+    pestana.onclick = function () { elegirPanel(n); };
+    pestana.onkeydown = function (ev) {   // flechas para moverse entre pestañas
+      var d = ev.key === 'ArrowRight' ? 1 : ev.key === 'ArrowLeft' ? -1 : 0;
+      if (!d) return;
+      ev.preventDefault();
+      var sig = (n + d + paneles.length) % paneles.length;
+      elegirPanel(sig);
+      paneles[sig][0].focus();
+    };
+    barra.appendChild(pestana);
+    raiz.appendChild(panel);
+    paneles.push([pestana, panel]);
+    elegirPanel(abierto ? n : 0);
+    return panel;
+  }
+  function elegirPanel(n) {
+    paneles.forEach(function (p, i) {
+      p[0].setAttribute('aria-selected', String(i === n));
+      p[0].tabIndex = i === n ? 0 : -1;
+      p[1].hidden = i !== n;
+    });
   }
   function fila(g, etiqueta) {
     var f = el('div', { className: 'eb-fila' });
@@ -219,12 +259,10 @@
     function (e, v) { e.escala = v; }, T.tam_burbuja);
 
   // Acciones
-  var acc = el('div', { className: 'eb-acciones' });
   acc.appendChild(el('button', { type: 'button', className: 'eb-op', textContent: '🎲 ' + (T.sorprendeme || 'Sorpréndeme'),
     onclick: sorprender }));
   acc.appendChild(el('button', { type: 'button', className: 'eb-op', textContent: T.restablecer || 'Restablecer',
     onclick: function () { estilo = EB.sanear(null); pintar(); refrescar(); } }));
-  raiz.appendChild(acc);
 
   function elige(l) { return l[Math.floor(Math.random() * l.length)]; }
   function sorprender() {

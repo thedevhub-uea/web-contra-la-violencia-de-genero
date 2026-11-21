@@ -53,15 +53,35 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 
 /* --- Cabecera ------------------------------------------------------------ */
 .cabecera {
-  background: var(--bg-2);
+  background: rgb(var(--noche-rgb) / .55);
   color: var(--text);
   border-bottom: 3px solid transparent;
   border-image: var(--degradado) 1;
-  padding: max(16px, env(safe-area-inset-top)) var(--lado-der) 14px var(--lado-izq);
+  padding: max(10px, env(safe-area-inset-top)) var(--lado-der) 16px var(--lado-izq);
   text-align: center;
 }
-.cabecera h1 { margin: 0 0 4px; font-size: clamp(1.35rem, 6vw, 1.75rem); line-height: 1.2; }
-.cabecera p { margin: 0; opacity: .9; font-size: clamp(.9rem, 4vw, 1rem); line-height: 1.35; }
+.cabecera-fila {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  max-width: 560px;
+  margin: 0 auto 6px;
+}
+.cabecera-fila .selector-idioma { margin: 0; }
+.marca {
+  display: inline-grid;
+  place-items: center;
+  height: 32px;
+  padding: 0 10px;
+  border-radius: 8px;
+  background: var(--degradado);
+  font-weight: 800;
+  font-size: .9rem;
+  letter-spacing: .06em;
+}
+.cabecera h1 { margin: 0 0 4px; font-size: clamp(1.45rem, 7vw, 1.9rem); line-height: 1.15; }
+.cabecera p { margin: 0 auto; max-width: 30em; color: var(--acento-claro); font-size: clamp(.85rem, 3.6vw, .95rem); line-height: 1.35; }
 
 .contenido {
   flex: 1 0 auto;
@@ -69,6 +89,16 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   max-width: 560px;
   margin: 0 auto;
   padding: 16px var(--lado-der) 16px var(--lado-izq);
+}
+
+/* Texto solo para lectores de pantalla */
+.solo-lectores {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 /* --- Selector de idioma (i18n, templates/_idioma.html) -------------------- */
@@ -117,30 +147,40 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 
 /* --- Pestañas (funcionan sin JavaScript) --------------------------------- */
 .tab-radio { position: absolute; opacity: 0; pointer-events: none; }
-.pestanas { display: flex; gap: 8px; margin-bottom: 12px; }
+.pestanas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  margin-bottom: 14px;
+  padding: 4px;
+  border-radius: calc(var(--radio) + 4px);
+  background: rgb(var(--superficie-rgb) / .85);
+  box-shadow: inset 0 0 0 1px var(--borde);
+}
 .pestanas label {
-  flex: 1 1 0;
-  min-width: 0;
-  min-height: 52px;
   display: flex;
   align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 8px 10px;
-  border: 2px solid var(--acento);
+  gap: 10px;
+  min-width: 0;
+  min-height: 60px;
+  padding: 8px 12px;
   border-radius: var(--radio);
-  background: var(--superficie);
-  color: var(--acento);
-  font-weight: 700;
+  color: var(--texto-sec);
   line-height: 1.2;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+  transition: background .2s, color .2s;
 }
+.pestana-icono { flex: none; font-size: 1.4rem; line-height: 1; }
+.pestana-txt { display: flex; flex-direction: column; min-width: 0; }
+.pestana-txt b { font-size: 1rem; font-weight: 800; color: var(--texto); }
+.pestana-txt small { font-size: .8rem; }
 #tab-mural:checked ~ .pestanas label[for="tab-mural"],
 #tab-foro:checked ~ .pestanas label[for="tab-foro"] {
-  background: var(--acento);
-  color: var(--texto-inverso);
+  background: var(--degradado);
+  color: var(--texto);
+  box-shadow: 0 4px 14px rgb(var(--negro-rgb) / .35);
 }
 #tab-mural:focus-visible ~ .pestanas label[for="tab-mural"],
 #tab-foro:focus-visible ~ .pestanas label[for="tab-foro"] {
@@ -264,22 +304,27 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
 .boton:active { filter: brightness(1.2); }
 .boton:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; }
 
-/* Botón de enviar del formulario: se queda pegado abajo de la pantalla mientras se
-   baja por el formulario (sticky dentro de su <form>), así siempre está a mano.
-   Cuando se llega al final del formulario vuelve a su sitio. */
-.boton-enviar {
+/* Barra de enviar: se queda pegada abajo de la pantalla mientras se baja por el formulario
+   (sticky dentro de su <form>), así siempre está a mano. Al llegar al final vuelve a su sitio. */
+.barra-enviar {
   position: sticky;
-  bottom: calc(60px + var(--abajo));   /* por encima de los logos fijos */
+  bottom: 0;
   z-index: 2;
-  box-shadow: 0 0 0 6px var(--superficie), 0 6px 16px rgb(var(--acento-osc-rgb) / .3);
+  margin: 16px -16px -18px;
+  padding: 12px 16px calc(14px + var(--abajo));
+  border-radius: 0 0 var(--radio) var(--radio);
+  background: linear-gradient(rgb(var(--superficie-rgb) / 0), var(--superficie) 22%);
 }
+.barra-enviar .boton { margin-top: 0; box-shadow: 0 6px 18px rgb(var(--negro-rgb) / .45); }
+.barra-enviar .nota { margin-top: 8px; }
 
 .pie {
   text-align: center;
   color: var(--texto-sec);
   font-size: .9rem;
-  padding: 8px var(--lado-der) calc(24px + var(--abajo)) var(--lado-izq);
+  padding: 0 var(--lado-der) 8px var(--lado-izq);
 }
+.pie p { margin: 4px 0 0; }
 
 /* --- Página /gracias ----------------------------------------------------- */
 .pagina-gracias {
@@ -334,7 +379,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   .cabecera { padding-top: max(10px, env(safe-area-inset-top)); padding-bottom: 10px; }
   .cabecera h1 { font-size: 1.3rem; }
   .cabecera p { font-size: .85rem; }
-  .boton-enviar { position: static; box-shadow: none; }
+  .barra-enviar { position: static; background: none; }
   #mural-texto { min-height: 96px; }
   #foro-texto  { min-height: 120px; }
 
@@ -343,6 +388,74 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
   .tarjeta .boton { margin-top: 12px; }
 }
 
-/* CONECTA: preguntas del foro en las dos lenguas y título del editor de burbuja */
+/* CONECTA: preguntas del foro en las dos lenguas */
 .pregunta-en { display: block; margin-top: .2rem; font-size: .85em; color: var(--texto-sec); font-weight: 500; }
-.eb-titulo { margin: 1rem 0 0; font-size: 1.05rem; }
+
+/* --- /participa: campo, privacidad y personalización ---------------------- */
+.pagina-participa .formulario { padding: 16px 16px 18px; }
+.pagina-participa .campo:first-of-type { margin-top: 4px; }
+.bajo-campo { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-top: 6px; }
+.bajo-campo .contador { flex: none; margin: 0; }
+.privacidad {
+  margin: 0;
+  font-size: .85rem;
+  line-height: 1.35;
+  color: var(--texto-sec);
+}
+.privacidad::before { content: "🔒 "; }
+
+.eb-vista-sitio { display: grid; justify-items: center; gap: 8px; margin: 0 0 4px; }
+
+.personalizar {
+  margin-top: 16px;
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  background: rgb(var(--superficie-rgb) / .6);
+}
+.personalizar > summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: var(--tactil);
+  padding: 8px 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  list-style: none;
+}
+.personalizar > summary::-webkit-details-marker { display: none; }
+.personalizar > summary small { margin-left: auto; font-weight: 500; font-size: .8rem; color: var(--texto-sec); white-space: nowrap; overflow-wrap: normal; }
+.personalizar > summary::after { content: "▾"; color: var(--acento); transition: transform .2s; }
+.personalizar[open] > summary::after { transform: rotate(180deg); }
+.personalizar > summary:focus-visible { outline: 3px solid var(--foco-form); outline-offset: 2px; border-radius: var(--radio); }
+.personalizar .editor-burbuja { margin: 0; padding: 0 12px 12px; }
+
+/* Preguntas del foro con su número */
+.pregunta-num {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--superficie-2);
+  color: var(--acento);
+  font-size: .85rem;
+  font-weight: 800;
+}
+.pregunta:has(input:checked) .pregunta-num { background: var(--acento); color: var(--texto-inverso); }
+.pregunta input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.pregunta { position: relative; }
+.pregunta-txt { min-width: 0; }
+
+/* Mientras se personaliza, la vista previa se queda fija arriba (más pequeña) para ver cada cambio */
+.formulario:has(.personalizar[open]) .eb-vista-sitio {
+  position: sticky;
+  top: 0;
+  z-index: 3;
+  margin: -16px -16px 4px;
+  padding: 8px 16px 10px;
+  border-radius: var(--radio) var(--radio) 0 0;
+  background: linear-gradient(var(--superficie) 85%, rgb(var(--superficie-rgb) / 0));
+}
+.formulario:has(.personalizar[open]) .eb-vista { width: min(28vw, 110px); transition: width .2s; }

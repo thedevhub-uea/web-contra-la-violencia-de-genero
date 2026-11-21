@@ -15,8 +15,10 @@ persistente para que los datos sobrevivan a un reinicio.
 Ejecutar `python -m bd.db` (desde la raíz del proyecto) crea la base de datos vacía.
 """
 
+import hashlib
 import os
 import sqlite3
+import time
 from pathlib import Path
 
 from bd import estilo
@@ -127,6 +129,7 @@ _SQL = {
                   "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
                   "FROM mural"),
         "publico": "SELECT id, NULL AS titulo, texto FROM mural WHERE id = ? AND visible = 1",
+        "uno": "SELECT visible AS publicado, retenido, style FROM mural WHERE id = ?",
         "revisar": "SELECT id, '' AS titulo, texto FROM mural WHERE visible = 1 AND revisado = 0",
         "retener": "UPDATE mural SET visible = 0, retenido = 1, motivo = ? WHERE id = ? AND visible = 1",
         "retirar_por_avisos": "UPDATE mural SET visible = 0, retenido = 0, motivo = ? WHERE id = ? AND visible = 1",
@@ -142,6 +145,7 @@ _SQL = {
         "panel": ("SELECT id, titulo, texto, creado, aprobado AS publicado, retenido, motivo, "
                   "NULL AS edad FROM foro"),
         "publico": "SELECT id, titulo, texto FROM foro WHERE id = ? AND aprobado = 1",
+        "uno": "SELECT aprobado AS publicado, retenido, NULL AS style FROM foro WHERE id = ?",
         "revisar": "SELECT id, titulo, texto FROM foro WHERE aprobado = 1 AND revisado = 0",
         "retener": "UPDATE foro SET aprobado = 0, retenido = 1, motivo = ? WHERE id = ? AND aprobado = 1",
         "retirar_por_avisos": "UPDATE foro SET aprobado = 0, retenido = 0, motivo = ? WHERE id = ? AND aprobado = 1",
@@ -288,12 +292,6 @@ def listar_preguntas():
     return filas
 
 
-def guardar_pregunta(id_, text_es, text_en):
-    """Edita el texto (ES/EN) de una pregunta. El título que identifica las respuestas no cambia."""
-    _ejecutar("UPDATE foro_preguntas SET text_es = ?, text_en = ? WHERE id = ?",
-              (text_es.strip(), text_en.strip(), int(id_)))
-
-
 # --- Escritura pública (T01) -------------------------------------------------
 
 def insertar_mural(texto, style=None):
@@ -421,6 +419,14 @@ def aplicar_accion(tabla, id_, accion):
         con.close()
 
 
+def leer_elemento(tabla, id_):
+    """{publicado, retenido, style} de un mensaje o reflexión (para comprobar una acción), o None."""
+    if tabla not in _SQL:
+        return None
+    filas = _consultar(_SQL[tabla]["uno"], (int(id_),))
+    return filas[0] if filas else None
+
+
 # --- T03: ajustes y filtro automático ---------------------------------------
 
 def leer_ajustes():
@@ -505,7 +511,6 @@ def tiempos_pantalla():
 
 
 TRANSICION_LIMITES = (1.0, 60.0)
-CLAVES_ETIQUETAS = tuple(f"trans_{v}_{i}" for v in ("mural", "video", "foro") for i in ("es", "en"))
 
 
 def transicion():
@@ -658,6 +663,24 @@ def contadores():
         "retenidos": _consultar("SELECT (SELECT COUNT(*) FROM mural WHERE retenido = 1) + "
                                 "(SELECT COUNT(*) FROM foro WHERE retenido = 1) AS n")[0]["n"],
     }
+
+
+def version_panel():
+    """Huella corta de todo lo que pinta el panel. Cambia cuando llega o cambia un mensaje, una
+    reflexión, un aviso, un término del filtro o un ajuste (y cada minuto, si los mensajes caducan:
+    así un mensaje pasa a «Caducado» sin recargar). Solo consultas de agregados: es barata."""
+    partes = []
+    for sql in (
+        "SELECT COUNT(*), MAX(id), SUM(visible), SUM(retenido), SUM(LENGTH(style)), SUM(LENGTH(COALESCE(motivo, ''))) FROM mural",
+        "SELECT COUNT(*), MAX(id), SUM(aprobado), SUM(retenido), SUM(LENGTH(COALESCE(motivo, ''))) FROM foro",
+        "SELECT COUNT(*), MAX(id) FROM avisos",
+        "SELECT COUNT(*), MAX(id), GROUP_CONCAT(termino) FROM filtros",
+        "SELECT GROUP_CONCAT(clave || '=' || valor) FROM (SELECT clave, valor FROM ajustes ORDER BY clave)",
+    ):
+        partes.append(repr(tuple(_consultar(sql)[0].values())))
+    if vida_mensajes_min():
+        partes.append(str(int(time.time() // 60)))
+    return hashlib.sha1("|".join(partes).encode("utf-8")).hexdigest()[:16]
 
 
 if __name__ == "__main__":

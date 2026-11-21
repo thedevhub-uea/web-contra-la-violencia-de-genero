@@ -41,7 +41,7 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   │   └── avisar.css      T03 · estilos de /avisar (sobre participa.css)
 │   ├── js/
 │   │   ├── participa.js    T06 · contador de caracteres del formulario
-│   │   ├── admin.js        T03 · filtros, búsqueda, novedades y confirmación del panel
+│   │   ├── admin.js        T03 · panel en vivo: acciones con fetch (sin recargar), novedades, filtros y búsqueda
 │   │   ├── avisar.js       T03 · buscador de /avisar
 │   │   ├── pantalla.js     T04/T16 · rotación de vistas, actualización y barra de vistas
 │   │   ├── mural.js        T07 · pintarMural(mensajes)

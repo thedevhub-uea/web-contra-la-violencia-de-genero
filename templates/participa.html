@@ -1,4 +1,7 @@
-{# T06 — Formulario público (mensaje burbuja + reflexión). Mobile first. #}
+{# T06 — Formulario público (mensaje burbuja + reflexión). Mobile first.
+   Dos pestañas (sin JS, con radios). En la del mural, la vista previa de la burbuja va arriba
+   (la pinta editor-burbuja.js en #eb-vista-sitio) y la personalización es opcional y plegada.
+   El aviso de privacidad va justo debajo de cada campo de texto, donde se escribe. #}
 {# Si T01 devuelve un error de validación (error_message), se vuelve a abrir
    la pestaña del formulario enviado y se conservan los textos escritos. #}
 {% from '_idioma.html' import selector_idioma with context %}
@@ -17,18 +20,17 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/burbuja-estilo.css') }}">
 </head>
-<body>
+<body class="pagina-participa">
   <header class="cabecera">
-    {{ selector_idioma() }}
-    <h1>25N · {{ _('Deja tu mensaje') }}</h1>
+    <div class="cabecera-fila">
+      <span class="marca" aria-hidden="true">25N</span>
+      {{ selector_idioma() }}
+    </div>
+    <h1>{{ _('Deja tu mensaje') }}</h1>
     <p>{{ _('Día Internacional para la Eliminación de la Violencia contra la Mujer') }}</p>
   </header>
 
   <main class="contenido">
-    <p class="aviso" role="note">
-      <strong>{{ _('Importante:') }}</strong> {{ _('No uses nombres reales ni datos que identifiquen a nadie.') }}
-    </p>
-
     {% if error_message %}
     <p class="error" role="alert">{{ error_message }}</p>
     {% endif %}
@@ -37,22 +39,32 @@
     <input type="radio" name="pestana" id="tab-foro" class="tab-radio"{% if en_foro %} checked{% endif %}>
 
     <div class="pestanas">
-      <label for="tab-mural">{{ _('Mensaje burbuja') }}</label>
-      <label for="tab-foro">{{ _('Reflexión') }}</label>
+      <label for="tab-mural">
+        <span class="pestana-icono" aria-hidden="true">💬</span>
+        <span class="pestana-txt"><b>{{ _('Mensaje burbuja') }}</b><small>{{ _('Sale en el mural') }}</small></span>
+      </label>
+      <label for="tab-foro">
+        <span class="pestana-icono" aria-hidden="true">✍️</span>
+        <span class="pestana-txt"><b>{{ _('Reflexión') }}</b><small>{{ _('Responde a una pregunta') }}</small></span>
+      </label>
     </div>
 
     <section id="panel-mural" class="panel" aria-labelledby="titulo-mural">
       {% if abierto.mural %}
       <form class="formulario" method="POST" action="{{ url_for('crear_mural') }}">
-        <h2 id="titulo-mural">{{ _('Mensaje burbuja') }}</h2>
-        <p class="desc">{{ _('Un mensaje corto que aparecerá en el mural de la pantalla.') }}</p>
+        <h2 id="titulo-mural" class="solo-lectores">{{ _('Mensaje burbuja') }}</h2>
+        <div class="eb-vista-sitio" id="eb-vista-sitio" hidden></div>
         <label class="campo" for="mural-texto">{{ _('Tu mensaje') }}</label>
         <textarea id="mural-texto" name="texto" maxlength="{{ max_mural_texto }}" required
                   placeholder="{{ _('Escribe aquí tu mensaje…') }}" data-contador="cont-mural">{% if en_mural %}{{ request.form.get('texto', '') }}{% endif %}</textarea>
-        <div class="contador" id="cont-mural" aria-live="polite"></div>
+        <div class="bajo-campo">
+          <p class="privacidad">{{ _('No uses nombres reales ni datos que identifiquen a nadie.') }}</p>
+          <div class="contador" id="cont-mural" aria-live="polite"></div>
+        </div>
         <input type="hidden" name="style" value="">
-        <h3 class="eb-titulo">{{ _('Personaliza tu burbuja') }}</h3>
-        <div id="editor-burbuja" class="editor-burbuja" data-textos='{{ {
+        <details class="personalizar" id="personalizar" hidden>
+          <summary><span aria-hidden="true">🎨</span> {{ _('Personaliza tu burbuja') }} <small>{{ _('opcional') }}</small></summary>
+          <div id="editor-burbuja" class="editor-burbuja" data-textos='{{ {
             "ejemplo": _("Tu mensaje"), "vista": _("Vista previa de tu burbuja"),
             "contraste": _("Ese color de texto se lee mal sobre el fondo."), "usar_legible": _("Usar un color legible"),
             "libre": _("Color libre"), "forma": _("Forma"), "fondo": _("Color de fondo"), "texto": _("Texto"),
@@ -73,9 +85,12 @@
             "p_inf-izq": _("Abajo izq."), "p_inf-der": _("Abajo der."),
             "animacion": _("Animación"), "an_ninguna": _("Ninguna"), "an_flotar": _("Flotar"), "an_latido": _("Latido"),
             "an_pulso": _("Pulso"), "an_brillo": _("Brillo"), "tam_burbuja": _("Tamaño de la burbuja"),
-            "sorprendeme": _("Sorpréndeme"), "restablecer": _("Restablecer"),
+            "sorprendeme": _("Sorpréndeme"), "restablecer": _("Restablecer"), "categorias": _("Partes de la burbuja"),
           } | tojson }}'></div>
-        <button class="boton boton-enviar" type="submit">{{ _('Enviar mensaje') }}</button>
+        </details>
+        <div class="barra-enviar">
+          <button class="boton" type="submit">{{ _('Enviar al mural') }}</button>
+        </div>
       </form>
       {% else %}
       <div class="formulario cerrado" role="status">
@@ -88,8 +103,7 @@
     <section id="panel-foro" class="panel" aria-labelledby="titulo-foro">
       {% if abierto.foro %}
       <form class="formulario" method="POST" action="{{ url_for('crear_foro') }}">
-        <h2 id="titulo-foro">{{ _('Reflexión') }}</h2>
-        <p class="desc">{{ _('Responde a una de estas preguntas con tu reflexión para el foro.') }}</p>
+        <h2 id="titulo-foro" class="solo-lectores">{{ _('Reflexión') }}</h2>
         {% set pregunta_elegida = request.form.get('pregunta', '') if en_foro else '' %}
         <fieldset class="preguntas">
           <legend class="campo">{{ _('Elige la pregunta a la que respondes') }}</legend>
@@ -97,16 +111,22 @@
           <label class="pregunta">
             <input type="radio" name="pregunta" value="{{ loop.index }}" required
                    {%- if pregunta_elegida == loop.index | string %} checked{% endif %}>
-            <span>{{ p.text_es }}{% if p.text_en %}<small class="pregunta-en" lang="en">{{ p.text_en }}</small>{% endif %}</span>
+            <span class="pregunta-num" aria-hidden="true">{{ loop.index }}</span>
+            <span class="pregunta-txt">{{ p.text_es }}{% if p.text_en %}<small class="pregunta-en" lang="en">{{ p.text_en }}</small>{% endif %}</span>
           </label>
           {% endfor %}
         </fieldset>
         <label class="campo" for="foro-texto">{{ _('Tu reflexión') }}</label>
         <textarea id="foro-texto" name="texto" maxlength="{{ max_foro_texto }}" required
                   placeholder="{{ _('Escribe aquí tu reflexión…') }}" data-contador="cont-foro">{% if en_foro %}{{ request.form.get('texto', '') }}{% endif %}</textarea>
-        <div class="contador" id="cont-foro" aria-live="polite"></div>
-        <button class="boton boton-enviar" type="submit">{{ _('Enviar reflexión') }}</button>
-        <p class="nota">{{ _('Tu reflexión se mostrará tras ser revisada.') }}</p>
+        <div class="bajo-campo">
+          <p class="privacidad">{{ _('No uses nombres reales ni datos que identifiquen a nadie.') }}</p>
+          <div class="contador" id="cont-foro" aria-live="polite"></div>
+        </div>
+        <div class="barra-enviar">
+          <button class="boton" type="submit">{{ _('Enviar reflexión') }}</button>
+          <p class="nota">{{ _('Tu reflexión se mostrará tras ser revisada.') }}</p>
+        </div>
       </form>
       {% else %}
       <div class="formulario cerrado" role="status">
@@ -115,12 +135,13 @@
       </div>
       {% endif %}
     </section>
-
-    {# T03: enlace para avisar de un mensaje inapropiado que haya salido en la pantalla #}
-    <p class="nota"><a class="enlace" href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a></p>
   </main>
 
-  <footer class="pie">#25N · {{ _('Juntas contra la violencia de género') }}</footer>
+  <footer class="pie">
+    {# T03: enlace para avisar de un mensaje inapropiado que haya salido en la pantalla #}
+    <a class="enlace" href="{{ url_for('avisar') }}">{{ _('¿Has visto en la pantalla un mensaje inapropiado? Avísanos') }}</a>
+    <p>#25N · {{ _('Juntas contra la violencia de género') }}</p>
+  </footer>
 
   <script src="{{ url_for('static', filename='js/participa.js') }}"></script>
   <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>

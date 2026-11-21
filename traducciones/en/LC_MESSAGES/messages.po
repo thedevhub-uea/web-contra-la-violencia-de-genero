@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 25N VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-21 19:45+0100\n"
+"POT-Creation-Date: 2026-11-22 00:03+0100\n"
 "PO-Revision-Date: 2026-11-18 17:19+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -27,28 +27,14 @@ msgstr[1] "%(num)d reports:"
 msgid "(gratuito, 24 horas, no deja rastro en la factura)."
 msgstr "(free, 24 hours, does not appear on the phone bill)."
 
-#, python-format
-msgid "0 = no caducan. De 0 a %(max)d."
-msgstr "0 = they never expire. From 0 to %(max)d."
-
 msgid "Abajo der."
 msgstr "Bottom right"
 
 msgid "Abajo izq."
 msgstr "Bottom left"
 
-msgid "Abierto"
-msgstr "Open"
-
 msgid "Acceso restringido"
 msgstr "Restricted access"
-
-msgid "Activar la transición"
-msgstr "Enable the transition"
-
-#, python-brace-format
-msgid "Actualizado a las {hora}"
-msgstr "Updated at {hora}"
 
 msgid "Actualizar"
 msgstr "Refresh"
@@ -73,17 +59,9 @@ msgstr ""
 "New reflections for the forum are not being accepted right now. Thank you"
 " for taking part!"
 
-msgid "Ajustes"
-msgstr "Settings"
-
 #, python-format
 msgid "Ajustes guardados.%(retirados)s"
 msgstr "Settings saved.%(retirados)s"
-
-msgid ""
-"Al añadir un término también se retira lo que ya esté en pantalla y lo "
-"contenga."
-msgstr "Adding a term also removes anything already on screen that contains it."
 
 msgid "Alineación"
 msgstr "Alignment"
@@ -102,14 +80,11 @@ msgstr ""
 " it is sent: if you take a while to approve it, it is shown for less "
 "time."
 
+msgid "Aprobación a mano"
+msgstr "Manual approval"
+
 msgid "Aprobar"
 msgstr "Approve"
-
-msgid "Aprobar a mano todas las reflexiones del foro"
-msgstr "Manually approve every forum reflection"
-
-msgid "Aprobar a mano todos los mensajes del mural"
-msgstr "Approve all wall messages manually"
 
 msgid "Aquí esperan todas las reflexiones del foro y lo que ha parado el filtro."
 msgstr ""
@@ -152,13 +127,6 @@ msgstr "Report message %(id)s"
 
 msgid "Avisos del público"
 msgstr "Public reports"
-
-msgid ""
-"Avisos del público: por defecto solo marcan la publicación aquí, en "
-"«Avisos del público»."
-msgstr ""
-"Public reports: by default they only flag the post here, under “Public "
-"reports”."
 
 msgid "Avisos por revisar"
 msgstr "Reports to review"
@@ -204,17 +172,11 @@ msgstr "Search text…"
 msgid "Búscalo aquí y pulsa %(boton)s. Es anónimo."
 msgstr "Find it here and tap %(boton)s. It is anonymous."
 
-msgid "Cada cuánto busca la pantalla mensajes nuevos o retirados."
-msgstr "How often the screen looks for new or removed messages."
-
-msgid "Cada página enseña 3 tarjetas."
-msgstr "Each page shows 3 cards."
+msgid "Cada cuántos segundos busca la pantalla mensajes nuevos o retirados."
+msgstr "How often (in seconds) the screen looks for new or removed messages."
 
 msgid "Caducado"
 msgstr "Expired"
-
-msgid "Cambio de página del foro (segundos)"
-msgstr "Forum page change (seconds)"
 
 msgid "Cancelar"
 msgstr "Cancel"
@@ -222,8 +184,8 @@ msgstr "Cancel"
 msgid "Centro"
 msgstr "Center"
 
-msgid "Cerrado"
-msgstr "Closed"
+msgid "Cerrado: no se admiten envíos"
+msgstr "Closed: no new submissions"
 
 msgid "Cerrar aviso"
 msgstr "Close notice"
@@ -251,12 +213,6 @@ msgstr "Custom color"
 
 msgid "Color liso"
 msgstr "Solid color"
-
-#, python-format
-msgid "Con %(asterisco)s al final cubre todo lo que empiece igual (%(ejemplo)s)."
-msgstr ""
-"With %(asterisco)s at the end it covers everything that starts the same "
-"way (%(ejemplo)s)."
 
 #, python-format
 msgid "Con %(num)d aviso se retiran solas de la pantalla hasta que decidas."
@@ -319,9 +275,6 @@ msgstr "QR code to take part"
 msgid "De %(min)d a %(max)d."
 msgstr "From %(min)d to %(max)d."
 
-msgid "De 1 a 10. Recomendado: 2,5 a 3."
-msgstr "From 1 to 10. Recommended: 2.5 to 3."
-
 msgid ""
 "Decide si el público puede enviar mensajes nuevos al mural y reflexiones "
 "nuevas al foro. Cerrar no retira nada de lo que ya está en pantalla."
@@ -339,29 +292,21 @@ msgstr "Gradients"
 msgid "Deja tu mensaje"
 msgstr "Leave your message"
 
-msgid "Dejar de admitir"
-msgstr "Stop accepting"
-
 msgid "Derecha"
 msgstr "Right"
 
-msgid "Después pasa al vídeo. 300 = 5 min."
-msgstr "Then it moves on to the video. 300 = 5 min."
-
-msgid "Después vuelve al mural. 300 = 5 min."
-msgstr "Then it goes back to the wall. 300 = 5 min."
+msgid "Desactivada: cambia de vista directamente"
+msgstr "Off: the view changes directly"
 
 msgid "Discontinuo"
 msgstr "Dashed"
 
-msgid "Duración (segundos)"
-msgstr "Duration (seconds)"
-
-msgid "Duración del foro (segundos)"
-msgstr "Forum duration (seconds)"
-
-msgid "Duración del mural (segundos)"
-msgstr "Wall duration (seconds)"
+msgid ""
+"Duración de la portada entre vistas, con su cuenta atrás. De 1 a 60. "
+"Recomendado: 15."
+msgstr ""
+"How long the cover between views lasts, with its countdown. From 1 to 60."
+" Recommended: 15."
 
 msgid "Día Internacional para la Eliminación de la Violencia contra la Mujer"
 msgstr "International Day for the Elimination of Violence against Women"
@@ -385,17 +330,21 @@ msgstr "Choose one of the questions before sending your reflection."
 msgid "Emoji"
 msgstr "Emoji"
 
+#, python-brace-format
+msgid "En directo · {hora}"
+msgstr "Live · {hora}"
+
 msgid "En pantalla"
 msgstr "On screen"
 
 msgid "Enviando…"
 msgstr "Sending…"
 
+msgid "Enviar al mural"
+msgstr "Send to the wall"
+
 msgid "Enviar aviso"
 msgstr "Send report"
-
-msgid "Enviar mensaje"
-msgstr "Send message"
 
 msgid "Enviar otro mensaje"
 msgstr "Send another message"
@@ -488,14 +437,8 @@ msgstr "Border thickness"
 msgid "Guardar ajustes"
 msgstr "Save settings"
 
-msgid "Guardar preguntas"
-msgstr "Save questions"
-
 msgid "Guardar tiempos"
 msgstr "Save times"
-
-msgid "Guardar transición"
-msgstr "Save transition"
 
 #, python-format
 msgid ""
@@ -510,9 +453,6 @@ msgstr "Hexagon"
 
 msgid "Idioma"
 msgstr "Language"
-
-msgid "Importante:"
-msgstr "Important:"
 
 msgid "Insultos, acoso o amenazas"
 msgstr "Insults, harassment or threats"
@@ -542,18 +482,18 @@ msgstr "The screen is back on automatic rotation."
 msgid "La reflexión no puede superar los %(num)d caracteres."
 msgstr "The reflection cannot be longer than %(num)d characters."
 
+msgid "La sesión ha caducado. Recarga la página para volver a entrar."
+msgstr "Your session has expired. Reload the page to sign in again."
+
 msgid ""
 "La vida de un mensaje cuenta desde que se envía; al caducar deja de salir"
 " en el mural y en el foro, pero no se borra: sigue en «Publicaciones» "
-"como «Caducado». Las reflexiones no caducan. Conviene que dure al menos "
-"un ciclo completo de la pantalla (mural + vídeo + foro): si es menos, un "
-"mensaje puede caducar sin haberse visto."
+"como «Caducado». Las reflexiones no caducan. 0 = no caducan."
 msgstr ""
-"A message’s lifetime counts from when it is sent; when it expires it "
+"A message’s lifetime counts from when it is sent; once it expires it "
 "stops appearing on the wall and in the forum, but it is not deleted: it "
-"stays in “Publications” as “Expired”. Reflections do not expire. It "
-"should last at least one full screen cycle (wall + video + forum): if it "
-"is shorter, a message may expire without being seen."
+"stays in “Posts” as “Expired”. Reflections do not expire. 0 = they never "
+"expire."
 
 msgid ""
 "Las reflexiones del foro se publican solas, salvo lo que coincide con "
@@ -564,9 +504,6 @@ msgstr ""
 
 msgid "Latido"
 msgstr "Heartbeat"
-
-msgid "Lazo morado"
-msgstr "Purple ribbon"
 
 msgid ""
 "Lo que está en la pantalla y lo retirado. «Retirar» lo quita en la "
@@ -666,13 +603,16 @@ msgstr "Bold"
 msgid "Ninguna"
 msgstr "None"
 
-#, python-format
 msgid ""
-"No hace falta escribir tildes, plurales ni trucos: %(ejemplo)s ya cubre "
-"«ZORRAS», «z0rra» o «z.o.r.r.a»."
+"No hace falta escribir tildes, plurales ni trucos: «zorra» ya cubre "
+"«ZORRAS», «z0rra» o «z.o.r.r.a». Con * al final cubre todo lo que empiece"
+" igual («maric*»). Al añadir un término también se retira lo que ya esté "
+"en pantalla y lo contenga."
 msgstr ""
-"No need to add accents, plurals or tricks: %(ejemplo)s already covers "
-"“ZORRAS”, “z0rra” or “z.o.r.r.a”."
+"No need to add accents, plurals or tricks: “zorra” already covers "
+"“ZORRAS”, “z0rra” or “z.o.r.r.a”. With * at the end it covers everything "
+"that starts the same way (“maric*”). Adding a term also removes anything "
+"already on screen that contains it."
 
 msgid "No hay avisos pendientes."
 msgstr "No pending reports."
@@ -696,15 +636,19 @@ msgstr ""
 "Not added: use only letters and spaces (2 to 60), optionally with * at "
 "the end."
 
+msgid ""
+"No se ha podido comprobar que el cambio se haya guardado. Vuelve a "
+"intentarlo."
+msgstr "Could not confirm that the change was saved. Please try again."
+
+msgid "No se ha podido guardar: revisa la conexión y vuelve a intentarlo."
+msgstr "Could not save: check the connection and try again."
+
 msgid "No uses nombres reales ni datos que identifiquen a nadie."
 msgstr "Do not use real names or any details that could identify anyone."
 
 msgid "Nombres o datos personales"
 msgstr "Names or personal details"
-
-#, python-brace-format
-msgid "Novedades ({hora}): {lista}."
-msgstr "New ({hora}): {lista}."
 
 msgid "Odio o discriminación"
 msgstr "Hate or discrimination"
@@ -737,10 +681,11 @@ msgstr "Screen"
 msgid "Pantalla completa (o pulsa F11)"
 msgstr "Full screen (or press F11)"
 
-msgid ""
-"Pantalla intermedia con la portada que se ve al cambiar de vista. No "
-"afecta al móvil."
-msgstr "Intermediate screen with the cover shown when the view changes. It does not affect phones."
+msgid "Pantalla fijada"
+msgstr "Screen pinned"
+
+msgid "Partes de la burbuja"
+msgstr "Bubble parts"
 
 msgid "Participa"
 msgstr "Take part"
@@ -763,18 +708,14 @@ msgstr "Pending review"
 msgid "Personaliza tu burbuja"
 msgstr "Customize your bubble"
 
+msgid "Portada de CONECTA entre mural, vídeo y foro"
+msgstr "CONECTA cover between wall, video and forum"
+
 msgid "Posición del emoji"
 msgstr "Emoji position"
 
-#, python-brace-format
-msgid "Pregunta del foro (usa {n} para el número)"
-msgstr "Forum question (use {n} for the number)"
-
-msgid "Preguntas del foro (ES / EN)"
-msgstr "Forum questions (ES / EN)"
-
-msgid "Preguntas del foro guardadas."
-msgstr "Forum questions saved."
+msgid "Privacidad"
+msgstr "Privacy"
 
 msgid "Publicaciones"
 msgstr "Posts"
@@ -796,6 +737,9 @@ msgstr "Pulse"
 
 msgid "Punteado"
 msgstr "Dotted"
+
+msgid "Página del foro"
+msgstr "Forum page"
 
 msgid "Quitar del filtro"
 msgstr "Remove from the filter"
@@ -839,8 +783,8 @@ msgstr ""
 msgid "Reflexión #%(id)s retirada de la pantalla."
 msgstr "Reflection #%(id)s removed from the screen."
 
-msgid "Refresco de mensajes (segundos)"
-msgstr "Message refresh (seconds)"
+msgid "Refresco"
+msgstr "Refresh"
 
 msgid ""
 "Reglas de privacidad: retienen lo que pueda identificar o localizar a "
@@ -849,8 +793,8 @@ msgstr ""
 "Privacy rules: they hold back anything that could identify or locate "
 "someone."
 
-msgid "Responde a una de estas preguntas con tu reflexión para el foro."
-msgstr "Answer one of these questions with your reflection for the forum."
+msgid "Responde a una pregunta"
+msgstr "Answer a question"
 
 msgid "Restablecer"
 msgstr "Reset"
@@ -889,13 +833,17 @@ msgstr "Automatically remove a post with many reports from the screen"
 msgid "Rotación automática"
 msgstr "Automatic rotation"
 
-msgid ""
-"Salen juntas en español e inglés en la pantalla y en el móvil. Las "
-"respuestas ya enviadas se mantienen."
-msgstr "They appear together in Spanish and English on the screen and on phones. Answers already sent are kept."
+msgid "Rotando"
+msgstr "Rotating"
 
-msgid "Saltar ahora"
-msgstr "Jump now"
+msgid "Sale en el mural"
+msgstr "Shown on the wall"
+
+msgid "Saltar"
+msgstr "Jump"
+
+msgid "Se admiten envíos nuevos"
+msgstr "Accepting new submissions"
 
 msgid "Se elimina definitivamente. Esta acción no se puede deshacer."
 msgstr "It will be permanently deleted. This cannot be undone."
@@ -911,6 +859,15 @@ msgstr ""
 "Too many reports have been sent from this network. Please wait a few "
 "minutes."
 
+msgid "Segundos de cada página del foro (una pregunta con sus respuestas)."
+msgstr "Seconds for each forum page (one question with its answers)."
+
+msgid "Segundos que dura el foro antes de volver al mural. 300 = 5 min."
+msgstr "Seconds the forum lasts before going back to the wall. 300 = 5 min."
+
+msgid "Segundos que dura el mural antes de pasar al vídeo. 300 = 5 min."
+msgstr "Seconds the wall lasts before moving on to the video. 300 = 5 min."
+
 msgid ""
 "Si has enviado una reflexión, aparecerá en la pantalla cuando se haya "
 "revisado."
@@ -925,6 +882,9 @@ msgid "Siguen en la pantalla hasta que decidas: los avisos no retiran nada solos
 msgstr ""
 "They stay on the screen until you decide: reports do not remove anything "
 "on their own."
+
+msgid "Sin conexión: reintentando…"
+msgstr "Offline: retrying…"
 
 msgid "Sin emoji"
 msgstr "No emoji"
@@ -953,6 +913,9 @@ msgstr "Times saved. The screen applies them within a few seconds."
 msgid "Titular"
 msgstr "Headline"
 
+msgid "Todas las reflexiones del foro"
+msgstr "All forum reflections"
+
 msgid "Todavía no hay publicaciones."
 msgstr "No posts yet."
 
@@ -966,11 +929,22 @@ msgstr ""
 "Everything waits for your approval; the filter also shows what matches "
 "these words or rules."
 
+msgid "Todos los mensajes del mural"
+msgstr "All wall messages"
+
+msgid "Transición"
+msgstr "Transition"
+
 msgid "Transición entre vistas"
 msgstr "Transition between views"
 
-msgid "Transición guardada. La pantalla la aplica en unos segundos."
-msgstr "Transition saved. The screen applies it in a few seconds."
+msgid "Transición entre vistas activada."
+msgstr "Transition between views turned on."
+
+msgid ""
+"Transición entre vistas desactivada: la pantalla cambia de vista "
+"directamente."
+msgstr "Transition between views turned off: the screen changes view directly."
 
 msgid "Tu mensaje"
 msgstr "Your message"
@@ -987,12 +961,6 @@ msgstr "Your reflection will be shown once it has been reviewed."
 msgid "Término quitado del filtro."
 msgstr "Term removed from the filter."
 
-msgid "Términos en el filtro"
-msgstr "Terms in the filter"
-
-msgid "Un mensaje corto que aparecerá en el mural de la pantalla."
-msgstr "A short message that will appear on the wall on the screen."
-
 msgid "Usar un color legible"
 msgstr "Use a readable color"
 
@@ -1002,14 +970,11 @@ msgstr "Show less"
 msgid "Ver texto completo"
 msgstr "Show full text"
 
-msgid "Vida de cada mensaje del mural (minutos)"
-msgstr "Lifetime of each wall message (minutes)"
+msgid "Vida de un mensaje"
+msgstr "Message lifetime"
 
 msgid "Vista previa de tu burbuja"
 msgstr "Preview of your bubble"
-
-msgid "Volver a admitir"
-msgstr "Accept again"
 
 msgid "Volver a la rotación automática"
 msgstr "Back to automatic rotation"
@@ -1037,25 +1002,20 @@ msgstr "today, %(hora)s"
 msgid "mensaje %(id)s"
 msgstr "message %(id)s"
 
+msgid "opcional"
+msgstr "optional"
+
 #, python-format
 msgid "reflexión %(id)s"
 msgstr "reflection %(id)s"
 
 #, python-brace-format
-msgid "{n} aviso por revisar"
-msgstr "{n} report to review"
+msgid "{n} publicaciones nuevas"
+msgstr "{n} new posts"
 
 #, python-brace-format
-msgid "{n} avisos por revisar"
-msgstr "{n} reports to review"
-
-#, python-brace-format
-msgid "{n} retenido por el filtro"
-msgstr "{n} held back by the filter"
-
-#, python-brace-format
-msgid "{n} retenidos por el filtro"
-msgstr "{n} held back by the filter"
+msgid "{n} publicación nueva"
+msgstr "{n} new post"
 
 msgid "¡Gracias por participar!"
 msgstr "Thank you for taking part!"
@@ -1107,6 +1067,196 @@ msgstr "What is wrong with this reflection?"
 msgid "¿Qué le pasa a este mensaje?"
 msgstr "What is wrong with this message?"
 
+#~ msgid "0 = no caducan. De 0 a %(max)d."
+#~ msgstr "0 = they never expire. From 0 to %(max)d."
+
+#~ msgid "Abierto"
+#~ msgstr "Open"
+
+#~ msgid "Activar la transición"
+#~ msgstr "Enable the transition"
+
+#~ msgid "Actualizado a las {hora}"
+#~ msgstr "Updated at {hora}"
+
+#~ msgid "Ajustes"
+#~ msgstr "Settings"
+
+#~ msgid ""
+#~ "Al añadir un término también se "
+#~ "retira lo que ya esté en pantalla"
+#~ " y lo contenga."
+#~ msgstr "Adding a term also removes anything already on screen that contains it."
+
+#~ msgid "Aprobar a mano todas las reflexiones del foro"
+#~ msgstr "Manually approve every forum reflection"
+
+#~ msgid "Aprobar a mano todos los mensajes del mural"
+#~ msgstr "Approve all wall messages manually"
+
+#~ msgid ""
+#~ "Avisos del público: por defecto solo "
+#~ "marcan la publicación aquí, en «Avisos"
+#~ " del público»."
+#~ msgstr ""
+#~ "Public reports: by default they only "
+#~ "flag the post here, under “Public "
+#~ "reports”."
+
+#~ msgid "Cada cuánto busca la pantalla mensajes nuevos o retirados."
+#~ msgstr "How often the screen looks for new or removed messages."
+
+#~ msgid "Cada página enseña 3 tarjetas."
+#~ msgstr "Each page shows 3 cards."
+
+#~ msgid "Cambio de página del foro (segundos)"
+#~ msgstr "Forum page change (seconds)"
+
+#~ msgid "Cerrado"
+#~ msgstr "Closed"
+
+#~ msgid ""
+#~ "Con %(asterisco)s al final cubre todo"
+#~ " lo que empiece igual (%(ejemplo)s)."
+#~ msgstr ""
+#~ "With %(asterisco)s at the end it "
+#~ "covers everything that starts the same"
+#~ " way (%(ejemplo)s)."
+
+#~ msgid "De 1 a 10. Recomendado: 2,5 a 3."
+#~ msgstr "From 1 to 10. Recommended: 2.5 to 3."
+
+#~ msgid "Dejar de admitir"
+#~ msgstr "Stop accepting"
+
+#~ msgid "Después pasa al vídeo. 300 = 5 min."
+#~ msgstr "Then it moves on to the video. 300 = 5 min."
+
+#~ msgid "Después vuelve al mural. 300 = 5 min."
+#~ msgstr "Then it goes back to the wall. 300 = 5 min."
+
+#~ msgid "Duración (segundos)"
+#~ msgstr "Duration (seconds)"
+
+#~ msgid "Duración del foro (segundos)"
+#~ msgstr "Forum duration (seconds)"
+
+#~ msgid "Duración del mural (segundos)"
+#~ msgstr "Wall duration (seconds)"
+
+#~ msgid "Enviar mensaje"
+#~ msgstr "Send message"
+
+#~ msgid "Guardar preguntas"
+#~ msgstr "Save questions"
+
+#~ msgid "Guardar transición"
+#~ msgstr "Save transition"
+
+#~ msgid "Importante:"
+#~ msgstr "Important:"
+
+#~ msgid ""
+#~ "La vida de un mensaje cuenta desde"
+#~ " que se envía; al caducar deja "
+#~ "de salir en el mural y en el"
+#~ " foro, pero no se borra: sigue "
+#~ "en «Publicaciones» como «Caducado». Las "
+#~ "reflexiones no caducan. Conviene que "
+#~ "dure al menos un ciclo completo de"
+#~ " la pantalla (mural + vídeo + "
+#~ "foro): si es menos, un mensaje "
+#~ "puede caducar sin haberse visto."
+#~ msgstr ""
+#~ "A message’s lifetime counts from when"
+#~ " it is sent; when it expires it"
+#~ " stops appearing on the wall and "
+#~ "in the forum, but it is not "
+#~ "deleted: it stays in “Publications” as"
+#~ " “Expired”. Reflections do not expire. "
+#~ "It should last at least one full"
+#~ " screen cycle (wall + video + "
+#~ "forum): if it is shorter, a "
+#~ "message may expire without being seen."
+
+#~ msgid "Lazo morado"
+#~ msgstr "Purple ribbon"
+
+#~ msgid ""
+#~ "No hace falta escribir tildes, plurales"
+#~ " ni trucos: %(ejemplo)s ya cubre "
+#~ "«ZORRAS», «z0rra» o «z.o.r.r.a»."
+#~ msgstr ""
+#~ "No need to add accents, plurals or"
+#~ " tricks: %(ejemplo)s already covers "
+#~ "“ZORRAS”, “z0rra” or “z.o.r.r.a”."
+
+#~ msgid "Novedades ({hora}): {lista}."
+#~ msgstr "New ({hora}): {lista}."
+
+#~ msgid ""
+#~ "Pantalla intermedia con la portada que"
+#~ " se ve al cambiar de vista. No"
+#~ " afecta al móvil."
+#~ msgstr ""
+#~ "Intermediate screen with the cover shown"
+#~ " when the view changes. It does "
+#~ "not affect phones."
+
+#~ msgid "Pregunta del foro (usa {n} para el número)"
+#~ msgstr "Forum question (use {n} for the number)"
+
+#~ msgid "Preguntas del foro (ES / EN)"
+#~ msgstr "Forum questions (ES / EN)"
+
+#~ msgid "Preguntas del foro guardadas."
+#~ msgstr "Forum questions saved."
+
+#~ msgid "Refresco de mensajes (segundos)"
+#~ msgstr "Message refresh (seconds)"
+
+#~ msgid "Responde a una de estas preguntas con tu reflexión para el foro."
+#~ msgstr "Answer one of these questions with your reflection for the forum."
+
+#~ msgid ""
+#~ "Salen juntas en español e inglés "
+#~ "en la pantalla y en el móvil. "
+#~ "Las respuestas ya enviadas se mantienen."
+#~ msgstr ""
+#~ "They appear together in Spanish and "
+#~ "English on the screen and on "
+#~ "phones. Answers already sent are kept."
+
+#~ msgid "Saltar ahora"
+#~ msgstr "Jump now"
+
+#~ msgid "Transición guardada. La pantalla la aplica en unos segundos."
+#~ msgstr "Transition saved. The screen applies it in a few seconds."
+
+#~ msgid "Términos en el filtro"
+#~ msgstr "Terms in the filter"
+
+#~ msgid "Un mensaje corto que aparecerá en el mural de la pantalla."
+#~ msgstr "A short message that will appear on the wall on the screen."
+
+#~ msgid "Vida de cada mensaje del mural (minutos)"
+#~ msgstr "Lifetime of each wall message (minutes)"
+
+#~ msgid "Volver a admitir"
+#~ msgstr "Accept again"
+
+#~ msgid "{n} aviso por revisar"
+#~ msgstr "{n} report to review"
+
+#~ msgid "{n} avisos por revisar"
+#~ msgstr "{n} reports to review"
+
+#~ msgid "{n} retenido por el filtro"
+#~ msgstr "{n} held back by the filter"
+
+#~ msgid "{n} retenidos por el filtro"
+#~ msgstr "{n} held back by the filter"
+
 #~ msgid "¿Crees que estas situaciones siguen pasando hoy en día?"
 #~ msgstr "Do you think these situations still happen today?"
 
@@ -1132,4 +1282,7 @@ msgstr "What is wrong with this message?"
 
 #~ msgid "¿Qué piensas de la utilidad del feminismo hoy en día?"
 #~ msgstr "What do you think about the usefulness of feminism today?"
+
+#~ msgid "Guardando…"
+#~ msgstr ""
 

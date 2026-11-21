@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-21 19:45+0100\n"
+"POT-Creation-Date: 2026-11-22 00:03+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -26,27 +26,13 @@ msgstr[1] ""
 msgid "(gratuito, 24 horas, no deja rastro en la factura)."
 msgstr ""
 
-#, python-format
-msgid "0 = no caducan. De 0 a %(max)d."
-msgstr ""
-
 msgid "Abajo der."
 msgstr ""
 
 msgid "Abajo izq."
 msgstr ""
 
-msgid "Abierto"
-msgstr ""
-
 msgid "Acceso restringido"
-msgstr ""
-
-msgid "Activar la transición"
-msgstr ""
-
-#, python-brace-format
-msgid "Actualizado a las {hora}"
 msgstr ""
 
 msgid "Actualizar"
@@ -68,16 +54,8 @@ msgid ""
 "participar!"
 msgstr ""
 
-msgid "Ajustes"
-msgstr ""
-
 #, python-format
 msgid "Ajustes guardados.%(retirados)s"
-msgstr ""
-
-msgid ""
-"Al añadir un término también se retira lo que ya esté en pantalla y lo "
-"contenga."
 msgstr ""
 
 msgid "Alineación"
@@ -93,13 +71,10 @@ msgid ""
 "tiempo."
 msgstr ""
 
+msgid "Aprobación a mano"
+msgstr ""
+
 msgid "Aprobar"
-msgstr ""
-
-msgid "Aprobar a mano todas las reflexiones del foro"
-msgstr ""
-
-msgid "Aprobar a mano todos los mensajes del mural"
 msgstr ""
 
 msgid "Aquí esperan todas las reflexiones del foro y lo que ha parado el filtro."
@@ -140,11 +115,6 @@ msgid "Avisar del mensaje %(id)s"
 msgstr ""
 
 msgid "Avisos del público"
-msgstr ""
-
-msgid ""
-"Avisos del público: por defecto solo marcan la publicación aquí, en "
-"«Avisos del público»."
 msgstr ""
 
 msgid "Avisos por revisar"
@@ -191,16 +161,10 @@ msgstr ""
 msgid "Búscalo aquí y pulsa %(boton)s. Es anónimo."
 msgstr ""
 
-msgid "Cada cuánto busca la pantalla mensajes nuevos o retirados."
-msgstr ""
-
-msgid "Cada página enseña 3 tarjetas."
+msgid "Cada cuántos segundos busca la pantalla mensajes nuevos o retirados."
 msgstr ""
 
 msgid "Caducado"
-msgstr ""
-
-msgid "Cambio de página del foro (segundos)"
 msgstr ""
 
 msgid "Cancelar"
@@ -209,7 +173,7 @@ msgstr ""
 msgid "Centro"
 msgstr ""
 
-msgid "Cerrado"
+msgid "Cerrado: no se admiten envíos"
 msgstr ""
 
 msgid "Cerrar aviso"
@@ -237,10 +201,6 @@ msgid "Color libre"
 msgstr ""
 
 msgid "Color liso"
-msgstr ""
-
-#, python-format
-msgid "Con %(asterisco)s al final cubre todo lo que empiece igual (%(ejemplo)s)."
 msgstr ""
 
 #, python-format
@@ -298,9 +258,6 @@ msgstr ""
 msgid "De %(min)d a %(max)d."
 msgstr ""
 
-msgid "De 1 a 10. Recomendado: 2,5 a 3."
-msgstr ""
-
 msgid ""
 "Decide si el público puede enviar mensajes nuevos al mural y reflexiones "
 "nuevas al foro. Cerrar no retira nada de lo que ya está en pantalla."
@@ -315,28 +272,18 @@ msgstr ""
 msgid "Deja tu mensaje"
 msgstr ""
 
-msgid "Dejar de admitir"
-msgstr ""
-
 msgid "Derecha"
 msgstr ""
 
-msgid "Después pasa al vídeo. 300 = 5 min."
-msgstr ""
-
-msgid "Después vuelve al mural. 300 = 5 min."
+msgid "Desactivada: cambia de vista directamente"
 msgstr ""
 
 msgid "Discontinuo"
 msgstr ""
 
-msgid "Duración (segundos)"
-msgstr ""
-
-msgid "Duración del foro (segundos)"
-msgstr ""
-
-msgid "Duración del mural (segundos)"
+msgid ""
+"Duración de la portada entre vistas, con su cuenta atrás. De 1 a 60. "
+"Recomendado: 15."
 msgstr ""
 
 msgid "Día Internacional para la Eliminación de la Violencia contra la Mujer"
@@ -361,16 +308,20 @@ msgstr ""
 msgid "Emoji"
 msgstr ""
 
+#, python-brace-format
+msgid "En directo · {hora}"
+msgstr ""
+
 msgid "En pantalla"
 msgstr ""
 
 msgid "Enviando…"
 msgstr ""
 
-msgid "Enviar aviso"
+msgid "Enviar al mural"
 msgstr ""
 
-msgid "Enviar mensaje"
+msgid "Enviar aviso"
 msgstr ""
 
 msgid "Enviar otro mensaje"
@@ -462,13 +413,7 @@ msgstr ""
 msgid "Guardar ajustes"
 msgstr ""
 
-msgid "Guardar preguntas"
-msgstr ""
-
 msgid "Guardar tiempos"
-msgstr ""
-
-msgid "Guardar transición"
 msgstr ""
 
 #, python-format
@@ -481,9 +426,6 @@ msgid "Hexágono"
 msgstr ""
 
 msgid "Idioma"
-msgstr ""
-
-msgid "Importante:"
 msgstr ""
 
 msgid "Insultos, acoso o amenazas"
@@ -512,12 +454,13 @@ msgstr ""
 msgid "La reflexión no puede superar los %(num)d caracteres."
 msgstr ""
 
+msgid "La sesión ha caducado. Recarga la página para volver a entrar."
+msgstr ""
+
 msgid ""
 "La vida de un mensaje cuenta desde que se envía; al caducar deja de salir"
 " en el mural y en el foro, pero no se borra: sigue en «Publicaciones» "
-"como «Caducado». Las reflexiones no caducan. Conviene que dure al menos "
-"un ciclo completo de la pantalla (mural + vídeo + foro): si es menos, un "
-"mensaje puede caducar sin haberse visto."
+"como «Caducado». Las reflexiones no caducan. 0 = no caducan."
 msgstr ""
 
 msgid ""
@@ -526,9 +469,6 @@ msgid ""
 msgstr ""
 
 msgid "Latido"
-msgstr ""
-
-msgid "Lazo morado"
 msgstr ""
 
 msgid ""
@@ -615,10 +555,11 @@ msgstr ""
 msgid "Ninguna"
 msgstr ""
 
-#, python-format
 msgid ""
-"No hace falta escribir tildes, plurales ni trucos: %(ejemplo)s ya cubre "
-"«ZORRAS», «z0rra» o «z.o.r.r.a»."
+"No hace falta escribir tildes, plurales ni trucos: «zorra» ya cubre "
+"«ZORRAS», «z0rra» o «z.o.r.r.a». Con * al final cubre todo lo que empiece"
+" igual («maric*»). Al añadir un término también se retira lo que ya esté "
+"en pantalla y lo contenga."
 msgstr ""
 
 msgid "No hay avisos pendientes."
@@ -641,14 +582,18 @@ msgid ""
 "si quieres."
 msgstr ""
 
+msgid ""
+"No se ha podido comprobar que el cambio se haya guardado. Vuelve a "
+"intentarlo."
+msgstr ""
+
+msgid "No se ha podido guardar: revisa la conexión y vuelve a intentarlo."
+msgstr ""
+
 msgid "No uses nombres reales ni datos que identifiquen a nadie."
 msgstr ""
 
 msgid "Nombres o datos personales"
-msgstr ""
-
-#, python-brace-format
-msgid "Novedades ({hora}): {lista}."
 msgstr ""
 
 msgid "Odio o discriminación"
@@ -682,9 +627,10 @@ msgstr ""
 msgid "Pantalla completa (o pulsa F11)"
 msgstr ""
 
-msgid ""
-"Pantalla intermedia con la portada que se ve al cambiar de vista. No "
-"afecta al móvil."
+msgid "Pantalla fijada"
+msgstr ""
+
+msgid "Partes de la burbuja"
 msgstr ""
 
 msgid "Participa"
@@ -708,17 +654,13 @@ msgstr ""
 msgid "Personaliza tu burbuja"
 msgstr ""
 
+msgid "Portada de CONECTA entre mural, vídeo y foro"
+msgstr ""
+
 msgid "Posición del emoji"
 msgstr ""
 
-#, python-brace-format
-msgid "Pregunta del foro (usa {n} para el número)"
-msgstr ""
-
-msgid "Preguntas del foro (ES / EN)"
-msgstr ""
-
-msgid "Preguntas del foro guardadas."
+msgid "Privacidad"
 msgstr ""
 
 msgid "Publicaciones"
@@ -740,6 +682,9 @@ msgid "Pulso"
 msgstr ""
 
 msgid "Punteado"
+msgstr ""
+
+msgid "Página del foro"
 msgstr ""
 
 msgid "Quitar del filtro"
@@ -780,7 +725,7 @@ msgstr ""
 msgid "Reflexión #%(id)s retirada de la pantalla."
 msgstr ""
 
-msgid "Refresco de mensajes (segundos)"
+msgid "Refresco"
 msgstr ""
 
 msgid ""
@@ -788,7 +733,7 @@ msgid ""
 "alguien."
 msgstr ""
 
-msgid "Responde a una de estas preguntas con tu reflexión para el foro."
+msgid "Responde a una pregunta"
 msgstr ""
 
 msgid "Restablecer"
@@ -828,12 +773,16 @@ msgstr ""
 msgid "Rotación automática"
 msgstr ""
 
-msgid ""
-"Salen juntas en español e inglés en la pantalla y en el móvil. Las "
-"respuestas ya enviadas se mantienen."
+msgid "Rotando"
 msgstr ""
 
-msgid "Saltar ahora"
+msgid "Sale en el mural"
+msgstr ""
+
+msgid "Saltar"
+msgstr ""
+
+msgid "Se admiten envíos nuevos"
 msgstr ""
 
 msgid "Se elimina definitivamente. Esta acción no se puede deshacer."
@@ -848,6 +797,15 @@ msgstr[1] ""
 msgid "Se han enviado muchos avisos desde esta red. Espera unos minutos."
 msgstr ""
 
+msgid "Segundos de cada página del foro (una pregunta con sus respuestas)."
+msgstr ""
+
+msgid "Segundos que dura el foro antes de volver al mural. 300 = 5 min."
+msgstr ""
+
+msgid "Segundos que dura el mural antes de pasar al vídeo. 300 = 5 min."
+msgstr ""
+
 msgid ""
 "Si has enviado una reflexión, aparecerá en la pantalla cuando se haya "
 "revisado."
@@ -857,6 +815,9 @@ msgid "Si tú o alguien que conoces necesita ayuda:"
 msgstr ""
 
 msgid "Siguen en la pantalla hasta que decidas: los avisos no retiran nada solos."
+msgstr ""
+
+msgid "Sin conexión: reintentando…"
 msgstr ""
 
 msgid "Sin emoji"
@@ -886,6 +847,9 @@ msgstr ""
 msgid "Titular"
 msgstr ""
 
+msgid "Todas las reflexiones del foro"
+msgstr ""
+
 msgid "Todavía no hay publicaciones."
 msgstr ""
 
@@ -897,10 +861,21 @@ msgid ""
 "estas palabras o reglas."
 msgstr ""
 
+msgid "Todos los mensajes del mural"
+msgstr ""
+
+msgid "Transición"
+msgstr ""
+
 msgid "Transición entre vistas"
 msgstr ""
 
-msgid "Transición guardada. La pantalla la aplica en unos segundos."
+msgid "Transición entre vistas activada."
+msgstr ""
+
+msgid ""
+"Transición entre vistas desactivada: la pantalla cambia de vista "
+"directamente."
 msgstr ""
 
 msgid "Tu mensaje"
@@ -918,12 +893,6 @@ msgstr ""
 msgid "Término quitado del filtro."
 msgstr ""
 
-msgid "Términos en el filtro"
-msgstr ""
-
-msgid "Un mensaje corto que aparecerá en el mural de la pantalla."
-msgstr ""
-
 msgid "Usar un color legible"
 msgstr ""
 
@@ -933,13 +902,10 @@ msgstr ""
 msgid "Ver texto completo"
 msgstr ""
 
-msgid "Vida de cada mensaje del mural (minutos)"
+msgid "Vida de un mensaje"
 msgstr ""
 
 msgid "Vista previa de tu burbuja"
-msgstr ""
-
-msgid "Volver a admitir"
 msgstr ""
 
 msgid "Volver a la rotación automática"
@@ -968,24 +934,19 @@ msgstr ""
 msgid "mensaje %(id)s"
 msgstr ""
 
+msgid "opcional"
+msgstr ""
+
 #, python-format
 msgid "reflexión %(id)s"
 msgstr ""
 
 #, python-brace-format
-msgid "{n} aviso por revisar"
+msgid "{n} publicaciones nuevas"
 msgstr ""
 
 #, python-brace-format
-msgid "{n} avisos por revisar"
-msgstr ""
-
-#, python-brace-format
-msgid "{n} retenido por el filtro"
-msgstr ""
-
-#, python-brace-format
-msgid "{n} retenidos por el filtro"
+msgid "{n} publicación nueva"
 msgstr ""
 
 msgid "¡Gracias por participar!"
