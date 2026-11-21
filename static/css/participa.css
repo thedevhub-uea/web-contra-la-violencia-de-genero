@@ -269,7 +269,7 @@ a, button, label, input, textarea { touch-action: manipulation; } /* sin espera 
    Cuando se llega al final del formulario vuelve a su sitio. */
 .boton-enviar {
   position: sticky;
-  bottom: calc(10px + var(--abajo));
+  bottom: calc(60px + var(--abajo));   /* por encima de los logos fijos */
   z-index: 2;
   box-shadow: 0 0 0 6px var(--superficie), 0 6px 16px rgb(var(--acento-osc-rgb) / .3);
 }

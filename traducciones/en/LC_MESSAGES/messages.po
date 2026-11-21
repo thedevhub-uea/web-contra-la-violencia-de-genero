@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 25N VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-20 00:48+0100\n"
+"POT-Creation-Date: 2026-11-21 19:45+0100\n"
 "PO-Revision-Date: 2026-11-18 17:19+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -31,11 +31,20 @@ msgstr "(free, 24 hours, does not appear on the phone bill)."
 msgid "0 = no caducan. De 0 a %(max)d."
 msgstr "0 = they never expire. From 0 to %(max)d."
 
+msgid "Abajo der."
+msgstr "Bottom right"
+
+msgid "Abajo izq."
+msgstr "Bottom left"
+
 msgid "Abierto"
 msgstr "Open"
 
 msgid "Acceso restringido"
 msgstr "Restricted access"
+
+msgid "Activar la transición"
+msgstr "Enable the transition"
 
 #, python-brace-format
 msgid "Actualizado a las {hora}"
@@ -76,6 +85,12 @@ msgid ""
 "contenga."
 msgstr "Adding a term also removes anything already on screen that contains it."
 
+msgid "Alineación"
+msgstr "Alignment"
+
+msgid "Animación"
+msgstr "Animation"
+
 msgid ""
 "Apagado, los mensajes que pasan el filtro salen solos en la pantalla. "
 "Encendido, todos esperan en «Pendientes de revisar». La vida de un "
@@ -112,6 +127,15 @@ msgstr "All wall messages and all forum reflections wait here."
 msgid "Aquí está lo que ha parado el filtro."
 msgstr "Here is what the filter has held back."
 
+msgid "Arriba der."
+msgstr "Top right"
+
+msgid "Arriba izq."
+msgstr "Top left"
+
+msgid "Así se ve en el mural"
+msgstr "This is how it looks on the wall"
+
 msgid "Avisar"
 msgstr "Report"
 
@@ -146,8 +170,20 @@ msgstr "Added to the filter: “%(termino)s”.%(retirados)s"
 msgid "Añadir"
 msgstr "Add"
 
+msgid "Bocadillo"
+msgstr "Speech bubble"
+
+msgid "Borde y brillo"
+msgstr "Border and glow"
+
 msgid "Borrar"
 msgstr "Delete"
+
+msgid "Brillo"
+msgstr "Shine"
+
+msgid "Brillo (glow)"
+msgstr "Glow"
 
 msgid "Buscar"
 msgstr "Search"
@@ -183,11 +219,38 @@ msgstr "Forum page change (seconds)"
 msgid "Cancelar"
 msgstr "Cancel"
 
+msgid "Centro"
+msgstr "Center"
+
 msgid "Cerrado"
 msgstr "Closed"
 
 msgid "Cerrar aviso"
 msgstr "Close notice"
+
+msgid "Color 1"
+msgstr "Color 1"
+
+msgid "Color 2"
+msgstr "Color 2"
+
+msgid "Color de fondo"
+msgstr "Background color"
+
+msgid "Color del borde"
+msgstr "Border color"
+
+msgid "Color del brillo"
+msgstr "Glow color"
+
+msgid "Color del texto"
+msgstr "Text color"
+
+msgid "Color libre"
+msgstr "Custom color"
+
+msgid "Color liso"
+msgstr "Solid color"
 
 #, python-format
 msgid "Con %(asterisco)s al final cubre todo lo que empiece igual (%(ejemplo)s)."
@@ -205,6 +268,9 @@ msgstr[1] ""
 "With %(num)d reports they are removed from the screen automatically until"
 " you decide."
 
+msgid "Con serifa"
+msgstr "Serif"
+
 msgid "Contiene un @usuario de redes sociales"
 msgstr "Contains a social media @username"
 
@@ -217,9 +283,21 @@ msgstr "Contains a link"
 msgid "Contiene un número de teléfono"
 msgstr "Contains a phone number"
 
+msgid "Continuo"
+msgstr "Solid"
+
+msgid "Corazón"
+msgstr "Heart"
+
 #, python-format
 msgid "Cortometraje de %(autora)s"
 msgstr "Short film by %(autora)s"
+
+msgid "Cuadrado"
+msgstr "Square"
+
+msgid "Cursiva"
+msgstr "Italic"
 
 msgid ""
 "Cuánto dura cada vista y cada mensaje. La pantalla aplica los cambios en "
@@ -231,12 +309,18 @@ msgstr ""
 msgid "Cuántos avisos:"
 msgstr "How many reports:"
 
+msgid "Círculo"
+msgstr "Circle"
+
 msgid "Código QR para participar"
 msgstr "QR code to take part"
 
 #, python-format
 msgid "De %(min)d a %(max)d."
 msgstr "From %(min)d to %(max)d."
+
+msgid "De 1 a 10. Recomendado: 2,5 a 3."
+msgstr "From 1 to 10. Recommended: 2.5 to 3."
 
 msgid ""
 "Decide si el público puede enviar mensajes nuevos al mural y reflexiones "
@@ -246,17 +330,32 @@ msgstr ""
 "reflections to the forum. Closing does not remove anything already on "
 "screen."
 
+msgid "Degradado"
+msgstr "Gradient"
+
+msgid "Degradados"
+msgstr "Gradients"
+
 msgid "Deja tu mensaje"
 msgstr "Leave your message"
 
 msgid "Dejar de admitir"
 msgstr "Stop accepting"
 
+msgid "Derecha"
+msgstr "Right"
+
 msgid "Después pasa al vídeo. 300 = 5 min."
 msgstr "Then it moves on to the video. 300 = 5 min."
 
 msgid "Después vuelve al mural. 300 = 5 min."
 msgstr "Then it goes back to the wall. 300 = 5 min."
+
+msgid "Discontinuo"
+msgstr "Dashed"
+
+msgid "Duración (segundos)"
+msgstr "Duration (seconds)"
 
 msgid "Duración del foro (segundos)"
 msgstr "Forum duration (seconds)"
@@ -282,6 +381,9 @@ msgstr "Choose a reason."
 
 msgid "Elige una de las preguntas antes de enviar la reflexión."
 msgstr "Choose one of the questions before sending your reflection."
+
+msgid "Emoji"
+msgstr "Emoji"
 
 msgid "En pantalla"
 msgstr "On screen"
@@ -321,6 +423,9 @@ msgstr "Type a word from the message"
 msgid "Escribe una reflexión antes de enviarla."
 msgstr "Write a reflection before sending it."
 
+msgid "Ese color de texto se lee mal sobre el fondo."
+msgstr "That text color is hard to read on this background."
+
 msgid "Ese mensaje ya no está en la pantalla."
 msgstr "That message is no longer on the screen."
 
@@ -329,6 +434,19 @@ msgstr "That term was already in the filter."
 
 msgid "Esta acción no se puede deshacer."
 msgstr "This cannot be undone."
+
+msgid "Estilo"
+msgstr "Style"
+
+msgid "Estilo del borde"
+msgstr "Border style"
+
+#, python-format
+msgid "Estilo del mensaje #%(id)s restablecido al por defecto."
+msgstr "Style of message #%(id)s reset to default."
+
+msgid "Estrella"
+msgstr "Star"
 
 msgid "Fijada"
 msgstr "Pinned"
@@ -346,17 +464,38 @@ msgstr "Filter posts"
 msgid "Filtro automático"
 msgstr "Automatic filter"
 
+msgid "Flotar"
+msgstr "Float"
+
+msgid "Forma"
+msgstr "Shape"
+
 msgid "Foro"
 msgstr "Forum"
+
+msgid "Fuente"
+msgstr "Font"
+
+msgid "Gota"
+msgstr "Drop"
 
 msgid "Gracias por avisar."
 msgstr "Thank you for reporting it."
 
+msgid "Grosor del borde"
+msgstr "Border thickness"
+
 msgid "Guardar ajustes"
 msgstr "Save settings"
 
+msgid "Guardar preguntas"
+msgstr "Save questions"
+
 msgid "Guardar tiempos"
 msgstr "Save times"
+
+msgid "Guardar transición"
+msgstr "Save transition"
 
 #, python-format
 msgid ""
@@ -366,6 +505,9 @@ msgstr ""
 "It has expired: it no longer shows on the screen (message lifetime: "
 "%(min)s min). It has not been removed by moderation."
 
+msgid "Hexágono"
+msgstr "Hexagon"
+
 msgid "Idioma"
 msgstr "Language"
 
@@ -374,6 +516,9 @@ msgstr "Important:"
 
 msgid "Insultos, acoso o amenazas"
 msgstr "Insults, harassment or threats"
+
+msgid "Izquierda"
+msgstr "Left"
 
 msgid "Juntas contra la violencia de género"
 msgstr "Together against gender-based violence"
@@ -417,6 +562,12 @@ msgstr ""
 "Forum reflections are published on their own, except those that match "
 "these words or rules: they stay pending for you to decide."
 
+msgid "Latido"
+msgstr "Heartbeat"
+
+msgid "Lazo morado"
+msgstr "Purple ribbon"
+
 msgid ""
 "Lo que está en la pantalla y lo retirado. «Retirar» lo quita en la "
 "siguiente actualización sin borrarlo."
@@ -440,6 +591,9 @@ msgstr ""
 
 msgid "Mantener"
 msgstr "Keep"
+
+msgid "Manuscrita"
+msgstr "Handwritten"
 
 msgid ""
 "Mejor dejarlo apagado: una sola persona podría vaciar la pantalla "
@@ -485,11 +639,17 @@ msgstr ""
 "Moderators will review it. If several people report the same message, it "
 "is taken off the screen straight away, even before it is reviewed."
 
+msgid "Moderna"
+msgstr "Modern"
+
 msgid "Motivo"
 msgstr "Reason"
 
 msgid "Mural"
 msgstr "Wall"
+
+msgid "Máquina"
+msgstr "Typewriter"
 
 msgid "Más información"
 msgstr "More information"
@@ -499,6 +659,12 @@ msgstr "Nothing matches the filter."
 
 msgid "Nada coincide con la búsqueda."
 msgstr "Nothing matches your search."
+
+msgid "Negrita"
+msgstr "Bold"
+
+msgid "Ninguna"
+msgstr "None"
 
 #, python-format
 msgid ""
@@ -543,6 +709,9 @@ msgstr "New ({hora}): {lista}."
 msgid "Odio o discriminación"
 msgstr "Hate or discrimination"
 
+msgid "Opacidad"
+msgstr "Opacity"
+
 msgid "Otro motivo"
 msgstr "Other reason"
 
@@ -568,11 +737,19 @@ msgstr "Screen"
 msgid "Pantalla completa (o pulsa F11)"
 msgstr "Full screen (or press F11)"
 
+msgid ""
+"Pantalla intermedia con la portada que se ve al cambiar de vista. No "
+"afecta al móvil."
+msgstr "Intermediate screen with the cover shown when the view changes. It does not affect phones."
+
 msgid "Participa"
 msgstr "Take part"
 
 msgid "Participación"
 msgstr "Participation"
+
+msgid "Pegatina y animación"
+msgstr "Sticker and animation"
 
 msgid "Pendiente"
 msgstr "Pending"
@@ -582,6 +759,22 @@ msgstr "Awaiting approval"
 
 msgid "Pendientes de revisar"
 msgstr "Pending review"
+
+msgid "Personaliza tu burbuja"
+msgstr "Customize your bubble"
+
+msgid "Posición del emoji"
+msgstr "Emoji position"
+
+#, python-brace-format
+msgid "Pregunta del foro (usa {n} para el número)"
+msgstr "Forum question (use {n} for the number)"
+
+msgid "Preguntas del foro (ES / EN)"
+msgstr "Forum questions (ES / EN)"
+
+msgid "Preguntas del foro guardadas."
+msgstr "Forum questions saved."
 
 msgid "Publicaciones"
 msgstr "Posts"
@@ -598,8 +791,17 @@ msgstr "Publish anyway"
 msgid "Pulsa F11 para pantalla completa"
 msgstr "Press F11 for full screen"
 
+msgid "Pulso"
+msgstr "Pulse"
+
+msgid "Punteado"
+msgstr "Dotted"
+
 msgid "Quitar del filtro"
 msgstr "Remove from the filter"
+
+msgid "Quitar estilo"
+msgstr "Remove style"
 
 #, python-format
 msgid "Quitar «%(termino)s» del filtro"
@@ -611,6 +813,9 @@ msgid ""
 msgstr ""
 "Recommended: reflections may describe real cases with names or places "
 "that the filter cannot detect."
+
+msgid "Redondeada"
+msgstr "Rounded"
 
 msgid "Reflexiones del foro"
 msgstr "Forum reflections"
@@ -647,6 +852,9 @@ msgstr ""
 msgid "Responde a una de estas preguntas con tu reflexión para el foro."
 msgstr "Answer one of these questions with your reflection for the forum."
 
+msgid "Restablecer"
+msgstr "Reset"
+
 msgid "Resumen"
 msgstr "Summary"
 
@@ -681,6 +889,11 @@ msgstr "Automatically remove a post with many reports from the screen"
 msgid "Rotación automática"
 msgstr "Automatic rotation"
 
+msgid ""
+"Salen juntas en español e inglés en la pantalla y en el móvil. Las "
+"respuestas ya enviadas se mantienen."
+msgstr "They appear together in Spanish and English on the screen and on phones. Answers already sent are kept."
+
 msgid "Saltar ahora"
 msgstr "Jump now"
 
@@ -713,11 +926,32 @@ msgstr ""
 "They stay on the screen until you decide: reports do not remove anything "
 "on their own."
 
+msgid "Sin emoji"
+msgstr "No emoji"
+
+msgid "Sombra"
+msgstr "Shadow"
+
+msgid "Sorpréndeme"
+msgstr "Surprise me"
+
+msgid "Tamaño de la burbuja"
+msgstr "Bubble size"
+
+msgid "Tamaño del texto"
+msgstr "Text size"
+
+msgid "Texto"
+msgstr "Text"
+
 msgid "Tiempos de la pantalla"
 msgstr "Screen timings"
 
 msgid "Tiempos guardados. La pantalla los aplica en unos segundos."
 msgstr "Times saved. The screen applies them within a few seconds."
+
+msgid "Titular"
+msgstr "Headline"
 
 msgid "Todavía no hay publicaciones."
 msgstr "No posts yet."
@@ -731,6 +965,12 @@ msgid ""
 msgstr ""
 "Everything waits for your approval; the filter also shows what matches "
 "these words or rules."
+
+msgid "Transición entre vistas"
+msgstr "Transition between views"
+
+msgid "Transición guardada. La pantalla la aplica en unos segundos."
+msgstr "Transition saved. The screen applies it in a few seconds."
 
 msgid "Tu mensaje"
 msgstr "Your message"
@@ -753,6 +993,9 @@ msgstr "Terms in the filter"
 msgid "Un mensaje corto que aparecerá en el mural de la pantalla."
 msgstr "A short message that will appear on the wall on the screen."
 
+msgid "Usar un color legible"
+msgstr "Use a readable color"
+
 msgid "Ver menos"
 msgstr "Show less"
 
@@ -761,6 +1004,9 @@ msgstr "Show full text"
 
 msgid "Vida de cada mensaje del mural (minutos)"
 msgstr "Lifetime of each wall message (minutes)"
+
+msgid "Vista previa de tu burbuja"
+msgstr "Preview of your bubble"
 
 msgid "Volver a admitir"
 msgstr "Accept again"
@@ -845,21 +1091,6 @@ msgstr "Delete this message?"
 msgid "¿Borrar?"
 msgstr "Delete?"
 
-msgid "¿Crees que estas situaciones siguen pasando hoy en día?"
-msgstr "Do you think these situations still happen today?"
-
-msgid ""
-"¿Crees que son de utilidad los teléfonos de ayuda y las asistencias "
-"similares (puntos morados, puerta en los vestuarios, aparcamientos cerca "
-"de la entrada, etc.)? ¿Crees que son de apoyo?"
-msgstr ""
-"Do you think helplines and similar support measures (purple points, doors"
-" on changing rooms, parking spaces near the entrance, etc.) are useful? "
-"Do you think they offer support?"
-
-msgid "¿Cómo actuarías tú en ese lugar?"
-msgstr "How would you act in that place?"
-
 msgid ""
 "¿Has visto en la pantalla un mensaje de odio, un insulto o datos de "
 "alguien?"
@@ -870,15 +1101,35 @@ msgstr ""
 msgid "¿Has visto en la pantalla un mensaje inapropiado? Avísanos"
 msgstr "Seen an inappropriate message on the screen? Let us know"
 
-msgid "¿Qué le dirías a una persona que está pasando algo así?"
-msgstr "What would you say to someone going through something like this?"
-
 msgid "¿Qué le pasa a esta reflexión?"
 msgstr "What is wrong with this reflection?"
 
 msgid "¿Qué le pasa a este mensaje?"
 msgstr "What is wrong with this message?"
 
-msgid "¿Qué piensas de la utilidad del feminismo hoy en día?"
-msgstr "What do you think about the usefulness of feminism today?"
+#~ msgid "¿Crees que estas situaciones siguen pasando hoy en día?"
+#~ msgstr "Do you think these situations still happen today?"
+
+#~ msgid ""
+#~ "¿Crees que son de utilidad los "
+#~ "teléfonos de ayuda y las asistencias "
+#~ "similares (puntos morados, puerta en los"
+#~ " vestuarios, aparcamientos cerca de la "
+#~ "entrada, etc.)? ¿Crees que son de "
+#~ "apoyo?"
+#~ msgstr ""
+#~ "Do you think helplines and similar "
+#~ "support measures (purple points, doors "
+#~ "on changing rooms, parking spaces near"
+#~ " the entrance, etc.) are useful? Do"
+#~ " you think they offer support?"
+
+#~ msgid "¿Cómo actuarías tú en ese lugar?"
+#~ msgstr "How would you act in that place?"
+
+#~ msgid "¿Qué le dirías a una persona que está pasando algo así?"
+#~ msgstr "What would you say to someone going through something like this?"
+
+#~ msgid "¿Qué piensas de la utilidad del feminismo hoy en día?"
+#~ msgstr "What do you think about the usefulness of feminism today?"
 
