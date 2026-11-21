@@ -7,9 +7,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>25N · {{ _('Pantalla') }}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos.css') }}">
 </head>
-<body data-api-mural="{{ url_for('api_mural') }}" data-api-foro="{{ url_for('api_foro') }}"
+<body class="pantalla" data-api-mural="{{ url_for('api_mural') }}" data-api-foro="{{ url_for('api_foro') }}"
       data-api-control="{{ url_for('api_pantalla') }}"
       data-textos='{{ {
         "pantalla_completa": _("Pantalla completa (o pulsa F11)"),
@@ -40,5 +41,6 @@
   <script src="{{ url_for('static', filename='js/foro.js') }}"></script>
   <!-- T04: va el último porque usa pintarMural, pintarForo, iniciarVideo y pararVideo -->
   <script src="{{ url_for('static', filename='js/pantalla.js') }}"></script>
+  {% include '_logos.html' %}
 </body>
 </html>

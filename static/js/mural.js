@@ -107,7 +107,7 @@
   let alto = 0;
   let ultimoTiempo = 0;
   let iniciado = false;
-  let obstaculo = null;   // rectángulo del QR en coordenadas del mural: {x0, y0, x1, y1}
+  let obstaculos = [];    // rectángulos del QR y de los logos en coordenadas del mural: {x0, y0, x1, y1}
   let reloj = null;       // setInterval de 1 s que retira lo caducado (solo existe si hay burbujas que caducan)
   const caducadas = new Map();   // id -> hasta cuándo se ignora (performance.now()), tras caducar aquí
   let vacio = null;       // mensaje «Escanea el QR…» (sale solo con 0 burbujas)
@@ -226,44 +226,49 @@
   // Rectángulo del QR (con margen) dentro del mural. Si entre el QR y un borde no
   // cabe una burbuja, se alarga hasta ese borde para que no se quede ninguna atrapada.
   function medirObstaculo() {
-    const antes = JSON.stringify(obstaculo);
-    obstaculo = null;
-    const qr = document.getElementById('qr');
-    if (qr && !qr.hidden) {
-      const q = qr.getBoundingClientRect();
-      const c = contenedor.getBoundingClientRect();
-      if (q.width > 0 && q.height > 0) {
-        const menor = Math.min(ancho, alto);
-        const margen = menor * 0.02;
-        const hueco = menor * 0.15;
-        let x0 = q.left - c.left - margen;
-        let y0 = q.top - c.top - margen;
-        let x1 = q.right - c.left + margen;
-        let y1 = q.bottom - c.top + margen;
-        if (x0 < hueco) x0 = -1e4;
-        if (y0 < hueco) y0 = -1e4;
-        if (ancho - x1 < hueco) x1 = 1e4;
-        if (alto - y1 < hueco) y1 = 1e4;
-        if (x1 > 0 && y1 > 0 && x0 < ancho && y0 < alto) obstaculo = { x0: x0, y0: y0, x1: x1, y1: y1 };
-      }
-    }
-    return JSON.stringify(obstaculo) !== antes;
+    const antes = JSON.stringify(obstaculos);
+    obstaculos = [];
+    const c = contenedor.getBoundingClientRect();
+    const menor = Math.min(ancho, alto);
+    const margen = menor * 0.02;
+    const hueco = menor * 0.15;
+    // El QR y los logos fijos (#logos-conecta) son obstáculos: las burbujas no los tapan.
+    ['qr', 'logos-conecta'].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el || el.hidden) return;
+      const q = el.getBoundingClientRect();
+      if (q.width <= 0 || q.height <= 0) return;
+      let x0 = q.left - c.left - margen;
+      let y0 = q.top - c.top - margen;
+      let x1 = q.right - c.left + margen;
+      let y1 = q.bottom - c.top + margen;
+      if (x0 < hueco) x0 = -1e4;
+      if (y0 < hueco) y0 = -1e4;
+      if (ancho - x1 < hueco) x1 = 1e4;
+      if (alto - y1 < hueco) y1 = 1e4;
+      if (x1 > 0 && y1 > 0 && x0 < ancho && y0 < alto) obstaculos.push({ x0: x0, y0: y0, x1: x1, y1: y1 });
+    });
+    return JSON.stringify(obstaculos) !== antes;
   }
 
-  // Distancia con signo de un punto al obstáculo (negativa si está dentro).
+  // Distancia con signo de un punto a los obstáculos (negativa si está dentro).
   function distanciaObstaculo(x, y) {
-    const o = obstaculo;
-    if (!o) return Infinity;
-    const dx = Math.max(o.x0 - x, 0, x - o.x1);
-    const dy = Math.max(o.y0 - y, 0, y - o.y1);
-    if (dx || dy) return Math.hypot(dx, dy);
-    return -Math.min(x - o.x0, o.x1 - x, y - o.y0, o.y1 - y);
+    let mejor = Infinity;
+    for (const o of obstaculos) {
+      const dx = Math.max(o.x0 - x, 0, x - o.x1);
+      const dy = Math.max(o.y0 - y, 0, y - o.y1);
+      const d = (dx || dy) ? Math.hypot(dx, dy) : -Math.min(x - o.x0, o.x1 - x, y - o.y0, o.y1 - y);
+      if (d < mejor) mejor = d;
+    }
+    return mejor;
   }
 
-  // Rebote contra el rectángulo del QR, como contra un borde.
+  // Rebote contra los rectángulos (QR y logos), como contra un borde.
   function chocarConObstaculo(b, t) {
-    const o = obstaculo;
-    if (!o) return;
+    for (const o of obstaculos) chocarConRect(b, t, o);
+  }
+
+  function chocarConRect(b, t, o) {
     const cx = limitar(b.x, o.x0, o.x1);
     const cy = limitar(b.y, o.y0, o.y1);
     let nx = b.x - cx;
@@ -645,7 +650,7 @@
     if (!suma) return;
     const menor = Math.min(ancho, alto);
     let area = ancho * alto;
-    if (obstaculo) {
+    for (const obstaculo of obstaculos) {
       area -= Math.max(0, Math.min(ancho, obstaculo.x1) - Math.max(0, obstaculo.x0)) *
         Math.max(0, Math.min(alto, obstaculo.y1) - Math.max(0, obstaculo.y0));
     }

@@ -1,0 +1,45 @@
+/* CONECTA · estilos comunes del rediseño oscuro: Montserrat local, logos fijos, panel de cristal.
+ * Los colores salen de paleta.css (sin colores sueltos). Se enlaza justo después de paleta.css. */
+@font-face { font-family: "Montserrat"; font-weight: 500; font-display: swap; src: url("../fonts/montserrat-Medium.woff2") format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 700; font-display: swap; src: url("../fonts/montserrat-Bold.woff2") format("woff2"); }
+@font-face { font-family: "Montserrat"; font-weight: 800; font-display: swap; src: url("../fonts/montserrat-ExtraBold.woff2") format("woff2"); }
+
+html, body { font-family: var(--fuente-conecta); font-weight: 500; }
+h1, h2, h3 { font-weight: 800; letter-spacing: .04em; }
+
+/* Panel de cristal: borde rojo fino + segundo borde violeta exterior (eco de la portada). */
+.panel-conecta {
+  background: var(--surface);
+  border: var(--panel-borde);
+  border-radius: var(--panel-radio);
+  box-shadow: var(--panel-sombra);
+  color: var(--text);
+}
+.boton-degradado { background: var(--degradado); color: var(--text); border: 0; }
+
+/* Logos fijos en la esquina inferior izquierda, por encima de todo (burbujas, modales, vídeo). */
+#logos-conecta {
+  position: fixed;
+  left: max(1.2vh, 8px);
+  bottom: max(1.2vh, 8px);
+  z-index: 2147483647;
+  display: flex;
+  gap: 8px;
+  pointer-events: none;
+}
+#logos-conecta .chapa {
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  background: #fff; /* chapa blanca: los archivos de logo tienen fondo blanco */
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .45);
+}
+#logos-conecta img {
+  display: block;
+  height: clamp(28px, 5.2vh, 56px); /* ~56 px a 1080p, ~36 px en móvil; nunca > 100 px (baja resolución) */
+  width: auto;
+}
+/* Las páginas de móvil y el admin dejan sitio abajo para que los logos no tapen contenido. */
+body:not(.pantalla) { padding-bottom: 64px; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }

@@ -13,6 +13,7 @@
   <meta name="theme-color" content="#4a1a6b">
   <title>{{ _('Participa') }} · 25N</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/paleta.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/conecta.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/participa.css') }}">
 </head>
 <body>
@@ -96,5 +97,6 @@
   <footer class="pie">#25N · {{ _('Juntas contra la violencia de género') }}</footer>
 
   <script src="{{ url_for('static', filename='js/participa.js') }}"></script>
+  {% include '_logos.html' %}
 </body>
 </html>
