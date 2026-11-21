@@ -505,7 +505,7 @@ def tiempos_pantalla():
 
 
 TRANSICION_LIMITES = (1.0, 60.0)
-CLAVES_ETIQUETAS = tuple(f"trans_{v}_{i}" for v in ("mural", "video", "foro", "pregunta") for i in ("es", "en"))
+CLAVES_ETIQUETAS = tuple(f"trans_{v}_{i}" for v in ("mural", "video", "foro") for i in ("es", "en"))
 
 
 def transicion():
@@ -518,7 +518,7 @@ def transicion():
     if not (TRANSICION_LIMITES[0] <= seg <= TRANSICION_LIMITES[1]):
         seg = float(AJUSTES_POR_DEFECTO["transicion_seg"])
     etiquetas = {v: {"es": a[f"trans_{v}_es"], "en": a[f"trans_{v}_en"]}
-                 for v in ("mural", "video", "foro", "pregunta")}
+                 for v in ("mural", "video", "foro")}
     return {"activa": a["transicion_activa"] == "1", "seg": seg, "etiquetas": etiquetas}
 
 

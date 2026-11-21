@@ -20,7 +20,7 @@
   var DEGRADADOS = [['#b0123a', '#9b4dff'], ['#6a22c4', '#d96b86'], ['#120a22', '#9b4dff'],
     ['#0f766e', '#6a22c4'], ['#e5733a', '#b0123a'], ['#2b6cb0', '#c58bff']];
   var ETIQ_FORMAS = { circulo: T.f_circulo, cuadrado: T.f_cuadrado, corazon: T.f_corazon, nube: T.f_nube,
-    estrella: T.f_estrella, hexagono: T.f_hexagono, gota: T.f_gota, lazo: T.f_lazo };
+    estrella: T.f_estrella, hexagono: T.f_hexagono, gota: T.f_gota };
 
   var vista = document.createElement('div');
   vista.className = 'eb-vista';

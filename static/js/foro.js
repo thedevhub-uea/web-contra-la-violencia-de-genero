@@ -243,20 +243,7 @@
   function siguientePagina() {
     var vista = contenedor();
     var zona = vista && vista.querySelector(".foro-tarjetas");
-    var anterior = estado.paginas[estado.pagina];
     var indiceNuevo = (estado.pagina + 1) % totalPaginas();
-    var nueva = estado.paginas[indiceNuevo];
-    // Cambio de pregunta: pantalla de transición con el número de la pregunta que viene.
-    var tr = window.pantallaTransicion;
-    if (tr && tr.activa() && anterior && nueva && nueva.tipo === "reflexion" && anterior.titulo !== nueva.titulo && nueva.pn) {
-      if (!tr.enCurso()) {
-        tr.ir({ pregunta: nueva.pn }, function () {
-          estado.pagina = Math.min(indiceNuevo, totalPaginas() - 1);
-          pintarPagina();
-        });
-      }
-      return;
-    }
     estado.pagina = indiceNuevo;
     if (!zona) { pintarPagina(); return; }
     vista.classList.add("foro-cambiando");

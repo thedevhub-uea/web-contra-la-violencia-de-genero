@@ -11,7 +11,7 @@
 (function (global) {
   'use strict';
 
-  var FORMAS = ['circulo', 'cuadrado', 'corazon', 'nube', 'estrella', 'hexagono', 'gota', 'lazo'];
+  var FORMAS = ['circulo', 'cuadrado', 'corazon', 'nube', 'estrella', 'hexagono', 'gota'];
   var FUENTES = {
     sans: '"Montserrat", "Poppins", system-ui, sans-serif',
     serif: '"Playfair Display", Georgia, serif',
@@ -57,13 +57,11 @@
     estrella: estrella(),
     hexagono: 'M50 2L92 26V74L50 98L8 74V26Z',
     gota: 'M50 2C50 2 14 42 14 64C14 84 30 98 50 98C70 98 86 84 86 64C86 42 50 2 50 2Z',
-    // Lazo morado: lóbulo redondo arriba y dos colas que se cruzan.
-    lazo: 'M50 52C8 32 16 2 50 2C84 2 92 32 50 52Z M46 46L60 50L44 98L27 91Z M40 50L54 46L73 91L57 98Z',
   };
   // Margen interior del texto en % de la caja: [arriba, derecha, abajo, izquierda].
   var MARGEN_TEXTO = {
     circulo: [15, 15, 15, 15], cuadrado: [9, 9, 9, 9], corazon: [20, 17, 26, 17], nube: [9, 9, 30, 9],
-    estrella: [30, 28, 24, 28], hexagono: [15, 12, 15, 12], gota: [38, 17, 15, 17], lazo: [9, 24, 48, 24],
+    estrella: [30, 28, 24, 28], hexagono: [15, 12, 15, 12], gota: [38, 17, 15, 17],
   };
 
   var RE_COLOR = /^#[0-9a-fA-F]{6}$/;
@@ -202,7 +200,7 @@
     var p = document.createElement('p');
     var largo = Math.max(1, String(texto).length);
     var factor = largo <= 18 ? 1 : Math.max(0.42, Math.sqrt(18 / largo));
-    p.style.fontSize = (11 * TAMANOS[s.texto.tam] * factor * (s.forma === 'estrella' ? 0.8 : s.forma === 'lazo' ? 0.7 : 1)).toFixed(2) + 'cqmin';
+    p.style.fontSize = (11 * TAMANOS[s.texto.tam] * factor * (s.forma === 'estrella' ? 0.8 : 1)).toFixed(2) + 'cqmin';
     p.style.color = s.texto.color;
     p.style.fontFamily = FUENTES[s.texto.fuente];
     p.style.fontWeight = s.texto.negrita ? '800' : '500';

@@ -332,7 +332,7 @@
           <input type="number" name="transicion_seg" min="1" max="60" step="0.5" value="{{ transicion.seg }}">
           <span class="adm-ayuda">{{ _('De 1 a 60. Recomendado: 15.') }}</span></label>
         <div class="adm-tiempos-campos">
-        {% for v, nombre in [('mural', _('Mural')), ('video', _('Vídeo')), ('foro', _('Foro')), ('pregunta', _('Pregunta del foro (usa {n} para el número)'))] %}
+        {% for v, nombre in [('mural', _('Mural')), ('video', _('Vídeo')), ('foro', _('Foro'))] %}
           <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ nombre }} · ES</span>
             <input type="text" name="trans_{{ v }}_es" maxlength="60" value="{{ transicion.etiquetas[v].es }}"></label>
           <label class="adm-tiempo"><span class="adm-tiempo-nombre">{{ nombre }} · EN</span>

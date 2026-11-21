@@ -8,7 +8,7 @@ Los mismos valores permitidos están en static/js/estilo-burbuja.js (que dibuja 
 import json
 import re
 
-FORMAS = ("circulo", "cuadrado", "corazon", "nube", "estrella", "hexagono", "gota", "lazo")
+FORMAS = ("circulo", "cuadrado", "corazon", "nube", "estrella", "hexagono", "gota")
 FUENTES = ("sans", "serif", "manuscrita", "display", "redonda", "mono")
 ANIMACIONES = ("ninguna", "flotar", "latido", "pulso", "brillo")
 TAMANOS = ("S", "M", "L")
