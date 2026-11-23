@@ -31,11 +31,11 @@
   z-index: 0;
   pointer-events: none;
   background:
-    radial-gradient(32% 38% at 18% 20%, rgb(var(--mancha-a-rgb) / .85), transparent 70%),
-    radial-gradient(30% 36% at 84% 30%, rgb(var(--mancha-b-rgb) / .7), transparent 70%),
-    radial-gradient(38% 34% at 45% 92%, rgb(var(--mancha-c-rgb) / .8), transparent 70%),
-    radial-gradient(18% 22% at 68% 62%, rgb(var(--mancha-d-rgb) / .6), transparent 70%),
-    radial-gradient(26% 30% at 12% 70%, rgb(var(--mancha-e-rgb) / .8), transparent 70%);
+    radial-gradient(32% 38% at 18% 20%, rgb(var(--mancha-a-rgb) / calc(.85 * var(--mancha-alfa))), transparent 70%),
+    radial-gradient(30% 36% at 84% 30%, rgb(var(--mancha-b-rgb) / calc(.7 * var(--mancha-alfa))), transparent 70%),
+    radial-gradient(38% 34% at 45% 92%, rgb(var(--mancha-c-rgb) / calc(.8 * var(--mancha-alfa))), transparent 70%),
+    radial-gradient(18% 22% at 68% 62%, rgb(var(--mancha-d-rgb) / calc(.6 * var(--mancha-alfa))), transparent 70%),
+    radial-gradient(26% 30% at 12% 70%, rgb(var(--mancha-e-rgb) / calc(.8 * var(--mancha-alfa))), transparent 70%);
   will-change: transform;
   animation: mural-fondo 60s ease-in-out infinite alternate;
 }

@@ -1,9 +1,9 @@
 // T09 — pintarForo(elementos). Texto SIEMPRE con textContent, nunca innerHTML.
 //
-// T14: el foro muestra reflexiones Y mensajes del mural, mezclados (los manda /api/foro):
-//   { tipo: "reflexion", id, titulo, texto }  → tarjeta con título (como antes)
-//   { tipo: "mensaje",   id, titulo: null, texto } → tarjeta corta, sin título, texto grande y centrado
-// Los ids se repiten entre tablas (mural 5 y foro 5): toda identidad es tipo + ":" + id.
+// El foro muestra SOLO reflexiones (las manda /api/foro), agrupadas por pregunta:
+//   { tipo: "reflexion", id, titulo, texto, pregunta_id, pregunta_es, pregunta_en }
+// Los mensajes del mural ya no salen aquí (en T14 se mezclaban): si llegara alguno con
+// tipo "mensaje", se ignora.
 //
 // configurarForo({segundosPorPagina}) cambia cada cuánto pasa de página (lo llama pantalla.js
 // con el tiempo del panel).
@@ -15,13 +15,11 @@
 //
 // Pantalla grande: cada página muestra UNA pregunta (el título de las reflexiones, que solo puede ser
 // una de las 5 preguntas del foro) entera y en grande, y debajo hasta 4 respuestas en letra grande.
-// Los mensajes del mural van en sus propias páginas («Mensajes del mural»). El tamaño de letra de cada
-// respuesta depende de su longitud (.foro-tarjeta--corta / --media / --larga).
+// El tamaño de letra de cada respuesta depende de su longitud (.foro-tarjeta--corta / --media / --larga).
 //
 // Los estilos de la vista están en estilos.css (sección «Foro»); este archivo no inyecta ningún <style>.
 //
-// Prueba sin API: abrir /pantalla?demo-foro (o ?demo-foro=0, =1, =20 elementos mezclados).
-// Con &tipo=mensajes o &tipo=reflexiones se muestran solo de ese tipo (p. ej. ?demo-foro=7&tipo=mensajes).
+// Prueba sin API: abrir /pantalla?demo-foro (o ?demo-foro=0, =1, =20 reflexiones).
 
 (function () {
   "use strict";
@@ -29,13 +27,11 @@
   var PESO_POR_PAGINA = 4;   // respuestas por página: corta/media pesan 1, larga 2 (máx. 4 cortas o 2 largas)
   var CORTA = 40;            // hasta aquí, respuesta corta (letra muy grande)
   var MEDIA = 140;           // hasta aquí, media; más, larga
-  var TITULO_MENSAJES = "Mensajes del mural / Wall messages";
   var SEGUNDOS_POR_PAGINA = 15;   // se cambia desde el panel: configurarForo({segundosPorPagina})
   var MAX_TITULO = 80;   // igual que el CHECK de bd/schema.sql
   var MAX_TEXTO = 280;   // = db.MAX_FORO_TEXTO: lo que cabe entero en una tarjeta (lo antiguo, más largo, se corta con «…»)
-  var MAX_MENSAJE = 200; // igual que el límite del mural (bd/schema.sql)
-  var MENSAJE_VACIO = "Escanea el QR y comparte un mensaje o una reflexión";
-  var MENSAJE_VACIO_EN = "Scan the QR and share a message or a reflection";
+  var MENSAJE_VACIO = "Escanea el QR y comparte una reflexión";
+  var MENSAJE_VACIO_EN = "Scan the QR and share a reflection";
 
   var estado = {
     elementos: [],
@@ -54,8 +50,8 @@
     return corte.replace(/[\s.,;:!?¡¿-]+$/, "") + "…";
   }
 
-  // Acepta solo objetos con texto (y título, si son reflexiones); ignora lo demás sin romper la
-  // pantalla. Sin «tipo» se trata como reflexión (así funcionaba antes de T14).
+  // Acepta solo reflexiones con título o texto; ignora lo demás (incluidos los mensajes del mural,
+  // tipo "mensaje") sin romper la pantalla. Sin «tipo» se trata como reflexión.
   function normalizar(elementos) {
     if (!Array.isArray(elementos)) return [];
     var limpias = [];
@@ -63,38 +59,37 @@
     for (var i = 0; i < elementos.length; i++) {
       var e = elementos[i];
       if (!e || typeof e !== "object") continue;
-      var tipo = e.tipo === "mensaje" ? "mensaje" : "reflexion";
-      var titulo = tipo === "mensaje" || e.titulo == null ? "" : String(e.titulo).trim();
+      if (e.tipo != null && e.tipo !== "reflexion") continue;
+      var titulo = e.titulo == null ? "" : String(e.titulo).trim();
       var texto = e.texto == null ? "" : String(e.texto).trim();
-      if (tipo === "mensaje" ? !texto : (!titulo && !texto)) continue;
-      var clave = e.id == null ? null : tipo + ":" + e.id;
+      if (!titulo && !texto) continue;
+      var clave = e.id == null ? null : String(e.id);
       if (clave !== null) {
-        if (vistas[clave]) continue;   // la misma identidad dos veces: se queda la primera
+        if (vistas[clave]) continue;   // la misma reflexión dos veces: se queda la primera
         vistas[clave] = true;
       }
-      var es = tipo === "reflexion" && e.pregunta_es ? String(e.pregunta_es).trim() : "";
-      var en = tipo === "reflexion" && e.pregunta_en ? String(e.pregunta_en).trim() : "";
-      limpias.push({ clave: clave, tipo: tipo, titulo: titulo, texto: texto, es: es, en: en,
+      var es = e.pregunta_es ? String(e.pregunta_es).trim() : "";
+      var en = e.pregunta_en ? String(e.pregunta_en).trim() : "";
+      limpias.push({ clave: clave, titulo: titulo, texto: texto, es: es, en: en,
         pn: e.pregunta_id == null ? null : Number(e.pregunta_id) });
     }
     return limpias;
   }
 
   function longitud(e) {
-    var n = Math.min(e.texto.length, e.tipo === "mensaje" ? MAX_MENSAJE : MAX_TEXTO);
+    var n = Math.min(e.texto.length, MAX_TEXTO);
     return n <= CORTA ? "corta" : n <= MEDIA ? "media" : "larga";
   }
 
   // Agrupa por pregunta (en el orden en que aparece cada una: lo más reciente primero) y
-  // reparte cada grupo en páginas de PESO_POR_PAGINA. Los mensajes del mural, en su propio grupo.
+  // reparte cada grupo en páginas de PESO_POR_PAGINA.
   function construirPaginas(elementos) {
     var grupos = [];
     var porClave = {};
     elementos.forEach(function (e) {
-      var clave = e.tipo === "mensaje" ? "\u0000mensajes" : e.titulo;
+      var clave = e.titulo;
       if (!porClave[clave]) {
-        porClave[clave] = { tipo: e.tipo, titulo: e.tipo === "mensaje" ? TITULO_MENSAJES : e.titulo,
-          es: e.es, en: e.en, pn: e.pn, elementos: [] };
+        porClave[clave] = { titulo: e.titulo, es: e.es, en: e.en, pn: e.pn, elementos: [] };
         grupos.push(porClave[clave]);
       }
       porClave[clave].elementos.push(e);
@@ -106,7 +101,7 @@
       g.elementos.forEach(function (e) {
         var p = longitud(e) === "larga" ? 2 : 1;
         if (!actual || peso + p > PESO_POR_PAGINA) {
-          actual = { tipo: g.tipo, titulo: g.titulo, es: g.es, en: g.en, pn: g.pn, elementos: [] };
+          actual = { titulo: g.titulo, es: g.es, en: g.en, pn: g.pn, elementos: [] };
           paginas.push(actual);
           peso = 0;
         }
@@ -155,11 +150,11 @@
   // Tarjeta de una respuesta (la pregunta va arriba, en la cabecera de la página).
   function crearTarjeta(elemento) {
     var tarjeta = document.createElement("article");
-    tarjeta.className = "foro-tarjeta foro-tarjeta--" + elemento.tipo + " foro-tarjeta--" + longitud(elemento);
+    tarjeta.className = "foro-tarjeta foro-tarjeta--reflexion foro-tarjeta--" + longitud(elemento);
     if (elemento.clave != null) tarjeta.dataset.id = elemento.clave;
     var texto = document.createElement("p");
     texto.className = "foro-texto";
-    texto.textContent = recortar(elemento.texto, elemento.tipo === "mensaje" ? MAX_MENSAJE : MAX_TEXTO);
+    texto.textContent = recortar(elemento.texto, MAX_TEXTO);
     tarjeta.appendChild(texto);
     return tarjeta;
   }
@@ -196,7 +191,7 @@
     h2.textContent = "";
     var es = document.createElement("span");
     es.className = "foro-pregunta-es";
-    es.textContent = pagina.tipo === "mensaje" ? recortar(pagina.titulo, MAX_TITULO) : (pagina.es || recortar(pagina.titulo, MAX_TITULO));
+    es.textContent = pagina.es || recortar(pagina.titulo, MAX_TITULO);
     h2.appendChild(es);
     if (pagina.en) {
       var en = document.createElement("span");
@@ -230,7 +225,6 @@
       var pagina = estado.paginas[estado.pagina];
       pregunta.hidden = false;
       pintarPregunta(pregunta, pagina);
-      pregunta.classList.toggle("foro-pregunta--mensajes", pagina.tipo === "mensaje");
       var visibles = pagina.elementos;
       // 1-3 respuestas en una fila; 4, en 2 × 2 (así la letra puede ser más grande)
       zona.style.setProperty("--foro-columnas", visibles.length === 4 ? 2 : visibles.length);
@@ -306,7 +300,7 @@
 
   // ---- Datos de prueba (solo con ?demo-foro en la URL) ----------------------
   var pintarForoDemo = pintarForo;   // la función real: window.pintarForo ignora llamadas en modo demo
-  function datosDePrueba(cuantas, tipo) {
+  function datosDePrueba(cuantas) {
     var ejemplos = [
       ["¿Qué piensas de la utilidad del feminismo hoy en día?", "Necesario"],
       ["¿Cómo actuarías tú en ese lugar?", "Llamaría a la policía y me quedaría con ella hasta que llegara ayuda."],
@@ -321,23 +315,13 @@
       ["¿Qué piensas de la utilidad del feminismo hoy en día?", "Útil"],
       ["¿Cómo actuarías tú en ese lugar?", "Policía"]
     ];
-    var mensajes = [
-      "Ni una menos", "Vivas, libres y sin miedo", "Te creo", "Si nos tocan a una, nos tocan a todas",
-      "Educar en igualdad es prevenir la violencia de género desde la infancia", "Nunca estás sola",
-      "Un mensaje muy largo para probar el recorte: la igualdad se construye cada día, en casa, en clase " +
-        "y en la calle, y nadie debería callar ante una injusticia. <i>Esto no debe salir en cursiva</i>."
-    ];
     var lista = [];
     for (var i = 0; i < cuantas; i++) {
-      // Mezcla: una reflexión de cada tres elementos... y el resto, mensajes (o solo un tipo con &tipo=).
-      var esMensaje = tipo === "mensajes" || (tipo !== "reflexiones" && i % 3 !== 0);
-      if (esMensaje) {
-        lista.push({ tipo: "mensaje", id: i + 1, titulo: null, texto: mensajes[i % mensajes.length] });
-      } else {
-        var e = ejemplos[i % ejemplos.length];
-        lista.push({ tipo: "reflexion", id: i + 1, titulo: e[0], texto: e[1] });
-      }
+      var e = ejemplos[i % ejemplos.length];
+      lista.push({ tipo: "reflexion", id: i + 1, titulo: e[0], texto: e[1] });
     }
+    // Un mensaje del mural colado: no debe salir en el foro (normalizar lo descarta).
+    if (cuantas > 0) lista.push({ tipo: "mensaje", id: 1, titulo: null, texto: "ESTO NO DEBE SALIR EN EL FORO" });
     return lista;
   }
 
@@ -348,15 +332,12 @@
       document.querySelectorAll(".vista").forEach(function (v) { v.hidden = v !== vista; });
       var valor = parametros.get("demo-foro");
       var cuantas = valor === "" ? 20 : Math.max(0, parseInt(valor, 10) || 0);
-      var tipo = parametros.get("tipo");
-      pintarForoDemo(datosDePrueba(cuantas, tipo));
-      // Simula el refresco de T04: mismos datos a los 10 s y un elemento nuevo a los 20 s.
-      setTimeout(function () { pintarForoDemo(datosDePrueba(cuantas, tipo)); }, 10000);
+      pintarForoDemo(datosDePrueba(cuantas));
+      // Simula el refresco de T04: mismos datos a los 10 s y una reflexión nueva a los 20 s.
+      setTimeout(function () { pintarForoDemo(datosDePrueba(cuantas)); }, 10000);
       setTimeout(function () {
-        var nuevas = datosDePrueba(cuantas, tipo);
-        nuevas.unshift(tipo === "mensajes"
-          ? { tipo: "mensaje", id: 999, titulo: null, texto: "Mensaje nuevo, ha llegado mientras rotaba." }
-          : { tipo: "reflexion", id: 999, titulo: "Reflexión nueva", texto: "Ha llegado mientras rotaba." });
+        var nuevas = datosDePrueba(cuantas);
+        nuevas.unshift({ tipo: "reflexion", id: 999, titulo: "Reflexión nueva", texto: "Ha llegado mientras rotaba." });
         pintarForoDemo(nuevas);
       }, 20000);
     });

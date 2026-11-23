@@ -453,23 +453,16 @@ def create_app():
 
     @app.get("/api/foro")
     def api_foro():
-        # T14: reflexiones aprobadas y mensajes del mural visibles, mezclados. Los ids se repiten
-        # entre tablas: el cliente debe identificar cada elemento por tipo + id.
-        # T15: los mensajes caducados ya no salen (las reflexiones no caducan) y cada mensaje
-        # lleva caduca_en (segundos que le quedan; None si no caduca).
-        vida = db.vida_mensajes_min()
+        # Solo reflexiones aprobadas (los mensajes del mural se ven solo en el mural). Se mantiene
+        # "tipo": "reflexion" para que el formato de cada elemento no cambie.
         preguntas = {p["titulo"]: p for p in db.listar_preguntas()}
         salida = []
-        for e in db.listar_foro_mixto(vida_min=vida):
-            fila = {"tipo": e["tipo"], "id": e["id"], "titulo": e["titulo"], "texto": e["texto"]}
-            if e["tipo"] == "reflexion":
-                p = preguntas.get(e["titulo"])
-                fila["pregunta_id"] = p["id"] if p else None
-                fila["pregunta_es"] = p["text_es"] if p else e["titulo"]
-                fila["pregunta_en"] = p["text_en"] if p else ""
-            if e["tipo"] == "mensaje":
-                fila["caduca_en"] = db.caduca_en(e["edad"], vida)
-            salida.append(fila)
+        for e in db.listar_foro_pantalla():
+            p = preguntas.get(e["titulo"])
+            salida.append({"tipo": "reflexion", "id": e["id"], "titulo": e["titulo"], "texto": e["texto"],
+                           "pregunta_id": p["id"] if p else None,
+                           "pregunta_es": p["text_es"] if p else e["titulo"],
+                           "pregunta_en": p["text_en"] if p else ""})
         return jsonify(salida)
 
     @app.get("/api/pantalla")
