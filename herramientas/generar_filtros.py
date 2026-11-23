@@ -4,10 +4,11 @@ Solo usa la biblioteca estándar y bd/. Del léxico se toman:
   - las líneas activas (sin # delante)      -> retener («bloqueo»)
   - las líneas #~                           -> cuarentena: retienen, avisando de posible falso positivo
   - las líneas #! que algún término de arriba retendría por error -> excepciones (Maricarmen frente a maric*)
-Las reglas contextuales (#?) y la tabla de emojis no se cargan (ver docs/moderacion/README.md).
+  - la tabla de emojis (#36): clase a -> retener, b -> cuarentena; la c (inocente casi siempre) no se carga
+Las reglas contextuales (#?) no se cargan (ver docs/moderacion/README.md).
 
 Además:
-  - descarta los términos que el filtro no admite (números, símbolos, emojis, apóstrofos) y los lista;
+  - descarta los términos que el filtro no admite y los lista;
   - quita los términos redundantes: los que ya detecta otro término de la lista
     (p. ej. «gay de mierda» ya salta por «de mierda», y «putaaa» por «puta»).
 
@@ -23,17 +24,21 @@ lo tengan distinto (p. ej. «puto» pasa de retener a cuarentena) y lista los qu
 datos pero no en la lista, para revisarlos a mano desde el panel. No borra nada.
 """
 
+import re
 import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
-from bd.filtro import Filtro, limpiar_termino, normalizar  # noqa: E402
+from bd.filtro import Filtro, es_termino_simbolos, limpiar_termino, normalizar  # noqa: E402
 
 LEXICO = RAIZ / "docs" / "moderacion" / "lexico_25n.txt"
 SALIDA = RAIZ / "bd" / "filtros_iniciales.txt"
 PREFIJO = {"bloqueo": "", "cuarentena": "~", "excepcion": "!"}
+# Fila de la tabla de emojis: «# 🍆🍑 | eggplant + peach | motivo | b»
+FILA_EMOJI = re.compile(r"^# (\S+) \| .* \| ([abc])$")
+TIPO_EMOJI = {"a": "bloqueo", "b": "cuarentena"}
 
 CABECERA = """\
 # Lista inicial del filtro. Se carga UNA vez, la primera vez que arranca el servidor.
@@ -48,6 +53,7 @@ CABECERA = """\
 #   palabra       retener: la palabra entera, con plural y escrita con trucos (p.u.t.a, z0rra, zorraaa)
 #   palabra*      cualquier palabra que empiece así
 #   dos palabras  expresión completa
+#   1488, 🍆🍑    emojis, números y símbolos: tal cual (da igual el tono de piel o los espacios entre emojis)
 #   ~palabra      cuarentena: también se retiene, pero avisando de que puede ser un falso positivo
 #   !palabra      excepción: nunca cuenta como coincidencia (maricarmen frente a ~maric*)
 #
@@ -71,6 +77,11 @@ def leer_lexico(ruta=LEXICO):
             tipo, linea = "cuarentena", linea[3:]
         elif linea.startswith("#! "):
             tipo, linea = "excepcion", linea[3:]
+        elif FILA_EMOJI.match(linea) and not re.search(r"[a-z]", FILA_EMOJI.match(linea).group(1)):
+            emoji, clase = FILA_EMOJI.match(linea).groups()
+            if clase in TIPO_EMOJI:
+                entradas.append((seccion, emoji, TIPO_EMOJI[clase]))
+            continue
         elif linea.startswith("#"):
             # Título de sección: «# español: ...». Las fuentes empiezan por «# [».
             if linea.startswith("# ") and not linea.startswith("# [") and ":" in linea \
@@ -98,10 +109,14 @@ def generar(ruta=LEXICO):
     """Devuelve (secciones, rechazados, redundantes). secciones = [(titulo, [(termino, tipo)])]."""
     entradas, rechazados, vistos = [], [], {}
     for seccion, original, tipo in leer_lexico(ruta):
-        # Se normaliza igual que los mensajes: «f u c k» se compara como «fuck», así que un término
-        # con las letras separadas nunca saltaría. Los que llevan números se rechazan antes:
-        # normalizar los cambiaría («88» -> «bb»).
-        limpio = None if any(c.isdigit() for c in original) else limpiar_termino(normalizar(original))
+        # Los de letras se normalizan igual que los mensajes: «f u c k» se compara como «fuck», así
+        # que un término con las letras separadas nunca saltaría. Los de símbolos (números, emojis)
+        # no: normalizar cambiaría «88» por «bb». El apóstrofo sobra: «i'm» ya lo cubre «im».
+        original = original.replace("'", "")
+        if es_termino_simbolos(original):
+            limpio = limpiar_termino(original)
+        else:
+            limpio = limpiar_termino(normalizar(original))
         if limpio is None:
             if tipo != "excepcion":
                 rechazados.append(original)
@@ -203,7 +218,7 @@ def main(args):
     if "-v" in args:
         print("    " + ", ".join(redundantes))
     if rechazados:
-        print(f"No admitidos por el filtro ({len(rechazados)}), van aparte (números, símbolos, emojis: #36):")
+        print(f"No admitidos por el filtro ({len(rechazados)}):")
         print("    " + ", ".join(rechazados))
     return 0
 

@@ -16,6 +16,9 @@ Cómo se escribe un término del filtro:
                  con letras, no).
     maric*       cualquier palabra que empiece así (maricón, maricones, mariconazo...).
     a fregar     una expresión de varias palabras.
+    🍆🍑, 1488   emojis, números y símbolos (#36): tal cual, sin trucos de letras. Da igual el
+                 tono de piel (👉🏽 = 👉) y los espacios entre emojis (👉 👌 = 👉👌). Los números
+                 se buscan enteros: «1488» no salta en «21488».
 No hace falta escribir tildes: "maricon" ya cubre "maricón".
 """
 import re
@@ -37,6 +40,13 @@ _LETRAS_SUELTAS = re.compile(r"(?<![a-z0-9])(?:[a-z0-9] +){2,}[a-z0-9](?![a-z0-9
 
 TERMINO_VALIDO = re.compile(r"^[a-zñáéíóúü]+(?: [a-zñáéíóúü]+)*\*?$")
 
+# #36: términos de SÍMBOLOS (emojis, números y símbolos: 🍆🍑, 1488, 14/88, 卐). No pasan por la
+# normalización de letras (convertiría «88» en «bb»): se buscan en otra vista del texto, en
+# minúsculas y sin tildes, sin tonos de piel ni selectores de variación (👉🏽👌🏻 = 👉👌).
+_SIN_VARIANTES = dict.fromkeys([0xFE0E, 0xFE0F, *range(0x1F3FB, 0x1F400)])
+# Teléfonos públicos de ayuda que no cuentan como «dato personal» (016, su WhatsApp y el 112).
+TELEFONOS_PUBLICOS = re.compile(r"(?<!\d)(?:\+?34[\s.\-]?)?600[\s.\-]?000[\s.\-]?016(?!\d)")
+
 _ENLACE = re.compile(r"https?://|www\.|\b[a-z0-9-]{2,}\.(?:com|es|net|org|io|ly|me|tv|gg|info|link|xyz|app|co)\b", re.I)
 _CORREO = re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+")
 _TELEFONO = re.compile(r"(?<!\d)(?:\+?\d[\s.\-]?){9,}(?!\d)")
@@ -54,9 +64,44 @@ def normalizar(texto):
     return _LETRAS_SUELTAS.sub(lambda m: m.group(0).replace(" ", ""), t)
 
 
+def vista_simbolos(texto):
+    """Texto para buscar términos de símbolos: minúsculas, sin tildes, sin tonos de piel ni
+    selectores de variación y con espacios simples. Los números se quedan como están."""
+    t = sin_tildes((texto or "").lower()).translate(_SIN_VARIANTES)
+    return re.sub(r"\s+", " ", t).strip()
+
+
+def _es_simbolo(c):
+    # Emoji, símbolo (卐 es un ideograma: categoría Lo), dígito o carácter de unión de emojis (ZWJ).
+    categoria = unicodedata.category(c)
+    return c.isdigit() or categoria.startswith("S") or categoria == "Lo" or c == "‍"
+
+
+def es_termino_simbolos(termino):
+    """True si el término lleva emojis, números o símbolos (se busca con vista_simbolos)."""
+    return any(_es_simbolo(c) for c in (termino or "") if c != "*")
+
+
+def _limpiar_simbolos(termino):
+    t = vista_simbolos(termino)
+    if not (1 <= len(t) <= 60) or t.endswith("*"):
+        return None
+    if any(unicodedata.category(c).startswith("C") and c != "‍" for c in t):
+        return None
+    # Al menos un emoji o símbolo, dos cifras, o una cifra en un término de 3 o más caracteres
+    # («6mwe», «r34»): «8» sola retendría casi cualquier cosa.
+    cifras = sum(c.isdigit() for c in t)
+    if not any(_es_simbolo(c) and not c.isdigit() for c in t) and cifras < 2 and len(t) < 3:
+        return None
+    return t
+
+
 def limpiar_termino(termino):
     """Forma en la que se guarda un término: minúsculas, sin tildes, espacios simples.
-    Solo letras, espacios y un * final. Devuelve None si no es válido."""
+    Solo letras, espacios y un * final; o, si lleva emojis, números o símbolos, un término de
+    símbolos (ver vista_simbolos). Devuelve None si no es válido."""
+    if es_termino_simbolos(termino):
+        return _limpiar_simbolos(termino)
     t = re.sub(r"\s+", " ", (termino or "").strip().lower())
     if not (2 <= len(t.rstrip("*")) <= 60) or not TERMINO_VALIDO.match(t):
         return None
@@ -79,7 +124,26 @@ def _patron_palabra(palabra):
     return _SEP.join(letras)
 
 
+def _patron_simbolos(termino):
+    # Literal, pero entre dos emojis seguidos puede haber espacios («👉 👌» = «👉👌»).
+    # Si empieza o acaba en letra o cifra, no puede ir pegado a otra («1488» no salta en «21488»).
+    partes = []
+    for i, c in enumerate(termino):
+        if i and _es_pictograma(termino[i - 1]) and _es_pictograma(c):
+            partes.append(r"\s*")
+        partes.append(r"\s+" if c == " " else re.escape(c))
+    inicio = r"(?<![a-z0-9])" if termino[0].isalnum() else ""
+    fin = r"(?![a-z0-9])" if termino[-1].isalnum() else ""
+    return inicio + "".join(partes) + fin
+
+
+def _es_pictograma(c):
+    return unicodedata.category(c) == "So"
+
+
 def _patron(termino):
+    if es_termino_simbolos(termino):
+        return _patron_simbolos(termino)
     prefijo = termino.endswith("*")
     palabras = termino.rstrip("*").split(" ")
     cuerpo = r"\s+".join(_patron_palabra(p) for p in palabras)
@@ -102,15 +166,23 @@ class Filtro:
         self.cuarentena = [t for t in cuarentena if t]
         self.excepciones = [t for t in excepciones if t]
         self.reglas = {"enlaces": enlaces, "correos": correos, "telefonos": telefonos, "usuarios": usuarios}
-        self._patrones = [(t, re.compile(_patron(t))) for t in self.terminos]
-        self._patrones_cuarentena = [(t, re.compile(_patron(t))) for t in self.cuarentena]
+        self._patrones = [self._compilar(t) for t in self.terminos]
+        self._patrones_cuarentena = [self._compilar(t) for t in self.cuarentena]
         # Una excepción se busca como cualquier término (palabra entera, plural y trucos):
         # «maricarmen» salva «Maricarmen» o «M4ricarmen», pero no «maricarmenazo».
-        self._patrones_excepcion = [re.compile(_patron(e)) for e in self.excepciones]
+        self._patrones_excepcion = [self._compilar(e) for e in self.excepciones]
 
-    def _coincide(self, patron, normal, zonas_excepcion):
+    @staticmethod
+    def _compilar(termino):
+        """(termino, patrón, vista): los términos de símbolos se buscan en vista_simbolos(),
+        los de letras en normalizar()."""
+        vista = "simbolos" if es_termino_simbolos(termino) else "letras"
+        return termino, re.compile(_patron(termino)), vista
+
+    @staticmethod
+    def _coincide(patron, texto, zonas_excepcion):
         """True si el patrón aparece en el texto fuera de las zonas cubiertas por una excepción."""
-        for m in patron.finditer(normal):
+        for m in patron.finditer(texto):
             if not any(ini <= m.start() and m.end() <= fin for ini, fin in zonas_excepcion):
                 return True
         return False
@@ -122,16 +194,18 @@ class Filtro:
             return "Contiene un correo electrónico"
         if self.reglas["enlaces"] and _ENLACE.search(original):
             return "Contiene un enlace"
-        if self.reglas["telefonos"] and _TELEFONO.search(original):
+        if self.reglas["telefonos"] and _TELEFONO.search(TELEFONOS_PUBLICOS.sub(" ", original)):
             return "Contiene un número de teléfono"
         if self.reglas["usuarios"] and _USUARIO.search(original):
             return "Contiene un @usuario de redes sociales"
-        normal = normalizar(original)
-        zonas = [m.span() for p in self._patrones_excepcion for m in p.finditer(normal)]
-        for termino, patron in self._patrones:
-            if self._coincide(patron, normal, zonas):
+        vistas = {"letras": normalizar(original), "simbolos": vista_simbolos(original)}
+        zonas = {v: [] for v in vistas}
+        for _, patron, vista in self._patrones_excepcion:
+            zonas[vista] += [m.span() for m in patron.finditer(vistas[vista])]
+        for termino, patron, vista in self._patrones:
+            if self._coincide(patron, vistas[vista], zonas[vista]):
                 return "Palabra filtrada: «%s»" % termino
-        for termino, patron in self._patrones_cuarentena:
-            if self._coincide(patron, normal, zonas):
+        for termino, patron, vista in self._patrones_cuarentena:
+            if self._coincide(patron, vistas[vista], zonas[vista]):
                 return "Cuarentena: «%s»" % termino
         return None

@@ -10,6 +10,7 @@
 #   palabra       retener: la palabra entera, con plural y escrita con trucos (p.u.t.a, z0rra, zorraaa)
 #   palabra*      cualquier palabra que empiece así
 #   dos palabras  expresión completa
+#   1488, 🍆🍑    emojis, números y símbolos: tal cual (da igual el tono de piel o los espacios entre emojis)
 #   ~palabra      cuarentena: también se retiene, pero avisando de que puede ser un falso positivo
 #   !palabra      excepción: nunca cuenta como coincidencia (maricarmen frente a ~maric*)
 #
@@ -219,6 +220,7 @@ la violencia de genero es un invento
 la violencia machista no existe
 la violencia de genero no existe
 el machismo ya no existe
+el 25n es un chiste
 denuncian para cobrar
 denuncian para quitarte la casa
 todas las denuncias son falsas
@@ -315,6 +317,7 @@ gili pollas
 kapullo
 mierdda
 miedra
+mierd0
 konchetumadre
 conchatvmadre
 tevoiamatar
@@ -417,10 +420,20 @@ i hope you get raped
 send nudes
 
 # Numeros, siglas de odio y simbolos: conservar tokens originales sin sustitucion numerica
+1488
+14/88
+14-88
+8814
+卐
+卍
 heil hitler
 sieg heil
 white power
+combat 18
 blood and honour
+6mwe
+
+# Lista inicial del equipo: t03, terminos que el lexico no recogia
 hembrista
 cabrona
 furcia
@@ -434,6 +447,27 @@ te mato
 os mato
 ~negrat*
 ~retrasad*
+
+# Tabla aparte: emojis y secuencias
+~🖕
+~🍌🐒
+~🍌🐵
+~🐒🐒🐒
+~🐒👉
+~👩🐒
+~🍆🍑
+~🍆💦
+~👉👌
+~👉🍑
+~👅🍑
+~👅💦
+~🤏🍆
+~🔪🩸
+~🔫💀
+~🪢💀
+~🔥🏠
+~🚫🏳‍🌈
+~🚫🏳‍⚧
 
 # Excepciones: palabras que nunca se retienen aunque otro término las cubra
 !maricarmen
