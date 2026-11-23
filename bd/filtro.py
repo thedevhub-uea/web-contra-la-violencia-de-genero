@@ -87,11 +87,33 @@ def _patron(termino):
     return r"(?<![a-z0-9])" + cuerpo + fin
 
 
+
+
 class Filtro:
-    def __init__(self, terminos=(), enlaces=True, correos=True, telefonos=True, usuarios=True):
+    """terminos:    retienen el mensaje («Palabra filtrada: «x»»).
+    cuarentena:  términos ambiguos; también retienen, pero con otro motivo («Cuarentena: «x»»)
+                 para que moderación sepa que puede ser un falso positivo (p. ej. «el puto machismo»).
+    excepciones: palabras que nunca cuentan como coincidencia aunque un término las cubra
+                 (sobre todo los prefijos: «maric*» no retiene «Maricarmen» si es excepción)."""
+
+    def __init__(self, terminos=(), enlaces=True, correos=True, telefonos=True, usuarios=True,
+                 cuarentena=(), excepciones=()):
         self.terminos = [t for t in terminos if t]
+        self.cuarentena = [t for t in cuarentena if t]
+        self.excepciones = [t for t in excepciones if t]
         self.reglas = {"enlaces": enlaces, "correos": correos, "telefonos": telefonos, "usuarios": usuarios}
         self._patrones = [(t, re.compile(_patron(t))) for t in self.terminos]
+        self._patrones_cuarentena = [(t, re.compile(_patron(t))) for t in self.cuarentena]
+        # Una excepción se busca como cualquier término (palabra entera, plural y trucos):
+        # «maricarmen» salva «Maricarmen» o «M4ricarmen», pero no «maricarmenazo».
+        self._patrones_excepcion = [re.compile(_patron(e)) for e in self.excepciones]
+
+    def _coincide(self, patron, normal, zonas_excepcion):
+        """True si el patrón aparece en el texto fuera de las zonas cubiertas por una excepción."""
+        for m in patron.finditer(normal):
+            if not any(ini <= m.start() and m.end() <= fin for ini, fin in zonas_excepcion):
+                return True
+        return False
 
     def motivo(self, *textos):
         """Devuelve por qué el texto no puede publicarse, o None si puede."""
@@ -105,7 +127,11 @@ class Filtro:
         if self.reglas["usuarios"] and _USUARIO.search(original):
             return "Contiene un @usuario de redes sociales"
         normal = normalizar(original)
+        zonas = [m.span() for p in self._patrones_excepcion for m in p.finditer(normal)]
         for termino, patron in self._patrones:
-            if patron.search(normal):
+            if self._coincide(patron, normal, zonas):
                 return "Palabra filtrada: «%s»" % termino
+        for termino, patron in self._patrones_cuarentena:
+            if self._coincide(patron, normal, zonas):
+                return "Cuarentena: «%s»" % termino
         return None

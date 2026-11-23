@@ -175,6 +175,18 @@ body.admin [hidden] { display: none !important; }
 }
 .adm-anadir input:focus { border-color: var(--acento); }
 .adm-anadir .adm-btn { width: auto; flex: none; }
+.adm-anadir select {
+  flex: none;
+  min-height: 40px;
+  padding: 0 8px;
+  border: 1px solid var(--adm-borde-fuerte);
+  border-radius: 8px;
+  background: var(--adm-panel);
+  color: var(--adm-texto);
+  font: inherit;
+  font-size: 16px;
+}
+.adm-anadir select:focus { border-color: var(--acento); }
 .adm-buscar-filtro { margin: 0 0 12px; }
 .adm-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
 .adm-chip {
@@ -203,6 +215,10 @@ body.admin [hidden] { display: none !important; }
   cursor: pointer;
 }
 .adm-chip-quitar:hover { background: var(--adm-rojo-fondo); color: var(--adm-rojo); }
+/* #34: tipos de término. Cuarentena (ambiguo) y excepción (nunca retiene) llevan borde discontinuo. */
+.adm-chip-cuarentena { border-style: dashed; border-color: var(--adm-ambar-borde); }
+.adm-chip-excepcion { border-style: dashed; border-color: var(--adm-verde); }
+.adm-chip-tipo { margin-left: 4px; font-size: 12px; color: var(--adm-suave); }
 .adm-check {
   display: flex;
   align-items: center;
@@ -524,6 +540,7 @@ body.admin [hidden] { display: none !important; }
 .adm-motivo b { font-weight: 700; }
 .adm-motivo-aviso { background: var(--adm-rojo-fondo); color: var(--adm-rojo-texto); font-weight: 500; }
 .adm-motivo-suave { background: var(--adm-gris-fondo); color: var(--adm-gris-texto); font-weight: 500; }
+.adm-motivo-cuarentena { background: var(--adm-gris-fondo); color: var(--adm-gris-texto); border: 1px dashed var(--adm-ambar-borde); }
 
 /* Botones */
 .adm-acciones { display: flex; gap: 8px; }
@@ -628,7 +645,7 @@ body.admin [hidden] { display: none !important; }
 
 /* Pantallas táctiles: objetivos de al menos 48 px */
 @media (pointer: coarse) {
-  .adm-btn, .adm-segmentos button, .adm-buscar input, .adm-anadir input, .adm-numero input, .adm-tiempo input, .adm-check { min-height: 48px; }
+  .adm-btn, .adm-segmentos button, .adm-buscar input, .adm-anadir input, .adm-anadir select, .adm-numero input, .adm-tiempo input, .adm-check { min-height: 48px; }
   .adm-chip-quitar { width: 40px; height: 40px; }
 }
 
@@ -639,6 +656,9 @@ body.admin [hidden] { display: none !important; }
 }
 @media (max-width: 420px) {
   .adm-hora, .adm-marca small { display: none; }
+  .adm-anadir { flex-wrap: wrap; }
+  .adm-anadir input { flex-basis: 100%; }
+  .adm-anadir select { flex: 1; }
 }
 
 /* Tableta y ordenador: filas tipo tabla con las acciones a la derecha */

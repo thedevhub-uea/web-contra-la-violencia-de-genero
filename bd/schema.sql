@@ -56,9 +56,12 @@ CREATE TABLE IF NOT EXISTS avisos (
 CREATE INDEX IF NOT EXISTS idx_avisos_elemento ON avisos (tabla, elemento_id);
 
 -- Palabras y expresiones del filtro automático (T03). Ver bd/filtro.py.
+-- tipo (#34): 'bloqueo' retiene el mensaje; 'cuarentena' también, pero avisando de que puede ser
+-- un falso positivo; 'excepcion' es una palabra que nunca cuenta (Maricarmen frente a maric*).
 CREATE TABLE IF NOT EXISTS filtros (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
     termino TEXT    NOT NULL UNIQUE,
+    tipo    TEXT    NOT NULL DEFAULT 'bloqueo' CHECK (tipo IN ('bloqueo', 'cuarentena', 'excepcion')),
     creado  TEXT    NOT NULL DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now'))
 );
 
