@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 00:03+0100\n"
+"POT-Creation-Date: 2026-11-23 22:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -237,6 +237,13 @@ msgstr ""
 msgid "Cuadrado"
 msgstr ""
 
+msgid "Cuarentena"
+msgstr ""
+
+#, python-format
+msgid "Cuarentena (puede ser un falso positivo): «%(termino)s»"
+msgstr ""
+
 msgid "Cursiva"
 msgstr ""
 
@@ -371,6 +378,9 @@ msgid "Estilo del mensaje #%(id)s restablecido al por defecto."
 msgstr ""
 
 msgid "Estrella"
+msgstr ""
+
+msgid "Excepción"
 msgstr ""
 
 msgid "Fijada"
@@ -697,6 +707,9 @@ msgstr ""
 msgid "Quitar «%(termino)s» del filtro"
 msgstr ""
 
+msgid "Qué hace el término"
+msgstr ""
+
 msgid ""
 "Recomendado: las reflexiones pueden contar casos reales con nombres o "
 "lugares que el filtro no detecta."
@@ -742,6 +755,9 @@ msgstr ""
 msgid "Resumen"
 msgstr ""
 
+msgid "Retener"
+msgstr ""
+
 msgid "Retener @usuarios de redes sociales"
 msgstr ""
 
@@ -752,6 +768,13 @@ msgid "Retener enlaces (www…, http…, .com)"
 msgstr ""
 
 msgid "Retener números de teléfono"
+msgstr ""
+
+msgid ""
+"Retener: el mensaje no sale hasta que lo apruebes. Cuarentena: también se"
+" retiene, pero avisa de que puede ser un falso positivo (p. ej. «puto» en"
+" «el puto machismo»). Excepción: palabra que nunca se retiene aunque otro"
+" término la cubra (p. ej. «maricarmen» frente a «maric*»)."
 msgstr ""
 
 msgid "Retirado"
@@ -924,6 +947,12 @@ msgid "Web contra la violencia de género"
 msgstr ""
 
 msgid "Ya está retirado de la pantalla."
+msgstr ""
+
+msgid "cuarentena"
+msgstr ""
+
+msgid "excepción"
 msgstr ""
 
 #, python-format

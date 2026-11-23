@@ -89,7 +89,7 @@
         {% for texto, n in e.motivos_aviso %}{{ texto | motivo }}{% if n > 1 %} ({{ n }}){% endif %}{{ ' · ' if not loop.last }}{% endfor %}
         {%- if e.estado == 'oculto' %}. {{ _('Ya está retirado de la pantalla.') }}{% endif %}</span></p>
     {%- elif seccion == 'retenidos' %}
-      <p class="adm-motivo">{{ icono('escudo') }}<span>{{ e.motivo | motivo }}</span></p>
+      <p class="adm-motivo{{ ' adm-motivo-cuarentena' if e.motivo and e.motivo.startswith('Cuarentena:') }}">{{ icono('escudo') }}<span>{{ e.motivo | motivo }}</span></p>
     {%- elif e.estado == 'caducado' %}
       <p class="adm-motivo adm-motivo-suave">{{ _('Ha caducado: ya no sale en la pantalla (vida de los mensajes: %(min)s min). No está retirado por moderación.', min=ajustes.mensajes_vida_min) }}</p>
     {%- elif e.estado == 'oculto' and e.motivo %}
@@ -409,8 +409,15 @@
             <label class="solo-lectores" for="nuevo-termino">{{ _('Palabra o expresión para filtrar') }}</label>
             <input id="nuevo-termino" name="termino" type="text" required maxlength="61" autocomplete="off"
                    autocapitalize="off" spellcheck="false" placeholder="{{ _('Palabra o expresión') }}">
+            <label class="solo-lectores" for="tipo-termino">{{ _('Qué hace el término') }}</label>
+            <select id="tipo-termino" name="tipo">
+              <option value="bloqueo" selected>{{ _('Retener') }}</option>
+              <option value="cuarentena">{{ _('Cuarentena') }}</option>
+              <option value="excepcion">{{ _('Excepción') }}</option>
+            </select>
             <button type="submit" class="adm-btn adm-btn-principal">{{ icono('mas') }}<span>{{ _('Añadir') }}</span></button>
           </form>
+          <p class="adm-ayuda">{{ _('Retener: el mensaje no sale hasta que lo apruebes. Cuarentena: también se retiene, pero avisa de que puede ser un falso positivo (p. ej. «puto» en «el puto machismo»). Excepción: palabra que nunca se retiene aunque otro término la cubra (p. ej. «maricarmen» frente a «maric*»).') }}</p>
           <label class="adm-buscar adm-buscar-filtro" hidden>
             <span class="solo-lectores">{{ _('Buscar en el filtro') }}</span>{{ icono('buscar') }}
             <input type="search" id="buscar-filtro" placeholder="{{ _('Buscar en el filtro…') }}" autocomplete="off">
@@ -419,8 +426,10 @@
           {% if terminos %}
             <ul class="adm-chips" id="lista-filtro">
             {% for t in terminos %}
-              <li class="adm-chip" data-clave="filtro-{{ t.id }}">
+              <li class="adm-chip adm-chip-{{ t.tipo }}" data-clave="filtro-{{ t.id }}">
                 <span>{{ t.termino }}</span>
+                {%- if t.tipo == 'cuarentena' %}<span class="adm-chip-tipo">{{ _('cuarentena') }}</span>
+                {%- elif t.tipo == 'excepcion' %}<span class="adm-chip-tipo">{{ _('excepción') }}</span>{% endif %}
                 <form method="post" action="{{ url_for('admin_filtro_quitar', id=t.id) }}">
                   <input type="hidden" name="csrf" value="{{ csrf }}">
                   <button type="submit" class="adm-chip-quitar" aria-label="{{ _('Quitar «%(termino)s» del filtro', termino=t.termino) }}" title="{{ _('Quitar del filtro') }}">×</button>

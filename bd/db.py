@@ -177,6 +177,7 @@ def init_db():
         if modo.lower() != "wal":
             con.execute("PRAGMA journal_mode = WAL")
         con.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
+        _migrar_tipos_filtro(con)
         _migrar_t03(con)
         _migrar_conecta(con)
     finally:
@@ -251,17 +252,41 @@ def _migrar_t03(con):
         for clave, valor in AJUSTES_POR_DEFECTO.items():
             con.execute("INSERT OR IGNORE INTO ajustes (clave, valor) VALUES (?, ?)", (clave, valor))
         if con.execute("SELECT 1 FROM ajustes WHERE clave = 'filtros_cargados'").fetchone() is None:
-            for termino in _leer_filtros_iniciales():
-                con.execute("INSERT OR IGNORE INTO filtros (termino) VALUES (?)", (termino,))
+            for termino, tipo in _leer_filtros_iniciales():
+                con.execute("INSERT OR IGNORE INTO filtros (termino, tipo) VALUES (?, ?)", (termino, tipo))
             con.execute("INSERT INTO ajustes (clave, valor) VALUES ('filtros_cargados', '1')")
 
 
+# Prefijo de cada línea de filtros_iniciales.txt según el tipo (#34): sin prefijo, bloqueo.
+PREFIJOS_TIPO = {"~": "cuarentena", "!": "excepcion"}
+TIPOS_FILTRO = ("bloqueo", "cuarentena", "excepcion")
+
+
+def leer_linea_filtro(linea):
+    """(termino, tipo) de una línea de filtros_iniciales.txt, o None si es comentario o no es válida."""
+    linea = linea.strip()
+    if not linea or linea.startswith("#"):
+        return None
+    tipo = PREFIJOS_TIPO.get(linea[0], "bloqueo")
+    termino = limpiar_termino(linea[1:] if tipo != "bloqueo" else linea)
+    return (termino, tipo) if termino else None
+
+
 def _leer_filtros_iniciales():
+    """[(termino, tipo)] de filtros_iniciales.txt."""
     if not FILTROS_INICIALES_PATH.exists():
         return []
     lineas = FILTROS_INICIALES_PATH.read_text(encoding="utf-8").splitlines()
-    terminos = (limpiar_termino(l) for l in lineas if l.strip() and not l.lstrip().startswith("#"))
-    return [t for t in terminos if t]
+    return [f for f in map(leer_linea_filtro, lineas) if f]
+
+
+def _migrar_tipos_filtro(con):
+    """#34: columna tipo en filtros (las bases de datos de antes solo tenían bloqueo)."""
+    columnas = {f["name"] for f in con.execute("PRAGMA table_info(filtros)")}
+    if "tipo" not in columnas:
+        with con:
+            con.execute("ALTER TABLE filtros ADD COLUMN tipo TEXT NOT NULL DEFAULT 'bloqueo' "
+                        "CHECK (tipo IN ('bloqueo', 'cuarentena', 'excepcion'))")
 
 
 def _ejecutar(sql, params=()):
@@ -532,7 +557,7 @@ def caduca_en(edad, vida_min):
 
 
 def listar_filtros():
-    return _consultar("SELECT id, termino FROM filtros ORDER BY termino")
+    return _consultar("SELECT id, termino, tipo FROM filtros ORDER BY termino")
 
 
 def termino_filtro(id_):
@@ -540,13 +565,13 @@ def termino_filtro(id_):
     return filas[0]["termino"] if filas else None
 
 
-def anadir_filtro(termino):
+def anadir_filtro(termino, tipo="bloqueo"):
     """Devuelve (id, None) si se añade, o (None, 'invalido' | 'repetido')."""
     limpio = limpiar_termino(termino)
-    if limpio is None:
+    if limpio is None or tipo not in TIPOS_FILTRO:
         return None, "invalido"
     try:
-        return _ejecutar("INSERT INTO filtros (termino) VALUES (?)", (limpio,)).lastrowid, None
+        return _ejecutar("INSERT INTO filtros (termino, tipo) VALUES (?, ?)", (limpio, tipo)).lastrowid, None
     except sqlite3.IntegrityError:
         return None, "repetido"
 
@@ -555,9 +580,19 @@ def quitar_filtro(id_):
     _ejecutar("DELETE FROM filtros WHERE id = ?", (int(id_),))
 
 
+def cambiar_tipo_filtro(termino, tipo):
+    """Cambia el tipo de un término que ya está en el filtro (lo usa herramientas/generar_filtros.py)."""
+    if tipo not in TIPOS_FILTRO:
+        raise ValueError(tipo)
+    return _ejecutar("UPDATE filtros SET tipo = ? WHERE termino = ? AND tipo <> ?", (tipo, termino, tipo)).rowcount
+
+
 def filtro_actual():
     ajustes = leer_ajustes()
-    return Filtro([f["termino"] for f in listar_filtros()],
+    filas = listar_filtros()
+    return Filtro([f["termino"] for f in filas if f["tipo"] == "bloqueo"],
+                  cuarentena=[f["termino"] for f in filas if f["tipo"] == "cuarentena"],
+                  excepciones=[f["termino"] for f in filas if f["tipo"] == "excepcion"],
                   enlaces=ajustes["enlaces"] == "1", correos=ajustes["correos"] == "1",
                   telefonos=ajustes["telefonos"] == "1", usuarios=ajustes["usuarios"] == "1")
 
@@ -663,7 +698,7 @@ def version_panel():
         "SELECT COUNT(*), MAX(id), SUM(visible), SUM(retenido), SUM(LENGTH(style)), SUM(LENGTH(COALESCE(motivo, ''))) FROM mural",
         "SELECT COUNT(*), MAX(id), SUM(aprobado), SUM(retenido), SUM(LENGTH(COALESCE(motivo, ''))) FROM foro",
         "SELECT COUNT(*), MAX(id) FROM avisos",
-        "SELECT COUNT(*), MAX(id), GROUP_CONCAT(termino) FROM filtros",
+        "SELECT COUNT(*), MAX(id), GROUP_CONCAT(termino || ':' || tipo) FROM filtros",
         "SELECT GROUP_CONCAT(clave || '=' || valor) FROM (SELECT clave, valor FROM ajustes ORDER BY clave)",
     ):
         partes.append(repr(tuple(_consultar(sql)[0].values())))

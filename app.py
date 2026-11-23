@@ -261,6 +261,7 @@ _TEXTOS_BD = {texto: traducido for texto, traducido in (
     ("Otro motivo", _l("Otro motivo")),
 )}
 _MOTIVO_PALABRA = re.compile(r"^Palabra filtrada: «(.*)»$")
+_MOTIVO_CUARENTENA = re.compile(r"^Cuarentena: «(.*)»$")
 _MOTIVO_AVISOS = re.compile(r"^Retirado automáticamente al recibir (\d+) avisos$")
 
 
@@ -280,6 +281,9 @@ def _motivo(texto):
     palabra = _MOTIVO_PALABRA.match(texto)
     if palabra:
         return _("Palabra filtrada: «%(termino)s»", termino=palabra.group(1))
+    cuarentena = _MOTIVO_CUARENTENA.match(texto)
+    if cuarentena:
+        return _("Cuarentena (puede ser un falso positivo): «%(termino)s»", termino=cuarentena.group(1))
     avisos = _MOTIVO_AVISOS.match(texto)
     if avisos:
         return _("Retirado automáticamente al recibir %(num)s avisos", num=avisos.group(1))
@@ -536,7 +540,7 @@ def create_app():
     @requiere_rol("admin")
     def admin_filtro_anadir():
         _comprobar_csrf()
-        id_, error = db.anadir_filtro(request.form.get("termino", ""))
+        id_, error = db.anadir_filtro(request.form.get("termino", ""), request.form.get("tipo", "bloqueo"))
         if error:
             return _volver_al_panel("filtro", error)
         return _volver_al_panel("filtro", "anadido", id_, db.revisar_publicados(),
