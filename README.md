@@ -46,9 +46,10 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   │   ├── pantalla.js     T04/T16 · rotación de vistas, actualización y barra de vistas
 │   │   ├── mural.js        T07 · pintarMural(mensajes)
 │   │   ├── video.js        T08 · iniciarVideo() / pararVideo()
-│   │   └── foro.js         T09/T14 · pintarForo(elementos): reflexiones y mensajes del mural
+│   │   └── foro.js         T09 · pintarForo(elementos): solo reflexiones, por pregunta
 │   ├── fonts/              T07 · fuentes del mural en local (woff2, OFL)
 │   ├── img/qr.png          T10 · QR de /participa
+│   ├── img/conecta/        fondo y portada de /pantalla con el QR y los logos dibujados (pantalla_*_qr.png)
 │   └── video/video.mp4     T08 · vídeo de concienciación
 ├── traducciones/           i18n · catálogo (mensajes.pot) y en/LC_MESSAGES/messages.po
 ├── babel.cfg               i18n · qué archivos revisa pybabel
@@ -173,37 +174,48 @@ pantalla obedece en unos segundos. Las órdenes se guardan en la tabla `ajustes`
 respeta la vista fijada, pero no repite un salto antiguo. Si el vídeo está fijado y no se puede
 reproducir, la pantalla rota con normalidad para no quedarse en negro.
 
-## Foro con mensajes y reflexiones (T14)
+## Fondo, QR y logos de /pantalla
 
-El foro de la pantalla muestra **reflexiones aprobadas y mensajes del mural visibles, mezclados**.
-`/api/foro` devuelve una sola lista (más recientes primero, máximo 60) con el campo `tipo`:
+- El fondo de las tres vistas es `static/img/conecta/pantalla_fondo_qr.png` y la transición, `pantalla_portada_qr.png`
+  (1920×1080). Las dos traen **dibujados** el QR de `/participa` con el lema y los logos de Club Social y The Dev Hub,
+  abajo a la derecha y en el mismo sitio.
+- La imagen se escala con `cover` **anclada abajo a la derecha** (si la pantalla no es 16:9, se recorta por arriba o
+  por la izquierda, nunca el QR). `--u` (en `estilos.css`) es «1 px de la imagen» en pantalla.
+- Encima del fondo va un velo (`--velo-pantalla` en `paleta.css`). `#qr` y `#logos-conecta` son «ventanas» colocadas
+  justo encima del QR y de los logos dibujados: enseñan ese trozo de la imagen sin velo y por delante de las vistas
+  (nada los tapa) y el mural los usa como obstáculo para las burbujas.
+- El QR dibujado lleva a la misma URL que `static/img/qr.png` (ver `docs/DESPLIEGUE.md`). **Si cambia la URL pública,
+  hay que rehacer las dos imágenes.** Si cambia la imagen o el velo, hay que volver a medir `--fondo-pantalla-claro`.
+
+## Foro: solo reflexiones
+
+El foro de la pantalla muestra **solo reflexiones aprobadas**, agrupadas por pregunta. Los mensajes del mural
+salen únicamente en el mural (en T14 se mezclaban en el foro; ya no).
+`/api/foro` devuelve una lista (más recientes primero, máximo 60):
 
 ```json
-[{"tipo": "mensaje",   "id": 5, "titulo": null,    "texto": "Te creo"},
- {"tipo": "reflexion", "id": 5, "titulo": "Título", "texto": "…"}]
+[{"tipo": "reflexion", "id": 5, "titulo": "Título", "texto": "…",
+  "pregunta_id": 1, "pregunta_es": "…", "pregunta_en": "…"}]
 ```
 
-- Los **ids chocan entre tablas** (mural 5 y foro 5): en `foro.js` toda identidad es `tipo + ':' + id`.
-- La consulta es `db.listar_foro_mixto()` (`UNION ALL` de `mural` con `visible = 1` y `foro` con `aprobado = 1`).
-  `listar_foro()` se mantiene porque lo usa el panel. Los mensajes siguen saliendo también en el mural.
-- Tarjetas: `.foro-tarjeta--reflexion` (título + texto) y `.foro-tarjeta--mensaje` (corta, sin título, texto
-  grande y centrado). Siguen siendo 3 por página, cada 15 s.
-- Moderación: ocultar un mensaje o retirar una reflexión en `/admin` los quita del foro en el siguiente refresco.
-- Prueba sin API: `/pantalla?demo-foro` (o `?demo-foro=N`, mezcla; con `&tipo=mensajes` o `&tipo=reflexiones`
-  solo de un tipo). En modo demo los datos reales de la API no pisan los de prueba.
+- La consulta es `db.listar_foro_pantalla()` (`foro` con `aprobado = 1`). `listar_foro()` se mantiene porque
+  lo usa el panel. `foro.js` descarta cualquier elemento con `tipo` distinto de `"reflexion"`.
+- Moderación: retirar una reflexión en `/admin` la quita del foro en el siguiente refresco.
+- Prueba sin API: `/pantalla?demo-foro` (o `?demo-foro=N` reflexiones). La demo incluye un mensaje del mural
+  colado que no debe aparecer. En modo demo los datos reales de la API no pisan los de prueba.
 
 ## Caducidad de los mensajes (T15)
 
 Los **mensajes del mural** dejan de salir en pantalla pasado un tiempo (por defecto **15 min** desde que se
 envían). Las reflexiones **no caducan**. Caducar **no borra ni cambia ningún estado**: solo deja de mostrarse
-(en el mural y en el foro) y el mensaje sigue en `/admin`.
+(en el mural) y el mensaje sigue en `/admin`.
 
 - **Ajuste:** `mensajes_vida_min` en `/admin` → Ajustes (entero de 0 a 240; `0` = nunca caduca; para pruebas
   vale 1). Debe ser al menos un ciclo completo de la pantalla (mural 5 min + vídeo + foro 5 min), porque si es
   menor un mensaje puede caducar sin haberse visto.
 - **La edad la calcula el servidor** (`creado` es UTC sin zona; el navegador no lo interpreta):
-  `db.listar_mural(…, vida_min=)` y `db.listar_foro_mixto(…, vida_min=)` filtran en el `WHERE`, antes del
-  `LIMIT`. `/api/mural` y los mensajes de `/api/foro` añaden `caduca_en` (segundos que le quedan; `null` si no
+  `db.listar_mural(…, vida_min=)` filtra en el `WHERE`, antes del
+  `LIMIT`. `/api/mural` añade `caduca_en` (segundos que le quedan; `null` si no
   caduca).
 - **`mural.js`:** guarda por burbuja `caduca = performance.now() + caduca_en·1000` (no depende del reloj del
   navegador) y un único `setInterval` de 1 s retira la burbuja con su animación de salida, sin esperar al

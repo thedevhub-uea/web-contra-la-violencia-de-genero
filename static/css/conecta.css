@@ -64,10 +64,35 @@ html body:not(.pantalla) {
     url("../img/conecta/conecta_fondo_sin_logos.png") center / cover fixed;
   background-color: var(--bg-0);
 }
+/* /pantalla: la imagen con el QR y los logos ya dibujados abajo a la derecha, con un velo ligero
+ * (--velo-pantalla en paleta.css). Se ancla abajo a la derecha (no al centro): así, si la pantalla no
+ * es 16:9 y «cover» recorta, nunca se corta el QR. El #qr y los logos (abajo) enseñan ese rincón sin velo. */
 html body.pantalla {
   background:
-    linear-gradient(rgb(var(--noche-rgb) / .72), rgb(var(--noche-rgb) / .8)),
-    url("../img/conecta/conecta_fondo_sin_logos.png") center / cover no-repeat;
+    linear-gradient(rgb(var(--noche-rgb) / var(--velo-pantalla)), rgb(var(--noche-rgb) / var(--velo-pantalla))),
+    url("../img/conecta/pantalla_fondo_qr.png") right bottom / cover no-repeat;
   background-color: var(--bg-0);
 }
-body.pantalla #vista-mural { background: transparent; }
+body.pantalla #vista-mural,
+body.pantalla #vista-video { background: transparent; } /* las tres vistas dejan ver la misma imagen */
+
+/* Logos en /pantalla: ya vienen dibujados en la imagen de fondo. #logos-conecta pasa a ser una «ventana»
+ * exactamente encima de cada chapa dibujada (medidas en px de la imagen 1920×1080, × --u) que enseña la
+ * imagen sin velo y por encima de las vistas. Así sirve también de obstáculo a las burbujas (mural.js).
+ * Va por debajo de la transición, que trae su propia imagen con los mismos logos. */
+body.pantalla #logos-conecta {
+  left: auto;
+  right: calc(30 * var(--u));    /* chapas dibujadas: x 1639–1756 y 1770–1887, y 918–1047 (+2 px de margen) */
+  bottom: calc(30 * var(--u));
+  z-index: 10;
+  gap: calc(9 * var(--u));
+}
+body.pantalla #logos-conecta .chapa {
+  width: calc(122 * var(--u));
+  height: calc(134 * var(--u));
+  padding: 0;
+  border-radius: calc(12 * var(--u));
+  box-shadow: none;
+  background: url("../img/conecta/pantalla_fondo_qr.png") right bottom / cover no-repeat fixed;
+}
+body.pantalla #logos-conecta img { display: none; }

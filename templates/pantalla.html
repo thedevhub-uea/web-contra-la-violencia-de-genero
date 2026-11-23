@@ -30,22 +30,23 @@
   <!-- T09: foro -->
   <section id="vista-foro" class="vista" hidden></section>
 
-  <!-- T10: QR fijo en una esquina, visible en las tres vistas.
-       El lema va en los dos idiomas a propósito: la pantalla la lee público de ambos. -->
-  <aside id="qr">
-    <img src="{{ url_for('static', filename='img/qr.png') }}" alt="{{ _('Código QR para participar') }}">
-    <p>Leave your message / Deja tu mensaje</p>
-  </aside>
+  <!-- QR fijo abajo a la derecha, visible en las tres vistas. Va DIBUJADO en la imagen de fondo
+       (img/conecta/pantalla_fondo_qr.png, con el lema «Leave your message / Deja tu mensaje»);
+       este elemento es solo una «ventana» encima para que nada lo tape (ver #qr en estilos.css). -->
+  <aside id="qr" role="img" aria-label="{{ _('Código QR para participar') }}"></aside>
 
-  <!-- Transición entre vistas / pantalla de inicio: la portada (sin logos) y la etiqueta «Siguiente» -->
+  <!-- Transición entre vistas / pantalla de inicio: la portada (con QR y logos dibujados) y la etiqueta
+       «Siguiente». .trans-escena mide lo mismo que la imagen, así lo de dentro se coloca en % de la imagen. -->
   <div id="transicion-pantalla" aria-hidden="true">
-    <div class="trans-lienzo">
-      <img src="{{ url_for('static', filename='img/conecta/conecta_portada_sin_logos.png') }}" alt="">
-      <span class="trans-destello"></span>
+    <div class="trans-escena">
+      <div class="trans-lienzo">
+        <img src="{{ url_for('static', filename='img/conecta/pantalla_portada_qr.png') }}" alt="">
+        <span class="trans-destello"></span>
+      </div>
+      <p class="trans-etiqueta panel-conecta" hidden><span class="es"></span> <span aria-hidden="true">/</span> <span class="en"></span></p>
+      <div class="trans-progreso"><span></span></div>
+      <p class="trans-cuenta"></p>
     </div>
-    <p class="trans-etiqueta panel-conecta" hidden><span class="es"></span> <span aria-hidden="true">/</span> <span class="en"></span></p>
-    <div class="trans-progreso"><span></span></div>
-    <p class="trans-cuenta"></p>
   </div>
 
   <script src="{{ url_for('static', filename='js/estilo-burbuja.js') }}"></script>

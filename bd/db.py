@@ -368,31 +368,20 @@ def listar_foro(solo_aprobadas=True):
     return _consultar(sql)
 
 
-# Máximo de elementos que el foro de la pantalla recibe de una vez (3 por página: ~20 páginas).
-LIMITE_FORO_MIXTO = 60
+# Máximo de reflexiones que el foro de la pantalla recibe de una vez (hasta 4 por página: ~15 páginas).
+LIMITE_FORO_PANTALLA = 60
 
 
-def listar_foro_mixto(limite=LIMITE_FORO_MIXTO, vida_min=None):
-    """Lo que muestra el foro de la pantalla (T14): mensajes del mural visibles y reflexiones
-    aprobadas, mezclados, más recientes primero.
+def listar_foro_pantalla(limite=LIMITE_FORO_PANTALLA):
+    """Lo que muestra el foro de la pantalla: SOLO reflexiones aprobadas, más recientes primero.
 
-    Cada fila: {tipo ('mensaje' | 'reflexion'), id, titulo (None en los mensajes), texto, creado,
-    edad (segundos desde el envío; solo en los mensajes, None en las reflexiones)}.
-    Los ids se repiten entre tablas (mural 5 y foro 5): quien los use debe combinar tipo + id.
-
-    T15: con vida_min > 0 se excluyen los MENSAJES caducados (las reflexiones no caducan). El filtro
-    va en el WHERE, antes del LIMIT. No borra nada.
+    Los mensajes del mural ya no salen en el foro (en T14 se mezclaban): solo se ven en el mural.
+    Cada fila: {id, titulo, texto, creado}.
     """
-    vida_seg = max(0, int(vida_min or 0)) * 60
     return _consultar(
-        "SELECT 'mensaje' AS tipo, id, NULL AS titulo, texto, creado, "
-        "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
-        "FROM mural WHERE visible = 1 AND (? = 0 OR "
-        "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) < ?) "
-        "UNION ALL "
-        "SELECT 'reflexion' AS tipo, id, titulo, texto, creado, NULL AS edad FROM foro WHERE aprobado = 1 "
+        "SELECT id, titulo, texto, creado FROM foro WHERE aprobado = 1 "
         "ORDER BY creado DESC, id DESC LIMIT ?",
-        (vida_seg, vida_seg, int(limite)),
+        (int(limite),),
     )
 
 

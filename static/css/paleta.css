@@ -55,7 +55,18 @@
   --foco-form: #ffb800;        /* foco de los formularios públicos */
 
   /* ---------- Pantalla proyectada ---------- */
-  /* Manchas de color del fondo del mural y del vídeo (pasteles: el fondo es claro) */
+  /* Fondo de /pantalla (Mural, Vídeo y Foro): la imagen de las manos con el QR y los logos dibujados
+   * (static/img/conecta/pantalla_fondo_qr.png)
+   * con un velo de --noche encima. Antes el velo era .72–.80 (muy oscuro); con .5 se ve la imagen y
+   * todo el texto que va directamente sobre ella sigue cumpliendo AA (ver @par con --fondo-pantalla-claro). */
+  --velo-pantalla: .5;
+  /* Zona MÁS CLARA de la imagen con ese velo (medida píxel a píxel): referencia para comprobar el
+   * contraste. Si cambia --velo-pantalla o la imagen, hay que volver a medirla. */
+  --fondo-pantalla-claro: #504a5a;
+  /* Las manchas de color del mural y del vídeo se multiplican por este factor: así dejan ver la imagen
+   * por igual en las tres vistas (el foro no lleva manchas). */
+  --mancha-alfa: .45;
+  /* Manchas de color del fondo del mural y del vídeo */
   --mancha-a-rgb: 106 34 196;
   --mancha-b-rgb: 176 18 58;
   --mancha-c-rgb: 70 30 140;
@@ -139,6 +150,12 @@
   /* @par --rose --bg-1 */
   /* @par --aro-color --fondo grande */
   /* @par --aro-color --fondo-2 grande */
+  /* Texto directamente sobre el fondo de /pantalla (pregunta del foro, avisos de «vacío»): todo grande */
+  /* @par --texto --fondo-pantalla-claro */
+  /* @par --text-muted --fondo-pantalla-claro grande */
+  /* @par --texto-sec --fondo-pantalla-claro grande */
+  /* @par --acento --fondo-pantalla-claro grande */
+  /* @par --aro-color --fondo-pantalla-claro grande */
   /* @par --error --superficie */
   /* @par --error-texto --error-fondo */
   /* @par --contador-cerca --superficie */

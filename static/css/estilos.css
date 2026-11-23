@@ -4,7 +4,7 @@
  * Pensado para un proyector o una tele vista a varios metros:
  *  - Tamaños en vh/vw/clamp() para que todo escale con la pantalla.
  *  - Texto oscuro sobre fondo claro (contraste ≥ 4,5:1, lo comprueba herramientas/comprobar_contraste.py).
- *  - El QR (#qr) queda fijo abajo a la derecha encima de las tres vistas.
+ *  - El QR va dibujado en la imagen de fondo; #qr es una «ventana» fija encima, por delante de las vistas.
  *
  * Clases que usan otras tareas (acordarlas antes de cambiarlas):
  *  - T04: .vista (cada <section>), .boton-pantalla-completa
@@ -34,11 +34,14 @@
   --vista-lado: var(--aro-grosor);
   --vista-top: calc(var(--aro-grosor) + var(--barra-alto));
 
-  /* Tamaño del QR: ~26 % del alto de pantalla. En una proyección de ~1,2 m de alto
-     sale un QR de unos 30 cm, suficiente para escanear a 3–4 m. */
-  --qr-tamano: 26vh;
-  /* Espacio que dejan libre mural y foro para no quedar tapados por el QR */
-  --qr-hueco: calc(var(--qr-tamano) + 4vh + var(--margen) + 3vh); /* ancho del QR + margen + aire */
+  /* El QR y los logos van DIBUJADOS en las imágenes de fondo y de transición
+     (static/img/conecta/pantalla_fondo_qr.png y pantalla_portada_qr.png, 1920×1080), abajo a la
+     derecha. --u es «1 px de esa imagen» en la pantalla: la imagen se escala con «cover» anclada abajo
+     a la derecha, así que cualquier medida de la imagen × --u cae justo encima de lo dibujado.
+     El QR mide 205 px de imagen (~19 % del alto): ~23 cm en una proyección de 1,2 m de alto. */
+  --u: max(calc(100vw / 1920), calc(100vh / 1080));
+  /* Espacio que dejan libre foro y vídeo a la derecha: la columna del QR (x ≥ 1634 → 286 px) + aire */
+  --qr-hueco: calc(286 * var(--u) + 2vw);
 }
 
 /* ---------- Base ---------- */
@@ -147,7 +150,7 @@ body {
  *   #vista-foro > header.foro-cabecera > p.foro-etiqueta («Reflexiones / Reflections»)
  *                                     > h2.foro-pregunta (la pregunta de esta página, entera)
  *               > div.foro-tarjetas (--foro-columnas) > article.foro-tarjeta > p.foro-texto
- *                   .foro-tarjeta--reflexion | --mensaje  y  --corta | --media | --larga (según longitud)
+ *                   .foro-tarjeta--reflexion  y  --corta | --media | --larga (según longitud)
  *               > div.foro-puntos > span.foro-punto(.foro-activo)
  *   Sin datos: div.foro-tarjetas > div.foro-vacio > p + p.foro-vacio-en
  * Cada página es una pregunta con hasta 4 respuestas (2 × 2) o 2 largas. Al cambiar de página,
@@ -157,8 +160,8 @@ body {
 #vista-foro.vista {
   min-height: 0;
   gap: 3.5vh;
-  padding: 4vh 4vw 11vh; /* abajo: sitio para los logos fijos */
-  padding-right: var(--qr-hueco); /* las tarjetas no pasan por debajo del QR */
+  padding: 4vh 4vw;
+  padding-right: var(--qr-hueco); /* las tarjetas no pasan por debajo de la columna del QR y los logos */
 }
 
 #vista-foro.vista .foro-cabecera,
@@ -297,14 +300,6 @@ body {
   line-clamp: 9;
 }
 
-/* T14 · Mensajes del mural en el foro: centrados, en el tono suave de la superficie */
-#vista-foro.vista .foro-tarjeta--mensaje {
-  justify-content: center;
-  padding-left: 3vw;
-  background: var(--superficie-2);
-  text-align: center;
-}
-
 /* Mensaje cuando no hay reflexiones aprobadas */
 #vista-foro.vista .foro-vacio {
   display: flex;
@@ -350,37 +345,22 @@ body {
   opacity: 1;
 }
 
-/* ---------- QR fijo (T10), visible en las tres vistas ---------- */
+/* ---------- QR fijo, visible en las tres vistas ----------
+ * El QR y el lema van dibujados en la imagen de fondo (tarjeta en x 1634–1892, y 591–905 de la imagen).
+ * #qr es una «ventana» exactamente encima (+2 px de margen) que enseña ese trozo de la imagen SIN el velo
+ * y por delante de las vistas, para que ni las manchas, ni las burbujas, ni el vídeo lo tapen u oscurezcan.
+ * Además mural.js lo usa como obstáculo para las burbujas. La URL del QR dibujado es la misma que la de
+ * static/img/qr.png (/participa); si cambia la URL pública hay que regenerar las imágenes. */
 #qr {
   position: fixed;
-  right: var(--margen);
-  bottom: var(--margen);
+  right: calc(26 * var(--u));
+  bottom: calc(173 * var(--u));
   z-index: 10; /* siempre por encima de burbujas, tarjetas y vídeo */
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1vh;
-  width: calc(var(--qr-tamano) + 4vh);
-  padding: 2vh;
-  border-radius: var(--radio);
-  background: var(--superficie); /* fondo blanco = margen de silencio que necesita el lector */
-  box-shadow: 0 0 0 0.5vh var(--acento), 0 1vh 4vh rgb(var(--acento-osc-rgb) / 0.3);
-}
-
-#qr img {
-  display: block;
-  width: var(--qr-tamano);
-  height: var(--qr-tamano);
-  image-rendering: pixelated; /* módulos nítidos al escalar, sin bordes borrosos */
-}
-
-#qr p {
+  width: calc(262 * var(--u));
+  height: calc(318 * var(--u));
   margin: 0;
-  color: var(--acento);
-  font-size: clamp(0.9rem, 2.1vh, 1.6rem);
-  font-weight: 800;
-  line-height: 1.2;
-  text-align: center;
+  border-radius: calc(26 * var(--u));
+  background: url("../img/conecta/pantalla_fondo_qr.png") right bottom / cover no-repeat fixed;
 }
 
 /* ---------- Barra de vistas (T16) ----------
@@ -533,8 +513,10 @@ body {
 }
 
 /* ---------- Transición entre vistas y pantalla de inicio (CONECTA) ----------
- * La portada (sin logos) cubre toda la proyección con object-fit: cover y un zoom muy lento
- * (1.00 → 1.06). Va por encima de las vistas y del QR, pero por debajo de los logos fijos. */
+ * La portada (pantalla_portada_qr.png, con el QR y los logos dibujados) cubre toda la proyección y se
+ * acerca muy despacio (1.00 → 1.06). Va por encima de las vistas, del QR y de los logos.
+ * .trans-escena tiene el tamaño de la imagen escalada con «cover» y anclada abajo a la derecha (como el
+ * fondo): todo lo de dentro se coloca en % de la imagen y el QR dibujado cae en el mismo sitio que el del fondo. */
 #transicion-pantalla {
   position: fixed;
   inset: 0;
@@ -548,6 +530,13 @@ body {
 }
 #transicion-pantalla.trans-visible { opacity: 1; visibility: visible; transition: opacity 0.5s ease, visibility 0s; }
 #transicion-pantalla.trans-fuera { visibility: visible; }
+#transicion-pantalla .trans-escena {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: calc(1920 * var(--u));
+  height: calc(1080 * var(--u));
+}
 #transicion-pantalla img {
   position: absolute;
   inset: 0;
@@ -578,7 +567,7 @@ body {
 
 /* La vista en curso se desvanece al salir y entra con fundido */
 .vista { transition: opacity 0.5s ease; }
-body.trans-saliendo .vista, body.trans-saliendo #qr { opacity: 0; }
+body.trans-saliendo .vista { opacity: 0; }   /* el QR no: la portada lo trae dibujado en el mismo sitio */
 body.trans-entrando .vista { animation: aparecer-vista 0.5s ease both; }
 @keyframes aparecer-vista { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
@@ -588,12 +577,12 @@ body.trans-entrando .vista { animation: aparecer-vista 0.5s ease both; }
 
 /* Transición viva: el fondo se mueve (zoom + deriva lenta), un destello recorre el panel del título,
  * una barra se llena durante todo el tiempo y la cuenta atrás avisa de lo que queda. */
-#transicion-pantalla .trans-lienzo { position: absolute; inset: 0; }
+#transicion-pantalla .trans-lienzo { position: absolute; inset: 0; transform-origin: right bottom; }
 #transicion-pantalla.trans-visible .trans-lienzo { animation: trans-deriva var(--trans-dur, 15s) ease-in-out forwards; }
 #transicion-pantalla.trans-visible img { animation: none; }
 @keyframes trans-deriva {
-  from { transform: scale(1) translate(0, 0); }
-  to { transform: scale(1.06) translate(-0.8%, -0.6%); }
+  from { transform: scale(1); }
+  to { transform: scale(1.06); }   /* desde la esquina del QR: el QR casi no se mueve */
 }
 #transicion-pantalla .trans-destello {
   position: absolute;
@@ -614,7 +603,7 @@ body.trans-entrando .vista { animation: aparecer-vista 0.5s ease both; }
 #transicion-pantalla .trans-etiqueta { animation: trans-etiqueta-in .8s ease-out .5s both; }
 @keyframes trans-etiqueta-in { from { opacity: 0; translate: 0 2vh; } to { opacity: 1; translate: 0 0; } }
 #transicion-pantalla .trans-progreso {
-  position: absolute; left: 12%; right: 12%; top: 88%;
+  position: absolute; left: 16%; right: 16%; top: 88%;   /* acaba antes de los logos (x ≥ 1639 = 85 %) */
   height: 0.7vh; border-radius: 999px; overflow: hidden;
   background: rgb(var(--blanco-rgb) / .18);
 }
