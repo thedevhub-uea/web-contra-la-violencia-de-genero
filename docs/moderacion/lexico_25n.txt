@@ -768,7 +768,7 @@ blood and honour # codigo neonazi | nombre de una red supremacista; tambien posi
 #? "18+" # clasificacion de edad | contenido adulto o restriccion etaria; no equivale a sexo explicito | alto
 #? "xxx" # etiqueta sexual | puede designar pornografia, besos, numeracion romana o marcador | alto
 
-# lista inicial del equipo (t03) que el lexico no recogia
+# lista inicial del equipo: t03, terminos que el lexico no recogia
 # [bd/filtros_iniciales.txt original] | criterio del equipo para el 25n
 "hembrista" # hostigamiento antifeminista | equipara feminismo con supremacia femenina | medio
 "cabrona" # insulto general | femenino de cabron | medio

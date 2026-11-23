@@ -15,7 +15,7 @@ varias palabras # ...                              ← retener, expresión compl
 #~ "palabra" # ...                                 ← cuarentena: se retiene, avisando de posible falso positivo
 #? "palabra" # ...                                 ← contextual: NO se carga (demasiado ambigua sola)
 #! "palabra" # ...                                 ← excepción: nunca se retiene (y es prueba negativa)
-# 🍑 | peach | motivo | a/b/c                      ← tabla de emojis: solo referencia (#36)
+# 🍑 | peach | motivo | a/b/c                      ← tabla de emojis: a retener, b cuarentena, c no se carga
 ```
 
 ### Retener, cuarentena y excepción
@@ -39,8 +39,16 @@ italiano) se quedan como pruebas.
   moderación la vea, contextual (`#?`) si saltaría con demasiados mensajes normales.
 - Cuidado con los prefijos (`*`): sin excepciones, `maric*` retendría «Maricarmen». Mejor formas
   exactas; si hace falta el prefijo, en cuarentena y con sus excepciones `#!`.
-- Números, símbolos y emojis (`1488`, `卐`, `🍆🍑`) todavía no los admite el filtro: se quedan en el
-  léxico como referencia hasta el #36.
+- **Emojis, números y símbolos** (`1488`, `14/88`, `卐`, `🍆🍑`) se escriben tal cual. Se buscan en el
+  texto original (sin convertir números en letras), sin tonos de piel ni selectores de variación
+  (`👉🏽👌🏻` = `👉👌`) y admitiendo espacios entre emojis (`👉 👌`). Los números van enteros: `1488` no
+  salta en «21488» ni en «1.488». Un término de una sola cifra (`8`) no se admite.
+- **Tabla de emojis** (`# emoji | nombre | motivo | a/b/c`): la clase **b** (combinaciones y gestos
+  que dependen del destinatario: `👉👌`, `🍆🍑`, `🐒🐒🐒`, `🖕`) va a cuarentena; la **c** (emojis casi
+  siempre inocentes solos: `🍑`, `🍆`, `🔥`, `🔪`, `💀`) no se carga, como recomienda la guía. Para
+  que un emoji c se retenga, cámbiale la clase a `b`.
+- Los teléfonos públicos de ayuda (016, su WhatsApp 600 000 016 y el 112) no cuentan como dato
+  personal: se pueden publicar.
 
 ## Añadir o quitar un término
 

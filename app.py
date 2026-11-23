@@ -119,7 +119,7 @@ _AVISOS_PANEL = {
     ("foro", "borrar"): _l("Reflexión #%(id)s borrada."),
     ("filtro", "anadido"): _l("Añadido al filtro: «%(termino)s».%(retirados)s"),
     ("filtro", "quitado"): _l("Término quitado del filtro."),
-    ("filtro", "invalido"): _l("No se ha añadido: usa solo letras y espacios (de 2 a 60), con * al final si quieres."),
+    ("filtro", "invalido"): _l("No se ha añadido: usa letras y espacios (de 2 a 60, con * al final si quieres) o emojis, números y símbolos (como 🍆🍑 o 1488)."),
     ("filtro", "repetido"): _l("Ese término ya estaba en el filtro."),
     ("ajustes", "guardados"): _l("Ajustes guardados.%(retirados)s"),
     ("participacion", "abrir"): _l("«%(vista)s» vuelve a admitir envíos nuevos."),

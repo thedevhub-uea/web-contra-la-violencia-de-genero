@@ -158,6 +158,7 @@ y `admin.html`. **Ninguna hoja de estilos ni JS lleva colores sueltos** (`#hex`,
   `bd/filtros_iniciales.txt`. El filtro **no** detecta nombres ni lugares.
   Los términos ambiguos (`puto`, `maric*`…) van en **cuarentena**: también se retienen, pero el
   panel avisa de que pueden ser un falso positivo; las **excepciones** (`maricarmen`) nunca se retienen.
+  También admite **emojis, números y símbolos** (`👉👌`, `1488`, `卐`), sin importar el tono de piel.
   La lista inicial (español, francés e inglés) se **genera** desde el léxico de
   `docs/moderacion/`: cómo añadir términos y probarlos en [`docs/moderacion/README.md`](docs/moderacion/README.md).
 - **Avisos del público** (`/avisar`, enlazado desde `/participa` y `/gracias`): quien vea algo

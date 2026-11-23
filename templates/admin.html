@@ -418,6 +418,7 @@
             <button type="submit" class="adm-btn adm-btn-principal">{{ icono('mas') }}<span>{{ _('Añadir') }}</span></button>
           </form>
           <p class="adm-ayuda">{{ _('Retener: el mensaje no sale hasta que lo apruebes. Cuarentena: también se retiene, pero avisa de que puede ser un falso positivo (p. ej. «puto» en «el puto machismo»). Excepción: palabra que nunca se retiene aunque otro término la cubra (p. ej. «maricarmen» frente a «maric*»).') }}</p>
+          <p class="adm-ayuda">{{ _('También admite emojis, números y símbolos (🍆🍑, 1488, 卐): da igual el tono de piel o que haya espacios entre los emojis. Los números se buscan enteros: «1488» no salta en «21488».') }}</p>
           <label class="adm-buscar adm-buscar-filtro" hidden>
             <span class="solo-lectores">{{ _('Buscar en el filtro') }}</span>{{ icono('buscar') }}
             <input type="search" id="buscar-filtro" placeholder="{{ _('Buscar en el filtro…') }}" autocomplete="off">
