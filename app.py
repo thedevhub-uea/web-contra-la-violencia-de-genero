@@ -131,6 +131,13 @@ _AVISOS_PANEL = {
     ("pantalla", "saltar"): _l("La pantalla salta a «%(vista)s» y después sigue la rotación."),
     ("pantalla", "fijar"): _l("La pantalla se queda en «%(vista)s» hasta que vuelvas a la rotación automática."),
     ("pantalla", "soltar"): _l("La pantalla vuelve a la rotación automática."),
+    ("mural", "fijar"): _l("Mensaje #%(id)s fijado: ya no caduca, sigue en el mural."),
+    ("mural", "desfijar"): _l("Mensaje #%(id)s ya no está fijado: vuelve a caducar con su tiempo de vida."),
+    ("foro", "fijar"): _l("Reflexión #%(id)s fijada: sale siempre en el foro, aunque lleguen muchas nuevas."),
+    ("foro", "desfijar"): _l("Reflexión #%(id)s ya no está fijada."),
+    # En «fijados» el número de ?hecho= es cuántas publicaciones han cambiado.
+    ("fijados", "fijar"): _l("Fijadas %(id)s publicaciones del mural y del foro: ya no caducan."),
+    ("fijados", "desfijar"): _l("Quitado el fijado a %(id)s publicaciones: vuelven a caducar con normalidad."),
 }
 # Nombre de cada vista de /pantalla en el panel. En ?hecho=pantalla.<accion>.<n> va su posición.
 _NOMBRES_VISTAS = {"mural": _l("Mural"), "video": _l("Vídeo"), "foro": _l("Foro")}
@@ -150,7 +157,7 @@ def _pregunta_foro(valor):
 
 _AVISOS_ERROR = {("filtro", "invalido"), ("filtro", "repetido")}
 _ANCLA_PANEL = {"mural": "revision", "foro": "revision", "filtro": "filtro", "ajustes": "filtro", "tiempos": "tiempos", "participacion": "participacion",
-                "pantalla": "control-pantalla", "transicion": "tiempos"}
+                "pantalla": "control-pantalla", "transicion": "tiempos", "fijados": "publicado"}
 _HECHO = re.compile(r"^([a-z]+)\.([a-z]+)\.(\d{1,12})$")
 
 
@@ -314,6 +321,8 @@ _TRAS_ACCION = {
     "retirar": lambda e: e is not None and e["publicado"] == 0 and e["retenido"] == 0,
     "borrar": lambda e: e is None,
     "quitar_estilo": lambda e: e is not None and e["style"] in (None, "", "{}"),
+    "fijar": lambda e: e is not None and e["fijado"] == 1,
+    "desfijar": lambda e: e is not None and e["fijado"] == 0,
 }
 
 
@@ -452,7 +461,7 @@ def create_app():
         # T15: los mensajes caducados ya no salen; caduca_en = segundos que le quedan (None: no caduca).
         vida = db.vida_mensajes_min()
         mensajes = db.listar_mural(solo_visibles=True, limite=30, vida_min=vida)
-        return jsonify([{"id": m["id"], "texto": m["texto"], "caduca_en": db.caduca_en(m["edad"], vida),
+        return jsonify([{"id": m["id"], "texto": m["texto"], "caduca_en": db.caduca_en(m["edad"], vida, m["fijado"]),
                          "style": estilo.leer(m["style"])} for m in mensajes])
 
     @app.get("/api/foro")
@@ -512,6 +521,7 @@ def create_app():
             transicion=db.transicion(),
             limites_tiempos=db.TIEMPOS_PANTALLA,
             max_vida_min=db.MAX_VIDA_MENSAJES_MIN,
+            fijados=db.cuenta_fijados(),
             vistas=_NOMBRES_VISTAS,
             csrf=_token_csrf(),
             aviso=aviso,
@@ -535,6 +545,19 @@ def create_app():
         except ValueError:
             abort(404)
         return _volver_al_panel(tabla, accion, id, comprobado=_accion_hecha(tabla, id, accion))
+
+    @app.post("/admin/fijados")
+    @requiere_rol("admin")
+    def admin_fijados():
+        """Fijar todo lo que sale ahora en pantalla (mural y foro) o quitar el fijado a todo."""
+        _comprobar_csrf()
+        accion = request.form.get("accion", "")
+        if accion not in ("fijar", "desfijar"):
+            abort(400)
+        n = db.fijar_todo(accion == "fijar")
+        # Al fijar no se comprueba «sin_fijar == 0»: un mensaje que llegue justo después no está fijado.
+        comprobado = accion == "fijar" or db.cuenta_fijados()["fijados"] == 0
+        return _volver_al_panel("fijados", accion, n, comprobado=comprobado)
 
     @app.post("/admin/filtros")
     @requiere_rol("admin")

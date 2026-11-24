@@ -99,7 +99,8 @@
     if (!lista) return;
     var n = 0;
     todos('.adm-fila', lista).forEach(function (f) {
-      var ok = (filtro === 'todo' || f.dataset.tipo === filtro || f.dataset.estado === filtro) &&
+      var ok = (filtro === 'todo' || f.dataset.tipo === filtro || f.dataset.estado === filtro ||
+                (filtro === 'fijado' && 'fijado' in f.dataset)) &&
                (!busqueda || norm(f.querySelector('.adm-fila-cuerpo').textContent).indexOf(busqueda) !== -1);
       f.hidden = !ok;
       if (ok) n++;

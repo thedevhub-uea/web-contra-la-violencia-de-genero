@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-23 22:45+0100\n"
+"POT-Creation-Date: 2026-11-24 11:40+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,6 +20,12 @@ msgstr ""
 #, python-format
 msgid "%(num)d aviso:"
 msgid_plural "%(num)d avisos:"
+msgstr[0] ""
+msgstr[1] ""
+
+#, python-format
+msgid "%(num)d publicación fijada"
+msgid_plural "%(num)d publicaciones fijadas"
 msgstr[0] ""
 msgstr[1] ""
 
@@ -390,7 +396,25 @@ msgstr ""
 msgid "Fijada en %(vista)s"
 msgstr ""
 
+#, python-format
+msgid "Fijadas %(id)s publicaciones del mural y del foro: ya no caducan."
+msgstr ""
+
+msgid "Fijado"
+msgstr ""
+
 msgid "Fijar"
+msgstr ""
+
+msgid ""
+"Fijar evita que una publicación desaparezca con el tiempo: un mensaje del"
+" mural fijado no caduca, y una reflexión fijada sale siempre en el foro "
+"aunque lleguen muchas nuevas. «Fijar todo» fija de una vez todo lo que "
+"sale ahora en el mural y en el foro (lo caducado no vuelve: fíjalo uno a "
+"uno)."
+msgstr ""
+
+msgid "Fijar todo (mural y foro)"
 msgstr ""
 
 msgid "Filtrar publicaciones"
@@ -512,6 +536,10 @@ msgid "Mensaje #%(id)s borrado."
 msgstr ""
 
 #, python-format
+msgid "Mensaje #%(id)s fijado: ya no caduca, sigue en el mural."
+msgstr ""
+
+#, python-format
 msgid ""
 "Mensaje #%(id)s publicado. Se verá en la pantalla en la próxima "
 "actualización."
@@ -519,6 +547,10 @@ msgstr ""
 
 #, python-format
 msgid "Mensaje #%(id)s retirado de la pantalla."
+msgstr ""
+
+#, python-format
+msgid "Mensaje #%(id)s ya no está fijado: vuelve a caducar con su tiempo de vida."
 msgstr ""
 
 msgid "Mensaje burbuja"
@@ -563,6 +595,9 @@ msgid "Negrita"
 msgstr ""
 
 msgid "Ninguna"
+msgstr ""
+
+msgid "No caduca"
 msgstr ""
 
 msgid ""
@@ -697,10 +732,22 @@ msgstr ""
 msgid "Página del foro"
 msgstr ""
 
+#, python-format
+msgid ""
+"Quitado el fijado a %(id)s publicaciones: vuelven a caducar con "
+"normalidad."
+msgstr ""
+
 msgid "Quitar del filtro"
 msgstr ""
 
 msgid "Quitar estilo"
+msgstr ""
+
+msgid "Quitar fijado"
+msgstr ""
+
+msgid "Quitar todos los fijados"
 msgstr ""
 
 #, python-format
@@ -730,12 +777,22 @@ msgstr ""
 
 #, python-format
 msgid ""
+"Reflexión #%(id)s fijada: sale siempre en el foro, aunque lleguen muchas "
+"nuevas."
+msgstr ""
+
+#, python-format
+msgid ""
 "Reflexión #%(id)s publicada. Se verá en la pantalla en la próxima "
 "actualización."
 msgstr ""
 
 #, python-format
 msgid "Reflexión #%(id)s retirada de la pantalla."
+msgstr ""
+
+#, python-format
+msgid "Reflexión #%(id)s ya no está fijada."
 msgstr ""
 
 msgid "Refresco"
@@ -800,6 +857,9 @@ msgid "Rotando"
 msgstr ""
 
 msgid "Sale en el mural"
+msgstr ""
+
+msgid "Sale siempre en el foro"
 msgstr ""
 
 msgid "Saltar"
