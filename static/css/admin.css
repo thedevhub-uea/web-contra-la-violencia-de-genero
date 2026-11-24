@@ -498,6 +498,18 @@ body.admin [hidden] { display: none !important; }
 .adm-estado-caducado { background: var(--adm-ambar-fondo); color: var(--adm-ambar-texto); box-shadow: inset 0 0 0 1px var(--adm-ambar-borde); }
 .adm-estado-oculto { background: var(--adm-gris-fondo); color: var(--adm-gris-texto); }
 .adm-estado-retenido { background: var(--adm-ambar-fondo); color: var(--adm-ambar); box-shadow: inset 0 0 0 1px var(--adm-ambar-borde); }
+/* Fijado: no caduca (mural) o sale siempre (foro). Lleva icono de chincheta en vez del punto */
+.adm-estado-fijado { color: var(--acento); box-shadow: inset 0 0 0 1px var(--acento); gap: 4px; }
+.adm-estado-fijado::before { content: none; }
+.adm-estado-fijado .adm-icono { width: 13px; height: 13px; }
+.adm-btn-fijado { color: var(--acento); border-color: var(--acento); }
+
+/* «Fijar todo» / «Quitar todos los fijados» encima de la lista de publicaciones */
+.adm-fijar-todo { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 16px; border-bottom: 1px solid var(--adm-borde); }
+.adm-fijar-todo p { display: flex; align-items: center; gap: 6px; margin: 0 auto 0 0; font-size: 14px; font-weight: 600; position: relative; }
+.adm-fijar-todo p .adm-icono { color: var(--acento); }
+.adm-fijar-todo form { margin: 0; }
+.adm-fijar-todo .adm-btn:disabled { opacity: .5; cursor: not-allowed; }
 .adm-tipo {
   padding: 1px 7px;
   border: 1px solid var(--adm-borde-fuerte);

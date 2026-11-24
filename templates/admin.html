@@ -2,9 +2,11 @@
 
   Variables:
     elementos  mural y foro juntos, más recientes primero (db.listar_para_panel()):
-               {tabla: 'mural'|'foro', id, titulo, texto, creado, estado, motivo, avisos, motivos_aviso}
+               {tabla: 'mural'|'foro', id, titulo, texto, creado, estado, motivo, avisos, motivos_aviso, fijado}
+               fijado: 1 si moderación lo ha fijado (mural: no caduca; foro: sale siempre)
                estado: 'visible' (en pantalla) | 'retenido' (parado por el filtro) | 'oculto' (retirado)
                        | 'caducado' (T15: mensaje cuyo tiempo de vida ya pasó; no está retirado por moderación)
+    fijados    {fijados, sin_fijar} (db.cuenta_fijados()): para «Fijar todo» / «Quitar todos los fijados»
     terminos   [{id, termino}] del filtro de palabras
     ajustes    {enlaces, correos, telefonos, usuarios, foro_manual, mural_manual, retirar_por_avisos: '1'|'0',
                 avisos_para_ocultar, mensajes_vida_min}
@@ -48,6 +50,7 @@
 {%- elif n == 'pantalla' -%}<rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
 {%- elif n == 'reloj' -%}<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
 {%- elif n == 'puerta' -%}<path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/>
+{%- elif n == 'fijar' -%}<line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24z"/>
 {%- elif n == 'lista' -%}<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>
 {%- endif -%}
 </svg>
@@ -56,8 +59,8 @@
 {#- Un botón = un formulario pequeño. "publicar" y "ocultar" se traducen a las acciones
     de cada tabla en bd/db.py (_ACCIONES): mural mostrar/ocultar, foro aprobar/retirar. -#}
 {%- macro boton(e, accion, texto, clase='', icono_n='') -%}
-{%- set nombres = {'mural': {'publicar': 'mostrar', 'ocultar': 'ocultar', 'borrar': 'borrar', 'quitar_estilo': 'quitar_estilo'},
-                   'foro': {'publicar': 'aprobar', 'ocultar': 'retirar', 'borrar': 'borrar'}} -%}
+{%- set nombres = {'mural': {'publicar': 'mostrar', 'ocultar': 'ocultar', 'borrar': 'borrar', 'quitar_estilo': 'quitar_estilo', 'fijar': 'fijar', 'desfijar': 'desfijar'},
+                   'foro': {'publicar': 'aprobar', 'ocultar': 'retirar', 'borrar': 'borrar', 'fijar': 'fijar', 'desfijar': 'desfijar'}} -%}
 <form method="post" action="{{ url_for('admin_accion', tabla=e.tabla, id=e.id, accion=nombres[e.tabla][accion]) }}" class="adm-accion"
       {%- if accion == 'borrar' %} data-confirmar="{{ _('¿Borrar este mensaje?') if e.tabla == 'mural' else _('¿Borrar esta reflexión?') }}"{% endif %}>
   <input type="hidden" name="csrf" value="{{ csrf }}">
@@ -68,7 +71,7 @@
 {%- macro fila(e, seccion) -%}
 {%- set ref = e.tabla ~ '-' ~ e.id -%}
 <li class="adm-fila{{ ' adm-fila-oculta' if e.estado == 'oculto' and seccion == 'pub' }}{{ ' adm-fila-reciente' if resaltar == ref }}"
-    id="{{ seccion }}-{{ ref }}" data-clave="{{ ref }}" data-tipo="{{ e.tabla }}" data-estado="{{ e.estado }}">
+    id="{{ seccion }}-{{ ref }}" data-clave="{{ ref }}" data-tipo="{{ e.tabla }}" data-estado="{{ e.estado }}"{{ ' data-fijado' if e.fijado }}>
   <div class="adm-fila-cuerpo">
     <div class="adm-meta">
       <span class="adm-tipo">{{ _('Mural') if e.tabla == 'mural' else _('Foro') }}</span>
@@ -76,6 +79,7 @@
       {%- elif e.estado == 'retenido' %}<span class="adm-estado adm-estado-retenido">{{ _('Pendiente') }}</span>
       {%- elif e.estado == 'caducado' %}<span class="adm-estado adm-estado-caducado">{{ _('Caducado') }}</span>
       {%- else %}<span class="adm-estado adm-estado-oculto">{{ _('Retirado') }}</span>{% endif %}
+      {%- if e.fijado %}<span class="adm-estado adm-estado-fijado" title="{{ _('No caduca') if e.tabla == 'mural' else _('Sale siempre en el foro') }}">{{ icono('fijar') }}{{ _('Fijado') }}</span>{% endif %}
       <span class="adm-id">#{{ e.id }}</span>
       {%- if e.creado %}<span aria-hidden="true">·</span><time datetime="{{ e.creado }}">{{ e.creado | fecha }}</time>{% endif %}
     </div>
@@ -105,6 +109,8 @@
       {{ boton(e, 'borrar', _('Borrar'), 'adm-btn-peligro') }}
     {%- else %}
       {%- if e.estado in ('visible', 'caducado') %}{{ boton(e, 'ocultar', _('Retirar')) }}{% else %}{{ boton(e, 'publicar', _('Publicar')) }}{% endif %}
+      {%- if e.fijado %}{{ boton(e, 'desfijar', _('Quitar fijado'), 'adm-btn-fijado', 'fijar') }}
+      {%- elif e.estado in ('visible', 'caducado') %}{{ boton(e, 'fijar', _('Fijar'), '', 'fijar') }}{% endif %}
       {{ boton(e, 'borrar', _('Borrar'), 'adm-btn-peligro') }}
     {%- endif %}
     {%- if e.tabla == 'mural' and e.style and e.style != '{}' %}{{ boton(e, 'quitar_estilo', _('Quitar estilo'), '', 'ocultar') }}{% endif %}
@@ -244,6 +250,7 @@
               <button type="button" data-filtro="mural" aria-pressed="false">{{ _('Mural') }}</button>
               <button type="button" data-filtro="foro" aria-pressed="false">{{ _('Foro') }}</button>
               <button type="button" data-filtro="oculto" aria-pressed="false">{{ _('Retirado') }} <span data-vivo="cuenta-retirados">{{ retirados | length }}</span></button>
+              <button type="button" data-filtro="fijado" aria-pressed="false">{{ _('Fijado') }} <span data-vivo="cuenta-fijados">{{ fijados.fijados }}</span></button>
               <button type="button" data-filtro="caducado" aria-pressed="false">{{ _('Caducado') }} <span data-vivo="cuenta-caducados">{{ caducados | length }}</span></button>
             </div>
             <label class="adm-buscar">
@@ -252,6 +259,20 @@
             </label>
           </div>
         </header>
+        <div class="adm-fijar-todo" data-vivo="fijados">
+          <p>{{ icono('fijar') }}<span>{{ ngettext('%(num)d publicación fijada', '%(num)d publicaciones fijadas', fijados.fijados) }}</span>
+            {{ info(_('Fijar evita que una publicación desaparezca con el tiempo: un mensaje del mural fijado no caduca, y una reflexión fijada sale siempre en el foro aunque lleguen muchas nuevas. «Fijar todo» fija de una vez todo lo que sale ahora en el mural y en el foro (lo caducado no vuelve: fíjalo uno a uno).')) }}</p>
+          <form method="post" action="{{ url_for('admin_fijados') }}">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <input type="hidden" name="accion" value="fijar">
+            <button type="submit" class="adm-btn adm-btn-principal adm-btn-peq"{{ ' disabled' if not fijados.sin_fijar }}>{{ icono('fijar') }}<span>{{ _('Fijar todo (mural y foro)') }}</span></button>
+          </form>
+          <form method="post" action="{{ url_for('admin_fijados') }}">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+            <input type="hidden" name="accion" value="desfijar">
+            <button type="submit" class="adm-btn adm-btn-peq"{{ ' disabled' if not fijados.fijados }}><span>{{ _('Quitar todos los fijados') }}</span></button>
+          </form>
+        </div>
         <div data-vivo="lista-pub">
         {% if publicados %}
           <ul class="adm-filas" id="lista-pub">

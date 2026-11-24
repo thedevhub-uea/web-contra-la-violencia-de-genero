@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS mural (
     retenido INTEGER NOT NULL DEFAULT 0 CHECK (retenido IN (0, 1)),
     motivo   TEXT,
     revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1)),
-    style    TEXT    NOT NULL DEFAULT '{}'   -- CONECTA: estilo de la burbuja (JSON saneado, ver bd/estilo.py)
+    style    TEXT    NOT NULL DEFAULT '{}',  -- CONECTA: estilo de la burbuja (JSON saneado, ver bd/estilo.py)
+    fijado   INTEGER NOT NULL DEFAULT 0 CHECK (fijado IN (0, 1))  -- 1: no caduca (lo fija moderación)
 );
 
 -- Reflexiones del foro (T01, T02, T03, T09).
@@ -33,7 +34,8 @@ CREATE TABLE IF NOT EXISTS foro (
     aprobado INTEGER NOT NULL DEFAULT 0 CHECK (aprobado IN (0, 1)),
     retenido INTEGER NOT NULL DEFAULT 0 CHECK (retenido IN (0, 1)),
     motivo   TEXT,
-    revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))
+    revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1)),
+    fijado   INTEGER NOT NULL DEFAULT 0 CHECK (fijado IN (0, 1))  -- 1: siempre sale en el foro (no la desplazan las nuevas)
 );
 
 -- Índices para las consultas de la pantalla (/api/mural y /api/foro).

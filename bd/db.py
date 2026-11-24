@@ -45,13 +45,21 @@ _ACCIONES = {
         "mostrar": "UPDATE mural SET visible = 1, retenido = 0, motivo = NULL, revisado = 1 WHERE id = ?",
         "borrar": "DELETE FROM mural WHERE id = ?",
         "quitar_estilo": "UPDATE mural SET style = '{}' WHERE id = ?",
+        # Fijado: el mensaje no caduca (sigue en el mural aunque pase su tiempo de vida).
+        "fijar": "UPDATE mural SET fijado = 1 WHERE id = ?",
+        "desfijar": "UPDATE mural SET fijado = 0 WHERE id = ?",
     },
     "foro": {
         "aprobar": "UPDATE foro SET aprobado = 1, retenido = 0, motivo = NULL, revisado = 1 WHERE id = ?",
         "retirar": "UPDATE foro SET aprobado = 0, retenido = 0, motivo = 'Retirado por moderación' WHERE id = ?",
         "borrar": "DELETE FROM foro WHERE id = ?",
+        # Fijada: la reflexión siempre sale en el foro, aunque lleguen más de LIMITE_FORO_PANTALLA nuevas.
+        "fijar": "UPDATE foro SET fijado = 1 WHERE id = ?",
+        "desfijar": "UPDATE foro SET fijado = 0 WHERE id = ?",
     },
 }
+# Acciones que no son una decisión sobre el contenido: no cierran los avisos pendientes.
+_ACCIONES_SIN_DECISION = ("quitar_estilo", "fijar", "desfijar")
 
 # --- T03: filtro automático y avisos -----------------------------------------
 AJUSTES_POR_DEFECTO = {
@@ -125,11 +133,11 @@ _SQL = {
             "revisado": "ALTER TABLE mural ADD COLUMN revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))",
         },
         # edad: segundos desde el envío (calculada aquí: «creado» es UTC sin zona y no se parsea en JS)
-        "panel": ("SELECT id, NULL AS titulo, texto, creado, visible AS publicado, retenido, motivo, style, "
+        "panel": ("SELECT id, NULL AS titulo, texto, creado, visible AS publicado, retenido, motivo, style, fijado, "
                   "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
                   "FROM mural"),
         "publico": "SELECT id, NULL AS titulo, texto FROM mural WHERE id = ? AND visible = 1",
-        "uno": "SELECT visible AS publicado, retenido, style FROM mural WHERE id = ?",
+        "uno": "SELECT visible AS publicado, retenido, style, fijado FROM mural WHERE id = ?",
         "revisar": "SELECT id, '' AS titulo, texto FROM mural WHERE visible = 1 AND revisado = 0",
         "retener": "UPDATE mural SET visible = 0, retenido = 1, motivo = ? WHERE id = ? AND visible = 1",
         "retirar_por_avisos": "UPDATE mural SET visible = 0, retenido = 0, motivo = ? WHERE id = ? AND visible = 1",
@@ -142,10 +150,10 @@ _SQL = {
             "motivo": "ALTER TABLE foro ADD COLUMN motivo TEXT",
             "revisado": "ALTER TABLE foro ADD COLUMN revisado INTEGER NOT NULL DEFAULT 0 CHECK (revisado IN (0, 1))",
         },
-        "panel": ("SELECT id, titulo, texto, creado, aprobado AS publicado, retenido, motivo, "
+        "panel": ("SELECT id, titulo, texto, creado, aprobado AS publicado, retenido, motivo, fijado, "
                   "NULL AS edad FROM foro"),
         "publico": "SELECT id, titulo, texto FROM foro WHERE id = ? AND aprobado = 1",
-        "uno": "SELECT aprobado AS publicado, retenido, NULL AS style FROM foro WHERE id = ?",
+        "uno": "SELECT aprobado AS publicado, retenido, NULL AS style, fijado FROM foro WHERE id = ?",
         "revisar": "SELECT id, titulo, texto FROM foro WHERE aprobado = 1 AND revisado = 0",
         "retener": "UPDATE foro SET aprobado = 0, retenido = 1, motivo = ? WHERE id = ? AND aprobado = 1",
         "retirar_por_avisos": "UPDATE foro SET aprobado = 0, retenido = 0, motivo = ? WHERE id = ? AND aprobado = 1",
@@ -179,6 +187,7 @@ def init_db():
         con.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
         _migrar_t03(con)
         _migrar_conecta(con)
+        _migrar_fijado(con)
     finally:
         con.close()
 
@@ -235,6 +244,16 @@ def _migrar_conecta(con):
         if con.execute("SELECT COUNT(*) FROM foro_preguntas").fetchone()[0] == 0:
             con.executemany("INSERT INTO foro_preguntas (id, titulo, text_es, text_en) VALUES (?, ?, ?, ?)",
                             PREGUNTAS_INICIALES)
+
+
+def _migrar_fijado(con):
+    """Añade la columna fijado (mural y foro) a una base de datos anterior. Va después de
+    _migrar_conecta, que puede reconstruir la tabla mural."""
+    with con:
+        for tabla in TABLAS:
+            if "fijado" not in {f["name"] for f in con.execute(f"PRAGMA table_info({tabla})")}:
+                con.execute(f"ALTER TABLE {tabla} ADD COLUMN fijado INTEGER NOT NULL DEFAULT 0 "
+                            "CHECK (fijado IN (0, 1))")
 
 
 def _migrar_t03(con):
@@ -335,15 +354,15 @@ def listar_mural(solo_visibles=True, limite=None, vida_min=None):
     Con vida_min > 0 se excluyen los mensajes que ya han caducado (edad ≥ vida): el filtro va
     en el WHERE, antes del LIMIT, para que los caducados no ocupen sitio. No borra nada.
     """
-    sql = ("SELECT id, texto, creado, visible, style, "
+    sql = ("SELECT id, texto, creado, visible, style, fijado, "
            "CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) AS edad "
            "FROM mural")
     condiciones = []
     params = []
     if solo_visibles:
         condiciones.append("visible = 1")
-    if vida_min and int(vida_min) > 0:
-        condiciones.append("CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) < ?")
+    if vida_min and int(vida_min) > 0:   # los fijados no caducan
+        condiciones.append("(fijado = 1 OR CAST(strftime('%s','now') AS INTEGER) - CAST(strftime('%s', creado) AS INTEGER) < ?)")
         params.append(int(vida_min) * 60)
     if condiciones:
         sql += " WHERE " + " AND ".join(condiciones)
@@ -376,11 +395,13 @@ def listar_foro_pantalla(limite=LIMITE_FORO_PANTALLA):
     """Lo que muestra el foro de la pantalla: SOLO reflexiones aprobadas, más recientes primero.
 
     Los mensajes del mural ya no salen en el foro (en T14 se mezclaban): solo se ven en el mural.
+    Las fijadas salen siempre, aunque haya más de `limite` reflexiones más nuevas.
     Cada fila: {id, titulo, texto, creado}.
     """
     return _consultar(
-        "SELECT id, titulo, texto, creado FROM foro WHERE aprobado = 1 "
-        "ORDER BY creado DESC, id DESC LIMIT ?",
+        "SELECT id, titulo, texto, creado FROM foro WHERE aprobado = 1 AND (fijado = 1 OR id IN "
+        "(SELECT id FROM foro WHERE aprobado = 1 ORDER BY creado DESC, id DESC LIMIT ?)) "
+        "ORDER BY creado DESC, id DESC",
         (int(limite),),
     )
 
@@ -401,7 +422,7 @@ def aplicar_accion(tabla, id_, accion):
     try:
         with con:
             cambiadas = con.execute(sql, (int(id_),)).rowcount
-            if accion != "quitar_estilo":   # quitar el estilo no resuelve los avisos pendientes
+            if accion not in _ACCIONES_SIN_DECISION:   # quitar el estilo o fijar no resuelve los avisos
                 con.execute("DELETE FROM avisos WHERE tabla = ? AND elemento_id = ?", (tabla, int(id_)))
         return cambiadas > 0
     finally:
@@ -524,9 +545,9 @@ def vida_mensajes_min():
     return int(AJUSTES_POR_DEFECTO["mensajes_vida_min"])
 
 
-def caduca_en(edad, vida_min):
-    """Segundos que le quedan a un mensaje (T15), o None si no caduca (vida 0 o sin edad)."""
-    if not vida_min or edad is None:
+def caduca_en(edad, vida_min, fijado=False):
+    """Segundos que le quedan a un mensaje (T15), o None si no caduca (vida 0, sin edad o fijado)."""
+    if not vida_min or edad is None or fijado:
         return None
     return max(0, int(vida_min) * 60 - int(edad))
 
@@ -634,7 +655,7 @@ def listar_para_panel():
         for e in _consultar(_SQL[tabla]["panel"]):
             e["tabla"] = tabla
             e["estado"] = "visible" if e["publicado"] else ("retenido" if e["retenido"] else "oculto")
-            if (e["estado"] == "visible" and tabla == "mural" and vida_seg
+            if (e["estado"] == "visible" and tabla == "mural" and vida_seg and not e["fijado"]
                     and e["edad"] is not None and e["edad"] >= vida_seg):
                 e["estado"] = "caducado"
             motivos = sorted(avisos.get((tabla, e["id"]), []), key=lambda m: -m[1])
@@ -643,6 +664,46 @@ def listar_para_panel():
             elementos.append(e)
     elementos.sort(key=lambda e: (e["creado"] or "", e["id"]), reverse=True)
     return elementos
+
+
+def _sql_mural_en_pantalla():
+    """Condición SQL (y sus parámetros) de «mensaje del mural que ahora mismo sale en pantalla»."""
+    vida = vida_mensajes_min()
+    if not vida:
+        return "visible = 1", ()
+    return ("visible = 1 AND (fijado = 1 OR CAST(strftime('%s','now') AS INTEGER) "
+            "- CAST(strftime('%s', creado) AS INTEGER) < ?)"), (vida * 60,)
+
+
+def cuenta_fijados():
+    """{fijados, sin_fijar}: publicaciones fijadas (mural + foro) y las que salen ahora en pantalla
+    sin estar fijadas (lo que fijaría «Fijar todo»)."""
+    donde, params = _sql_mural_en_pantalla()
+    fila = _consultar(
+        "SELECT (SELECT COUNT(*) FROM mural WHERE fijado = 1) + (SELECT COUNT(*) FROM foro WHERE fijado = 1) AS fijados, "
+        f"(SELECT COUNT(*) FROM mural WHERE fijado = 0 AND {donde}) + "
+        "(SELECT COUNT(*) FROM foro WHERE fijado = 0 AND aprobado = 1) AS sin_fijar", params)[0]
+    return {"fijados": fila["fijados"], "sin_fijar": fila["sin_fijar"]}
+
+
+def fijar_todo(fijar=True):
+    """Fija (o suelta) de una vez los mensajes del mural y las reflexiones del foro.
+
+    Fijar: solo lo que sale ahora en pantalla (los caducados no vuelven; esos se fijan uno a uno).
+    Quitar: todo lo fijado. Devuelve cuántas publicaciones han cambiado."""
+    con = get_conexion()
+    try:
+        with con:
+            if fijar:
+                donde, params = _sql_mural_en_pantalla()
+                n = con.execute(f"UPDATE mural SET fijado = 1 WHERE fijado = 0 AND {donde}", params).rowcount
+                n += con.execute("UPDATE foro SET fijado = 1 WHERE fijado = 0 AND aprobado = 1").rowcount
+            else:
+                n = con.execute("UPDATE mural SET fijado = 0 WHERE fijado = 1").rowcount
+                n += con.execute("UPDATE foro SET fijado = 0 WHERE fijado = 1").rowcount
+        return n
+    finally:
+        con.close()
 
 
 def contadores():
@@ -660,8 +721,8 @@ def version_panel():
     así un mensaje pasa a «Caducado» sin recargar). Solo consultas de agregados: es barata."""
     partes = []
     for sql in (
-        "SELECT COUNT(*), MAX(id), SUM(visible), SUM(retenido), SUM(LENGTH(style)), SUM(LENGTH(COALESCE(motivo, ''))) FROM mural",
-        "SELECT COUNT(*), MAX(id), SUM(aprobado), SUM(retenido), SUM(LENGTH(COALESCE(motivo, ''))) FROM foro",
+        "SELECT COUNT(*), MAX(id), SUM(visible), SUM(retenido), SUM(LENGTH(style)), SUM(LENGTH(COALESCE(motivo, ''))), SUM(fijado) FROM mural",
+        "SELECT COUNT(*), MAX(id), SUM(aprobado), SUM(retenido), SUM(LENGTH(COALESCE(motivo, ''))), SUM(fijado) FROM foro",
         "SELECT COUNT(*), MAX(id) FROM avisos",
         "SELECT COUNT(*), MAX(id), GROUP_CONCAT(termino) FROM filtros",
         "SELECT GROUP_CONCAT(clave || '=' || valor) FROM (SELECT clave, valor FROM ajustes ORDER BY clave)",

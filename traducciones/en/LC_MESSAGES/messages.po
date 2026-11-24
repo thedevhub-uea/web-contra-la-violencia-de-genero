@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: 25N VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-22 00:03+0100\n"
+"POT-Creation-Date: 2026-11-24 11:40+0100\n"
 "PO-Revision-Date: 2026-11-18 17:19+0100\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: en\n"
@@ -23,6 +23,12 @@ msgid "%(num)d aviso:"
 msgid_plural "%(num)d avisos:"
 msgstr[0] "%(num)d report:"
 msgstr[1] "%(num)d reports:"
+
+#, python-format
+msgid "%(num)d publicación fijada"
+msgid_plural "%(num)d publicaciones fijadas"
+msgstr[0] "%(num)d pinned post"
+msgstr[1] "%(num)d pinned posts"
 
 msgid "(gratuito, 24 horas, no deja rastro en la factura)."
 msgstr "(free, 24 hours, does not appear on the phone bill)."
@@ -404,8 +410,31 @@ msgstr "Pinned"
 msgid "Fijada en %(vista)s"
 msgstr "Pinned to %(vista)s"
 
+#, python-format
+msgid "Fijadas %(id)s publicaciones del mural y del foro: ya no caducan."
+msgstr "Pinned %(id)s wall and forum posts: they no longer expire."
+
+msgid "Fijado"
+msgstr "Pinned"
+
 msgid "Fijar"
 msgstr "Pin"
+
+msgid ""
+"Fijar evita que una publicación desaparezca con el tiempo: un mensaje del"
+" mural fijado no caduca, y una reflexión fijada sale siempre en el foro "
+"aunque lleguen muchas nuevas. «Fijar todo» fija de una vez todo lo que "
+"sale ahora en el mural y en el foro (lo caducado no vuelve: fíjalo uno a "
+"uno)."
+msgstr ""
+"Pinning stops a post from disappearing over time: a pinned wall message "
+"never expires, and a pinned reflection always shows in the forum even "
+"when many new ones arrive. “Pin everything” pins at once everything "
+"currently showing on the wall and in the forum (expired messages don't "
+"come back: pin them one by one)."
+
+msgid "Fijar todo (mural y foro)"
+msgstr "Pin everything (wall and forum)"
 
 msgid "Filtrar publicaciones"
 msgstr "Filter posts"
@@ -544,6 +573,10 @@ msgid "Mensaje #%(id)s borrado."
 msgstr "Message #%(id)s deleted."
 
 #, python-format
+msgid "Mensaje #%(id)s fijado: ya no caduca, sigue en el mural."
+msgstr "Message #%(id)s pinned: it no longer expires and stays on the wall."
+
+#, python-format
 msgid ""
 "Mensaje #%(id)s publicado. Se verá en la pantalla en la próxima "
 "actualización."
@@ -554,6 +587,10 @@ msgstr ""
 #, python-format
 msgid "Mensaje #%(id)s retirado de la pantalla."
 msgstr "Message #%(id)s removed from the screen."
+
+#, python-format
+msgid "Mensaje #%(id)s ya no está fijado: vuelve a caducar con su tiempo de vida."
+msgstr "Message #%(id)s is no longer pinned: it expires again after its lifetime."
 
 msgid "Mensaje burbuja"
 msgstr "Bubble message"
@@ -602,6 +639,9 @@ msgstr "Bold"
 
 msgid "Ninguna"
 msgstr "None"
+
+msgid "No caduca"
+msgstr "Does not expire"
 
 msgid ""
 "No hace falta escribir tildes, plurales ni trucos: «zorra» ya cubre "
@@ -741,11 +781,23 @@ msgstr "Dotted"
 msgid "Página del foro"
 msgstr "Forum page"
 
+#, python-format
+msgid ""
+"Quitado el fijado a %(id)s publicaciones: vuelven a caducar con "
+"normalidad."
+msgstr "Unpinned %(id)s posts: they expire normally again."
+
 msgid "Quitar del filtro"
 msgstr "Remove from the filter"
 
 msgid "Quitar estilo"
 msgstr "Remove style"
+
+msgid "Quitar fijado"
+msgstr "Unpin"
+
+msgid "Quitar todos los fijados"
+msgstr "Unpin everything"
 
 #, python-format
 msgid "Quitar «%(termino)s» del filtro"
@@ -773,6 +825,14 @@ msgstr "Reflection #%(id)s deleted."
 
 #, python-format
 msgid ""
+"Reflexión #%(id)s fijada: sale siempre en el foro, aunque lleguen muchas "
+"nuevas."
+msgstr ""
+"Reflection #%(id)s pinned: it always shows in the forum, even when many "
+"new ones arrive."
+
+#, python-format
+msgid ""
 "Reflexión #%(id)s publicada. Se verá en la pantalla en la próxima "
 "actualización."
 msgstr ""
@@ -782,6 +842,10 @@ msgstr ""
 #, python-format
 msgid "Reflexión #%(id)s retirada de la pantalla."
 msgstr "Reflection #%(id)s removed from the screen."
+
+#, python-format
+msgid "Reflexión #%(id)s ya no está fijada."
+msgstr "Reflection #%(id)s is no longer pinned."
 
 msgid "Refresco"
 msgstr "Refresh"
@@ -838,6 +902,9 @@ msgstr "Rotating"
 
 msgid "Sale en el mural"
 msgstr "Shown on the wall"
+
+msgid "Sale siempre en el foro"
+msgstr "Always shows in the forum"
 
 msgid "Saltar"
 msgstr "Jump"
@@ -1147,6 +1214,9 @@ msgstr "What is wrong with this message?"
 #~ msgid "Enviar mensaje"
 #~ msgstr "Send message"
 
+#~ msgid "Guardando…"
+#~ msgstr ""
+
 #~ msgid "Guardar preguntas"
 #~ msgstr "Save questions"
 
@@ -1282,7 +1352,4 @@ msgstr "What is wrong with this message?"
 
 #~ msgid "¿Qué piensas de la utilidad del feminismo hoy en día?"
 #~ msgstr "What do you think about the usefulness of feminism today?"
-
-#~ msgid "Guardando…"
-#~ msgstr ""
 
