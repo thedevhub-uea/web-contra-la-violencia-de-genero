@@ -258,6 +258,13 @@ msgstr "Short film by %(autora)s"
 msgid "Cuadrado"
 msgstr "Square"
 
+msgid "Cuarentena"
+msgstr "Quarantine"
+
+#, python-format
+msgid "Cuarentena (puede ser un falso positivo): «%(termino)s»"
+msgstr "Quarantine (may be a false positive): “%(termino)s”"
+
 msgid "Cursiva"
 msgstr "Italic"
 
@@ -402,6 +409,9 @@ msgstr "Style of message #%(id)s reset to default."
 
 msgid "Estrella"
 msgstr "Star"
+
+msgid "Excepción"
+msgstr "Exception"
 
 msgid "Fijada"
 msgstr "Pinned"
@@ -670,11 +680,11 @@ msgid "No salen en la pantalla hasta que los apruebes."
 msgstr "They do not appear on the screen until you approve them."
 
 msgid ""
-"No se ha añadido: usa solo letras y espacios (de 2 a 60), con * al final "
-"si quieres."
+"No se ha añadido: usa letras y espacios (de 2 a 60, con * al final si "
+"quieres) o emojis, números y símbolos (como 🍆🍑 o 1488)."
 msgstr ""
-"Not added: use only letters and spaces (2 to 60), optionally with * at "
-"the end."
+"Not added: use letters and spaces (2 to 60, with * at the end if you want) "
+"or emojis, numbers and symbols (such as 🍆🍑 or 1488)."
 
 msgid ""
 "No se ha podido comprobar que el cambio se haya guardado. Vuelve a "
@@ -803,6 +813,9 @@ msgstr "Unpin everything"
 msgid "Quitar «%(termino)s» del filtro"
 msgstr "Remove “%(termino)s” from the filter"
 
+msgid "Qué hace el término"
+msgstr "What the term does"
+
 msgid ""
 "Recomendado: las reflexiones pueden contar casos reales con nombres o "
 "lugares que el filtro no detecta."
@@ -866,6 +879,9 @@ msgstr "Reset"
 msgid "Resumen"
 msgstr "Summary"
 
+msgid "Retener"
+msgstr "Hold"
+
 msgid "Retener @usuarios de redes sociales"
 msgstr "Hold back social media @usernames"
 
@@ -877,6 +893,17 @@ msgstr "Hold back links (www…, http…, .com)"
 
 msgid "Retener números de teléfono"
 msgstr "Hold back phone numbers"
+
+msgid ""
+"Retener: el mensaje no sale hasta que lo apruebes. Cuarentena: también se"
+" retiene, pero avisa de que puede ser un falso positivo (p. ej. «puto» en"
+" «el puto machismo»). Excepción: palabra que nunca se retiene aunque otro"
+" término la cubra (p. ej. «maricarmen» frente a «maric*»)."
+msgstr ""
+"Hold: the message is not shown until you approve it. Quarantine: it is "
+"also held, but flagged as a possible false positive (e.g. “puto” in “el "
+"puto machismo”). Exception: a word that is never held even if another "
+"term covers it (e.g. “maricarmen” vs “maric*”)."
 
 msgid "Retirado"
 msgstr "Removed"
@@ -967,6 +994,15 @@ msgstr "Bubble size"
 
 msgid "Tamaño del texto"
 msgstr "Text size"
+
+msgid ""
+"También admite emojis, números y símbolos (🍆🍑, 1488, 卐): da igual el tono"
+" de piel o que haya espacios entre los emojis. Los números se buscan "
+"enteros: «1488» no salta en «21488»."
+msgstr ""
+"Emojis, numbers and symbols are also accepted (🍆🍑, 1488, 卐): skin tone "
+"and spaces between emojis do not matter. Numbers are matched whole: “1488” "
+"does not match “21488”."
 
 msgid "Texto"
 msgstr "Text"
@@ -1060,6 +1096,12 @@ msgstr "Website against gender-based violence"
 
 msgid "Ya está retirado de la pantalla."
 msgstr "It has already been removed from the screen."
+
+msgid "cuarentena"
+msgstr "quarantine"
+
+msgid "excepción"
+msgstr "exception"
 
 #, python-format
 msgid "hoy, %(hora)s"

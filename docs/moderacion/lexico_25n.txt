@@ -1,0 +1,1000 @@
+# lexico de moderacion 25n | utf-8 | es prioritario; fr/en complementarios
+# las lineas sin # inicial son disparadores de revision humana, nunca de descarte definitivo.
+# las lineas con #? son reglas contextuales, desactivadas en la importacion basica.
+# las lineas con #~ son cuarentena: retienen el mensaje pero avisan de posible falso positivo (las excepciones #! las salvan).
+# las lineas con #! son pruebas negativas o excepciones de senal aislada, no permisos globales.
+# las comillas delimitan una palabra exacta; el asterisco final dentro de comillas indica prefijo.
+# las expresiones de varias palabras se dan sin comillas; cotejar con limites de palabra.
+# los terminos se exportan en minusculas sin tildes; si tambien se pliega la ene con tilde, no activar colisiones como cono.
+# riesgo bajo/medio/alto = probabilidad cualitativa de un uso ajeno a la infraccion; no mide gravedad.
+# fuente de un bloque = evidencia de repertorio o criterio; las frases de prueba redactadas para 25n no son citas textuales.
+
+# espanol: machismo, misoginia y sexualizacion
+# [LDNOOBW español](https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/es) | [EXIST, UNED](https://nlp.uned.es/exist2024/) | [ASALE, puto y puta](https://www.asale.org/damer/puto)
+"puta" # misoginia/sexualizacion | insulto sexual; tambien intensificador o cita | medio
+"putita" # misoginia/sexualizacion | diminutivo sexualizante | medio
+"putona" # misoginia/sexualizacion | insulto sexual | bajo
+"puton" # misoginia/sexualizacion | insulto que degrada por actividad sexual atribuida | bajo
+"putangona" # misoginia/sexualizacion | aumentativo sexualizante | bajo
+"zorra" # misoginia/sexualizacion | insulto sexual; tambien animal | medio
+"zorrona" # misoginia/sexualizacion | aumentativo de zorra | bajo
+"zorrupia" # misoginia/sexualizacion | insulto sexual | bajo
+"guarra" # misoginia/sexualizacion | reproche de suciedad o insulto sexual | medio
+"guarrona" # misoginia/sexualizacion | insulto sexual o de suciedad | medio
+"puerca" # misoginia/sexualizacion | insulto de suciedad o sexual; tambien animal | medio
+"golfa" # misoginia/sexualizacion | insulto por conducta sexual atribuida | medio
+"fulana" # misoginia/sexualizacion | puede ser insulto sexual o persona sin nombrar | medio
+"ramera" # misoginia/sexualizacion | insulto o denominacion historica estigmatizante | medio
+"buscona" # misoginia/sexualizacion | reproche de coqueteo o promiscuidad atribuida | medio
+"mujerzuela" # misoginia/sexualizacion | denigracion por conducta sexual atribuida | bajo
+"pilingui" # misoginia/sexualizacion | insulto sexual coloquial | bajo
+"lagartona" # misoginia/sexualizacion | insulto por supuesta conducta sexual u oportunismo | medio
+"macizorra" # misoginia/sexualizacion | aumentativo sexualizante del atractivo fisico | bajo
+"marimandona" # misoginia | insulto estereotipado a una mujer considerada dominante | bajo
+"malfollada" # misoginia/sexualizacion | atribuye una actitud a supuesta insatisfaccion sexual | bajo
+"malcogida" # misoginia/sexualizacion | insulto equivalente a malfollada en usos americanos | bajo
+"calientapollas" # misoginia/sexualizacion | culpa a otra persona de excitar y no consentir | bajo
+"calientahuevos" # misoginia/sexualizacion | culpa a otra persona de excitar y no consentir | bajo
+"calientabraguetas" # misoginia/sexualizacion | insulto por provocar deseo sexual supuestamente | bajo
+perra asquerosa # misoginia/sexualizacion | insulto dirigido que a veces se usa para degradar a una mujer | bajo
+pedazo de puta # misoginia/sexualizacion | insulto sexual intensificado | bajo
+puta de mierda # misoginia/sexualizacion | insulto sexual intensificado | bajo
+eres una perra # misoginia/sexualizacion | ataque animalizante o sexualizante | medio
+eres una zorra # misoginia/sexualizacion | insulto sexual dirigido; puede citarse | medio
+todas son unas putas # misoginia generalizada | degrada a las mujeres como grupo | bajo
+las mujeres son unas putas # misoginia generalizada | ataque sexualizante a un grupo | bajo
+mujer al volante peligro constante # misoginia/estereotipo | refran sexista sobre conducir | medio
+vete a la cocina # misoginia/estereotipo | mandato sexista cuando se dirige a una mujer; tambien literal | medio
+calladita te ves mas bonita # misoginia/estereotipo | pide silencio por un ideal de docilidad | medio
+deberias estar fregando # misoginia/estereotipo | posible imposicion de rol domestico | medio
+las mujeres no sirven para # misoginia/estereotipo | inicio de descalificacion generalizada; revisar complemento | medio
+las mujeres son inferiores # misoginia/estereotipo | afirmacion de inferioridad por sexo | bajo
+las mujeres no merecen vivir # incitacion por sexo | niega el derecho a vivir a las mujeres | bajo
+hay que matar a todas las mujeres # incitacion por sexo | llamada a matar a un grupo por sexo | bajo
+las mujeres son propiedad # misoginia/estereotipo | afirmacion de posesion de mujeres | bajo
+solo sirven para parir # misoginia/estereotipo | reduccion a la reproduccion | bajo
+te pego porque te quiero # apologia de maltrato | presenta una agresion como muestra de amor; puede ser cita | medio
+te hace falta una buena follada # misoginia/sexualizacion | acoso o descalificacion sexual | bajo
+te falta pene # misoginia/sexualizacion | descalifica atribuyendo abstinencia sexual | medio
+abrete de piernas # sexualizacion | orden sexualizada; tambien podria ser cita o instruccion fisica | medio
+manda nudes # acoso sexual | peticion de imagenes intimas | medio
+manda pack # acoso sexual | peticion de imagenes intimas en jerga digital | medio
+ensena las tetas # acoso sexual | orden exhibicionista no solicitada | bajo
+pasame tus nudes # acoso sexual | peticion dirigida de imagenes intimas | bajo
+te voy a follar # amenaza/acoso sexual | anuncio sexual que puede ser intimidatorio | bajo
+te voy a coger a la fuerza # amenaza sexual | anuncio explicito de agresion sexual por uso americano de coger | bajo
+#~ "perra" # misoginia/sexualizacion | animal, adjetivo o insulto segun contexto | alto
+#? "facilona" # misoginia/sexualizacion | ataque de promiscuidad o descripcion coloquial de algo facil | alto
+#? "regalada" # misoginia/sexualizacion | puede denigrar sexualmente o significar obsequiada | alto
+#? "cuero" # misoginia/sexualizacion | posible descalificacion sexual caribena; normalmente material | alto
+#? "vieja" # misoginia/edad | puede ser pareja, madre, adjetivo o insulto | alto
+#? "fregona" # misoginia/estereotipo | utensilio de limpieza en espana o persona que molesta en algunos usos americanos | alto
+#? "zunga" # misoginia/sexualizacion | despectivo sexual colombiano; jerga regional | medio
+#? "resbalosa" # misoginia/sexualizacion | reproche sexual o descripcion de una superficie | alto
+#? "brincona" # misoginia/sexualizacion | puede sexualizar en algunos contextos; tambien significa que brinca | alto
+#? tia buena # sexualizacion | comentario sobre atractivo; depende de destinataria e intencion | alto
+#? es de todos # sexualizacion | puede denigrar a una persona o hablar de acceso comunitario | alto
+#? abre las piernas # sexualizacion | posible orden sexual; tambien danza, deporte o medicina | alto
+
+# espanol: agresiones dirigidas contra hombres
+# [HurtLex: criterios de repertorio](https://books.openedition.org/aaccademia/3085) | [ASALE, puto](https://www.asale.org/damer/puto)
+"cornudo" # agravio contra hombres | se burla de una supuesta infidelidad; tambien usos zoologicos | medio
+"cuck" # agravio contra hombres/en | burla de infidelidad o supuesta sumision | medio
+"braguetero" # agravio contra hombres | descalifica por conducta sexual interesada | medio
+"pichacorta" # agravio contra hombres | humillacion por tamano del pene | bajo
+micropene de mierda # agravio corporal | humillacion corporal; no confundir con termino clinico aislado | bajo
+hombre de mierda # agravio contra hombres | insulto dirigido | bajo
+machito de mierda # agravio contra hombres | insulto dirigido; puede ser cita de rechazo al machismo | medio
+todos los hombres son basura # agravio generalizado | menosprecio a hombres por su sexo | bajo
+los hombres son escoria # agravio generalizado | deshumanizacion por sexo | bajo
+los hombres no valen nada # agravio generalizado | descalificacion general por sexo | bajo
+los hombres son inferiores # agravio generalizado | atribuye inferioridad por sexo | bajo
+los hombres no merecen vivir # incitacion por sexo | niega el derecho a vivir a los hombres | bajo
+hay que matar a todos los hombres # incitacion por sexo | llama a matar por sexo | bajo
+ojala se mueran todos los hombres # deseo de dano por sexo | desea muerte colectiva | bajo
+si lloras no eres hombre # agravio/estereotipo | castiga la expresion emocional | medio
+no eres un hombre de verdad # agravio/estereotipo | cuestiona la masculinidad; puede ser transfobico | medio
+#? "misandrico" # agravio contra hombres | acusacion; revisar si es ataque o descripcion argumentada | medio
+#? "machito" # agravio/estereotipo | burla hacia un varon; tambien critica de una conducta machista | alto
+#? "princeso" # agravio/estereotipo | mofa de masculinidad o apodo reivindicado | alto
+#? "pagafantas" # agravio contra hombres | burla de supuesta sumision en el cortejo | medio
+#? "calzonazos" # agravio contra hombres | burla de supuesta sumision a la pareja | medio
+#? "incel" # agravio/contextual | autoidentificacion, etiqueta de subcultura o insulto | alto
+#? "mangina" # agravio contra hombres/en | insulto sexista para un hombre considerado sumiso o feminista | medio
+#? "impotente" # agravio corporal | puede humillar; tambien describe un estado emocional o clinico | alto
+#? todos los hombres son iguales # agravio/contextual | estereotipo o cita; no equivale por si solo a amenaza | alto
+
+# espanol: homofobia, lesbofobia, bifobia y transfobia
+# [ASALE, joto](https://www.asale.org/damer/joto) | [ASALE, maricón](https://www.asale.org/damer/maric%C3%B3n) | [Multilingual HateCheck](https://ar5iv.labs.arxiv.org/html/2206.09917)
+"mariconazo" # homofobia | agravio homofobo intensificado | bajo
+"mariconada" # homofobia | descalifica por orientacion o expresion estereotipada | medio
+"mariconeria" # homofobia | descalifica por expresion de genero o conducta estereotipada | medio
+"maricon" # homofobia | agravio dirigido o uso reivindicado/cita | medio
+"marica" # homofobia | agravio, uso reivindicado o vocativo de confianza regional | medio
+mariquita de mierda # homofobia | insulto dirigido; no confundir con insecto | bajo
+"mariposon" # homofobia | estereotipo de afeminamiento | medio
+mariquitas de mierda # homofobia | insulto dirigido; incluir por prueba de flexion de frase | bajo
+joto de mierda # homofobia | insulto dirigido; mexico y honduras | bajo
+puto maricon # homofobia | insulto sexual intensificado | bajo
+tortillera de mierda # lesbofobia | insulto dirigido a lesbianas | bajo
+bollera de mierda # lesbofobia | ataque a lesbianas; distinta de identidad reivindicada | bajo
+"trabelo" # transfobia | voz despectiva dirigida a personas trans o travestis | bajo
+"travelo" # transfobia | voz despectiva dirigida a personas trans o travestis | bajo
+"travestolo" # transfobia | forma insultante para personas trans o travestis | bajo
+lesbiana asquerosa # lesbofobia | ataque a persona por orientacion sexual | bajo
+lesbiana de mierda # lesbofobia | agravio por orientacion sexual | bajo
+gay de mierda # homofobia | agravio por orientacion sexual | bajo
+bisexual de mierda # bifobia | agravio por orientacion sexual | bajo
+trans de mierda # transfobia | agravio por identidad de genero | bajo
+puto trans # transfobia | agravio por identidad de genero | bajo
+travesti de mierda # transfobia | agravio por identidad o expresion; travesti sola no se bloquea | bajo
+machorra de mierda # lesbofobia/sexismo | ataque por orientacion o expresion percibida | bajo
+pareces un maricon # homofobia | burla del comportamiento por orientacion percibida | bajo
+que asco los gays # homofobia | expresa repulsion hacia un grupo | bajo
+no deberian existir los gays # homofobia | niega legitimidad de existencia | bajo
+hay que curar a los gays # homofobia | patologiza la orientacion sexual | bajo
+ser gay es una enfermedad # homofobia | patologiza la orientacion sexual | bajo
+ser trans es una enfermedad # transfobia | patologiza la identidad de genero | bajo
+los trans son monstruos # transfobia | deshumaniza a un grupo | bajo
+las trans no son mujeres # transfobia | negacion de identidad; comprobar si es cita o debate citado | medio
+disfrazado de mujer # transfobia/contextual | puede ser agravio contra mujer trans; tambien vestuario literal | medio
+es una fase por ser bisexual # bifobia | invalida la orientacion; frase de prueba | medio
+hay que matar a los maricones # incitacion homofoba | llama a matar por orientacion sexual | bajo
+eres un puto # homofobia/vulgaridad | posible agravio sexual o general; confirmar sentido | medio
+#~ "maric*" # homofobia/prefijo opcional | familia de marica y maricon; colisiona con nombres y oficios, preferir las reglas exactas | alto
+#? "joto" # homofobia | despectivo en mexico y honduras; en colombia tambien paquete | alto
+#? "jota" # homofobia | variante formal potencial; normalmente letra, baile o nombre | alto
+#~ "puto" # homofobia/vulgaridad | insulto contextual; tambien intensificador y otros sentidos regionales | alto
+#? "putazo" # homofobia/vulgaridad | insulto o golpe segun contexto y pais | alto
+#? "pato" # homofobia | posible insulto homofobico caribeno; normalmente ave | alto
+#? "playo" # homofobia | insulto en costa rica; tambien adjetivo de poca profundidad | alto
+#? "loca" # homofobia/capacitismo | puede atacar expresion de genero; tambien voz coloquial o reivindicada | alto
+#? "plumifero" # homofobia | puede burlarse de la pluma; normalmente prenda o ave | alto
+#? "trolo" # homofobia | insulto rioplatense o reapropiacion | medio
+#? "trava" # transfobia | insulto o identidad reivindicada en el cono sur | alto
+#? "fleto" # homofobia | insulto coloquial chileno; revisar cita o reapropiacion | medio
+#? "rosquete" # homofobia | insulto en ciertos usos americanos; tambien alimento | alto
+#~ "tortillera" # lesbofobia | insulto o reapropiacion; tambien oficio o utensilio | alto
+#~ "bollera" # lesbofobia | insulto o identidad reivindicada; tambien relacionado con bollos | alto
+#? "machorra" # lesbofobia/sexismo | insulto por expresion de genero; tambien uso ganadero | alto
+#? "camionera" # lesbofobia | estereotipo para lesbianas; normalmente profesion | alto
+#? "afeminado" # homofobia | puede describir o denigrar segun el uso | alto
+#? "degenerado" # agravio contextual | puede ser ataque a personas lgtbi o descripcion en otro contexto | alto
+
+# espanol: racismo, xenofobia, antisemitismo, islamofobia y antigitanismo
+# [OBERAXE, metodología FARO](https://inclusion.gob.es/documents/d/oberaxe/nota-metodologica-sistema-faro) | [ALRECO](https://www.inclusion.gob.es/oberaxe/alreco/ficheros/PROTOCOLO-ALRECO.pdf)
+"sudaca*" # xenofobia | despectivo hacia personas sudamericanas | bajo
+"sudako" # xenofobia | grafia alternativa de sudaca | bajo
+"sudaka" # xenofobia | grafia alternativa; tambien alias artistico o reapropiacion | medio
+"sudacucho" # xenofobia | variante peyorativa de sudaca | bajo
+"moromierda" # racismo/xenofobia | ataque a personas magrebies o percibidas como musulmanas | bajo
+"moraco" # racismo/xenofobia | denigracion de personas magrebies o arabes | bajo
+moro de mierda # racismo/xenofobia | ataque a persona magrebi o arabe percibida | bajo
+mora de mierda # racismo/xenofobia | ataque a persona magrebi o arabe percibida | bajo
+negro de mierda # racismo | ataque racial dirigido | bajo
+negra de mierda # racismo | ataque racial dirigido | bajo
+negro asqueroso # racismo | ataque racial dirigido | bajo
+gitano de mierda # antigitanismo | ataque a persona gitana | bajo
+gitana de mierda # antigitanismo | ataque a persona gitana | bajo
+gitanos ladrones # antigitanismo | estereotipo delictivo generalizado | bajo
+indio de mierda # racismo | ataque a personas indigenas o de india segun contexto | bajo
+cholo de mierda # racismo | ataque racializado; cholo solo puede ser identidad o trato afectivo | bajo
+chino de mierda # racismo | ataque por nacionalidad o ascendencia percibida | bajo
+putos chinos # racismo | agravio colectivo por nacionalidad o ascendencia | bajo
+panchito de mierda # xenofobia | ataque a persona latinoamericana percibida | bajo
+veneco de mierda # xenofobia | ataque a persona venezolana | bajo
+gringo de mierda # xenofobia | ataque por procedencia percibida | bajo
+haitiano de mierda # xenofobia | ataque por nacionalidad | bajo
+polaco de mierda # xenofobia | agravio por origen; tambien puede dirigirse a catalanes | bajo
+gabacho de mierda # xenofobia | ataque a franceses o estadounidenses segun region | bajo
+judio de mierda # antisemitismo | ataque a persona judia | bajo
+judia de mierda # antisemitismo | ataque a persona judia; la palabra sola tambien es legumbre | bajo
+putos judios # antisemitismo | agravio colectivo | bajo
+los judios controlan el mundo # antisemitismo | topico conspirativo sobre personas judias | bajo
+el holocausto nunca ocurrio # antisemitismo/negacionismo | afirmacion negacionista; revisar si se cita para refutarla | bajo
+el holocausto es un invento # antisemitismo/negacionismo | afirmacion negacionista; revisar cita | bajo
+musulman de mierda # islamofobia | agravio contra fiel real o supuesto | bajo
+los musulmanes son terroristas # islamofobia | generalizacion que asocia religion y terrorismo | bajo
+cristiano de mierda # agravio religioso | ataque contra persona cristiana | bajo
+ateo de mierda # agravio por creencias | ataque contra persona atea | bajo
+turco de mierda # xenofobia | agravio por origen turco real o atribuido | bajo
+inmigrante de mierda # xenofobia | ataque a una persona migrante | bajo
+inmigrantes de mierda # xenofobia | agravio colectivo por condicion migratoria | bajo
+menas de mierda # xenofobia | agravio hacia menores migrantes no acompanados | bajo
+parasitos extranjeros # xenofobia | deshumanizacion por origen | bajo
+plaga de inmigrantes # xenofobia | presenta a personas migrantes como plaga | bajo
+volvete a tu pais # xenofobia | orden de expulsion dirigida; variante voseante | medio
+vuelvete a tu pais # xenofobia | orden de expulsion dirigida | medio
+vete a tu pais # xenofobia | orden de expulsion dirigida | medio
+fuera de nuestro pais # xenofobia/contextual | posible llamada a expulsion; tambien uso descriptivo | medio
+limpieza etnica ya # incitacion racista | promueve expulsion o violencia por pertenencia | bajo
+#? "moro" # racismo/contextual | agravio posible; tambien uso historico, nombre o gentilicio contextual | alto
+#? "panchito" # xenofobia/contextual | agravio posible; tambien diminutivo de pancho, alimento o apodo | alto
+#? "veneco" # xenofobia/contextual | agravio contra venezolanos en algunos usos; tambien reapropiacion | medio
+#? "cholo" # racismo/contextual | identidad, apelativo carinoso o agravio segun region | alto
+#? "prieto" # racismo/contextual | puede ser colorismo; tambien apellido o adjetivo | alto
+#? "negrata" # racismo | insulto racial; puede citarse o reapropiarse | medio
+#? "negraco" # racismo | insulto racial; puede citarse o reapropiarse | medio
+#? "mono" # racismo/contextual | deshumanizacion si va dirigida a una persona negra; normalmente animal o prenda | alto
+#? "macaco" # racismo/contextual | insulto racial dirigido; tambien primate | alto
+#? "ilegal" # xenofobia/contextual | puede estigmatizar a una persona; normalmente adjetivo juridico | alto
+#? "mena" # xenofobia/contextual | sigla administrativa, apellido o mineral; evaluar si hay agravio | alto
+#? "marrano" # antisemitismo/contextual | voz historica antijudia, cerdo u ofensa de suciedad | alto
+#? "goy" # agravio religioso/contextual | puede ser neutro o peyorativo; no deducir odio de la palabra sola | alto
+#? "semita" # racismo/contextual | categoria linguistica o historica; no es agravio por si sola | alto
+
+# espanol: capacitismo y estigma de salud
+# [COCEMFE, manual de lenguaje inclusivo](https://www.cocemfe.es/wp-content/uploads/2022/12/cocemfe-manual-lenguaje-inclusivo-discapacidad.pdf) | [HurtLex](https://books.openedition.org/aaccademia/3085)
+"subnormal" # capacitismo | insulto asociado a discapacidad intelectual; tambien uso tecnico | medio
+retrasado mental # capacitismo | etiqueta estigmatizante o cita de terminologia obsoleta | medio
+retrasada mental # capacitismo | etiqueta estigmatizante o cita de terminologia obsoleta | medio
+deficiente mental # capacitismo | insulto o expresion clinica obsoleta citada | medio
+deficiente de mierda # capacitismo | agravio por capacidad real o atribuida | bajo
+"tarado" # capacitismo/insulto | ataque a capacidad o cordura; admite sentido tecnico | medio
+"mongolico" # capacitismo | insulto historicamente asociado al sindrome de down | medio
+mongolico de mierda # capacitismo | agravio intensificado | bajo
+puto retrasado # capacitismo | menosprecio a capacidad real o percibida | bajo
+eres un retrasado # capacitismo | insulto dirigido | bajo
+autista de mierda # capacitismo | ataque por neurodivergencia real o percibida | bajo
+pareces autista # capacitismo | etiqueta usada como agravio; revisar contexto y tono | medio
+down de mierda # capacitismo | ataque por sindrome de down real o percibido | bajo
+pareces un down # capacitismo | usa condicion como mofa | bajo
+discapacitado de mierda # capacitismo | ataque por discapacidad real o percibida | bajo
+enfermo mental de mierda # capacitismo | agravio por salud mental atribuida | bajo
+loco de mierda # estigma/insulto | ataque que puede estigmatizar salud mental | bajo
+sordo de mierda # capacitismo | agravio por discapacidad auditiva | bajo
+ciego de mierda # capacitismo | agravio por discapacidad visual | bajo
+cojo de mierda # capacitismo | agravio por discapacidad motora | bajo
+invalido de mierda # capacitismo | agravio por discapacidad motora | bajo
+#? "mongol" # capacitismo/contextual | puede ser insulto capacitista; tambien gentilicio o lengua | alto
+#? "retrasado" # capacitismo/contextual | agravio posible; tambien demora o participio | alto
+#? "deficiente" # capacitismo/contextual | agravio posible; normalmente calidad insuficiente | alto
+#? "minusvalido" # capacitismo/contextual | denominacion obsoleta; posible cita historica o legal | alto
+#? "inutil" # capacitismo/insulto contextual | ataque a una persona o simple descripcion de una cosa | alto
+#? "lisiado" # capacitismo/contextual | despectivo posible o cita/uso historico | alto
+#? "enfermito" # estigma/contextual | burla de salud o diminutivo afectivo | alto
+#? "psicopata" # estigma/contextual | posible insulto, cita, relato o descripcion | alto
+#? "esquizofrenico" # estigma/contextual | posible insulto o referencia clinica legitima | alto
+
+# espanol: insultos generales, vulgaridad fuerte y sexual explicito
+# [LDNOOBW español](https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/es) | [Wikcionario regional](https://es.wiktionary.org/wiki/Ap%C3%A9ndice:ES:Insultos_regionales) | [ASALE, conchetumadre](https://www.asale.org/damer/conchetumadre)
+"gilipoll*" # insulto general | familia espanola de gilipollas y gilipollez | bajo
+"jilipollas" # insulto general | grafia alternativa de gilipollas | bajo
+"soplapollas" # insulto general | insulto vulgar de estupidez | bajo
+"chupapollas" # insulto general | insulto sexual por adulacion o desprecio | bajo
+"comepollas" # insulto general | agravio sexual vulgar | bajo
+"tocapelotas" # insulto general | persona que molesta | medio
+"tontopollas" # insulto general | insulto vulgar a la inteligencia | bajo
+"capullo" # insulto general | persona despreciable; tambien flor o envoltura | medio
+#~ "imbecil" # insulto general | agravio a la inteligencia; puede citarse | medio
+#? "idiota" # insulto general | agravio a la inteligencia; puede citarse | medio
+"gilipichis" # insulto general | variante atenuada de gilipollas | bajo
+"soplagaitas" # insulto general | agravio coloquial espanol | bajo
+"lameculos" # insulto general | denigracion por adulacion | bajo
+"hijoputa" # insulto general | contraccion de hijo de puta | bajo
+"hijaputa" # insulto general | contraccion de hija de puta | bajo
+"hijoput*" # insulto general | familia de hijoputa e hijoputada | bajo
+"malparido" # insulto general | insulto fuerte coloquial en varias regiones | medio
+"pendejo" # insulto general | agravio regional; tambien nino o joven en usos rioplatenses | medio
+"pelotudo" # insulto general | agravio rioplatense; puede ser trato familiar | medio
+"boludo" # insulto general | agravio o vocativo amistoso rioplatense | medio
+"cagapalos" # insulto general | persona que fastidia; uso coloquial | bajo
+"careverga" # insulto general | agravio anatomico vulgar regional | bajo
+"carepicha" # insulto general | agravio anatomico vulgar centroamericano | bajo
+"careculo" # insulto general | agravio o burla anatomica | bajo
+"carechimba" # insulto general | agravio vulgar colombiano | bajo
+"tetrahijueputa" # insulto general | insulto colombiano intensificado | bajo
+"triplehijueputa" # insulto general | insulto colombiano intensificado | bajo
+"mamaguevo" # insulto general | insulto sexual vulgar caribeno y venezolano | bajo
+"mamahuevo" # insulto general | grafia alternativa de mamaguevo | bajo
+"mameguevo" # insulto general | variante fonetica de mamaguevo | bajo
+"mamabicho" # insulto general | agravio sexual vulgar puertorriqueno | bajo
+"comemierda" # insulto general | agravio vulgar de uso americano y espanol | bajo
+"comemonda" # insulto general | agravio sexual vulgar del caribe colombiano | bajo
+"chupaverga" # insulto general | agravio sexual vulgar | bajo
+"chupasangres" # insulto general | persona que explota a otras; tambien uso figurado | medio
+"culero" # insulto general | cobarde o ruin en usos mexicanos y centroamericanos | medio
+cagado de mierda # insulto general | insulto vulgar intensificado | bajo
+"mierdoso" # insulto general | descalificacion vulgar | bajo
+#? "mierda" # vulgaridad | exabrupto fuerte; a veces expresa rabia sin destinatario | medio
+"cabron" # insulto general | agravio, elogio o vocativo afectivo segun variedad | medio
+"cabronazo" # insulto general | agravio intensificado o elogio ironico | medio
+pinche cabron # insulto general | agravio intensificado de uso mexicano | bajo
+"conchetumadre" # insulto general | insulto o exclamacion vulgar chilena | bajo
+"conchatumadre" # insulto general | contraccion vulgar de concha de tu madre | bajo
+"reconchatumadre" # insulto general | variante vulgar intensificada | bajo
+"reconchetumadre" # insulto general | variante vulgar intensificada | bajo
+"chingatumadre" # insulto general | mandato ofensivo mexicano en una palabra | bajo
+"chingada" # vulgaridad | exclamacion u ofensa mexicana segun contexto | medio
+"chingadera" # vulgaridad | descalificacion vulgar de cosa o conducta | medio
+"pendejada" # vulgaridad | tonteria en habla coloquial americana | medio
+#? "joder" # vulgaridad | exabrupto, fastidiar o mantener sexo segun contexto | medio
+"follar" # vulgaridad/sexo explicito | sexo en habla vulgar; posible uso de testimonio | medio
+correrte en la cara # sexual explicito | expresion sexual grafica o acoso | bajo
+metete la polla # insulto sexual | orden vulgar | bajo
+hijo de puta # insulto general | agravio con estigma sexual hacia la madre | bajo
+hija de puta # insulto general | agravio con estigma sexual hacia la madre | bajo
+hijo de la chingada # insulto general | agravio fuerte mexicano | bajo
+chinga tu madre # insulto general | mandato ofensivo mexicano | bajo
+vete a la chingada # insulto general | rechazo vulgar mexicano | bajo
+me cago en tu puta madre # insulto general | ataque vulgar intensificado | bajo
+me cago en tu madre # insulto general | ataque vulgar | bajo
+me cago en tus muertos # insulto general | ataque vulgar espanol | bajo
+me cago en dios # vulgaridad | blasfemia o exabrupto; no implica ataque a fieles | medio
+vete a tomar por culo # insulto general | rechazo vulgar | bajo
+que te den por culo # insulto general | insulto vulgar sexual | bajo
+vete a la mierda # insulto general | rechazo vulgar dirigido | bajo
+chupame la polla # insulto/acoso sexual | orden vulgar sexual | bajo
+chupame la verga # insulto/acoso sexual | orden vulgar sexual | bajo
+mamame el huevo # insulto/acoso sexual | orden vulgar sexual | bajo
+anda a la concha de tu madre # insulto general | rechazo vulgar del cono sur | bajo
+la reconcha de tu madre # insulto general | insulto vulgar intensificado | bajo
+la concha de tu madre # insulto general | agravio, exabrupto o cita | medio
+metetelo por el culo # insulto general | rechazo vulgar | bajo
+eres un maje # insulto general | puede llamar tonta a la persona; tambien trato familiar centroamericano | medio
+anda a cagar # insulto general | rechazo vulgar en areas voseantes | bajo
+pinche culero # insulto general | agravio intensificado mexicano | bajo
+hijo de tu puta madre # insulto general | agravio sexualizado e intensificado | bajo
+come mierda # insulto general | mandato vulgar; tambien variante separada de comemierda | bajo
+maldito desgraciado # insulto general | agravio dirigido de desprecio | bajo
+#? "chingoneria" # vulgaridad | puede ser elogio por algo admirable en mexico | alto
+#? "maje" # insulto general | tonto o vocativo familiar centroamericano | alto
+#? "pirobo" # insulto general | insulto colombiano; puede alternar con trato familiar o connotacion homofoba | medio
+#? "gonorrea" # insulto general | insulto en colombia; tambien termino medico | alto
+#? "chimba" # vulgaridad | en colombia puede ser elogio, cosa o alusion genital | alto
+#? "cerote" # insulto general | insulto o trato familiar centroamericano; otros sentidos materiales | alto
+#? "culiao" # insulto/general sexual | insulto o vocativo familiar en chile y otros lugares | medio
+#? "culiado" # insulto/general sexual | agravio, trato coloquial o participio vulgar | medio
+#? culiado de mierda # insulto general | insulto intensificado; activar si se admite la variante regional | bajo
+#? "concha" # vulgaridad contextual | puede ser anatomia vulgar; tambien caparazon o nombre propio | alto
+#? "cono" # vulgaridad contextual | con virgulilla es interjeccion fuerte; sin ella es figura geometrica | alto
+#? "pinche" # insulto general | intensificador mexicano u oficio de cocina | alto
+#? "polla" # vulgaridad contextual | genital masculino en espana; tambien ave o apuesta en america | alto
+#? "verga" # vulgaridad contextual | genital vulgar, exclamacion o termino nautico | alto
+#? "paja" # vulgaridad contextual | masturbacion, material vegetal o excusa segun region | alto
+#? "pedo" # vulgaridad contextual | flatulencia, borrachera, problema o trato coloquial | alto
+#? "huevon" # insulto general | necio, holgazan o vocativo amistoso segun region | alto
+#? "weon" # insulto general | grafia chilena; puede ser insulto o vocativo amistoso | alto
+#? "weona" # insulto general | grafia chilena; puede ser insulto o vocativo amistoso | alto
+#? "mamona" # insulto general | burla o participio/adjetivo; tiene sentidos regionales | alto
+#? "bastardo" # insulto general | agravio, cita historica o descripcion no personal | alto
+#? "coger" # vulgaridad contextual | significa tomar en espana y tener sexo en variedades americanas | alto
+
+# espanol: negacion, burla, culpabilizacion y hostigamiento antifeminista
+# [EXIST, UNED](https://nlp.uned.es/exist2024/) | [Villar-Aguilés y Pecourt Gracia](https://dialnet.unirioja.es/descarga/articulo/7739317.pdf) | [Universidad de Murcia](https://portalinvestigacion.um.es/documentos/65aec6908becc03e1dc2700f)
+"feminazi*" # hostigamiento antifeminista | equipara feminismo con nazismo; revisar cita o contramensaje | medio
+"feminacis" # hostigamiento antifeminista | grafia alternativa de feminazis | bajo
+"femiloca" # hostigamiento antifeminista | usa estigma de salud mental contra feministas | bajo
+"stopfeminazis" # hostigamiento antifeminista | etiqueta que tambien aparece en mensajes de respuesta | medio
+putas feministas # hostigamiento antifeminista | agravio sexual dirigido a feministas | bajo
+feministas de mierda # hostigamiento antifeminista | agravio colectivo | bajo
+las feministas son unas putas # hostigamiento antifeminista | agravio sexual generalizado | bajo
+las feministas necesitan una violacion # incitacion/hostigamiento antifeminista | celebra o propone agresion sexual | bajo
+hay que matar a las feministas # incitacion/hostigamiento antifeminista | llamada a matar | bajo
+la violencia de genero es un invento # negacion de violencia | deslegitima el problema; revisar si es cita | medio
+la violencia machista no existe # negacion de violencia | afirmacion negacionista o cita en contramensaje | medio
+la violencia de genero no existe # negacion de violencia | afirmacion negacionista o cita en contramensaje | medio
+el machismo ya no existe # minimizacion | afirmacion general; posible cita no afirmativa | medio
+el 25n es un chiste # burla de campana | posible ridiculizacion de la jornada | medio
+denuncian para cobrar # culpabilizacion | atribuye interes economico a denunciantes; sujeto y alcance importan | medio
+denuncian para quitarte la casa # culpabilizacion | atribuye intencion fraudulenta generalizada | medio
+todas las denuncias son falsas # negacion/culpabilizacion | generaliza falsedad; distinta de una referencia juridica | medio
+las mujeres mienten cuando denuncian # negacion/culpabilizacion | generaliza falsedad por sexo | medio
+las victimas se lo inventan # negacion/culpabilizacion | desacredita testimonios; verificar cita | medio
+se lo busco por vestir asi # culpabilizacion | atribuye la agresion a la ropa de la victima | bajo
+si no queria que no hubiera bebido # culpabilizacion | usa consumo de alcohol para excusar agresion | bajo
+si no queria no tenia que salir # culpabilizacion | usa conducta de la victima para excusar agresion | medio
+si no denuncia es porque le gusta # culpabilizacion | estigmatiza a quien no denuncia | bajo
+no es violacion si # minimizacion | inicio de una posible justificacion; comprobar la subordinada | medio
+si no dice que no es un si # negacion del consentimiento | presenta silencio como consentimiento | bajo
+si es tu esposa no es violacion # negacion del consentimiento | niega agresion dentro del matrimonio | bajo
+pegar a tu mujer es normal # apologia de maltrato | normaliza agresion de pareja | bajo
+la mate porque era mia # apologia/posesion | posible apologia; tambien cita condenatoria o referencia cultural | medio
+#? chiringuito feminista # mofa/contextual | etiqueta peyorativa posible; puede citarse en debate | alto
+#? chiringuitos feminazis # mofa/contextual | etiqueta peyorativa; puede citarse al examinar el discurso | alto
+#? ideologia de genero # contexto politico | posible marco estigmatizante; tambien uso academico o cita | alto
+#? violencia no tiene genero # contexto politico | posible minimizacion; revisar intencion y contexto | alto
+#? no todos los hombres # contexto politico | respuesta defensiva, matiz o cita; no constituye agravio sola | alto
+#? y los hombres que # contexto politico | puede ser pregunta legitima o interrupcion para ridiculizar | alto
+#~ se lo busco # culpabilizacion contextual | puede legitimar una agresion o aludir a un hecho no violento | alto
+#? era una broma # contexto pragmatico | puede minimizar acoso, admitir error o comentar algo inocuo | alto
+
+# espanol: amenazas, deseos de dano, coaccion y hostigamiento
+# [Política de acoso de YouTube](https://support.google.com/youtube/answer/2802268?hl=en) | [HateCheck](https://aclanthology.org/2021.acl-long.4/)
+# ejemplos deliberadamente sin instrucciones de ataque; prioridad cuando hay objetivo, lugar, inmediatez o datos personales.
+te voy a matar # amenaza letal | amenaza directa; posible cita o hiperbole | medio
+te voy a asesinar # amenaza letal | amenaza directa | bajo
+te voy a matar cuando te vea # amenaza letal | amenaza condicionada al encuentro | bajo
+cuando te vea te mato # amenaza letal | amenaza condicionada al encuentro | bajo
+te voy a hacer desaparecer # amenaza grave | amenaza de desaparicion o intimidacion | bajo
+te voy a degollar # amenaza grave | amenaza corporal directa | bajo
+te voy a apunalar # amenaza grave | amenaza con arma blanca | bajo
+te voy a acuchillar # amenaza grave | amenaza con arma blanca | bajo
+te voy a disparar # amenaza grave | amenaza con arma; posible uso figurado limitado | bajo
+te voy a pegar un tiro # amenaza grave | amenaza con arma | bajo
+te voy a romper la cara # amenaza fisica | amenaza de agresion | bajo
+te voy a reventar la cara # amenaza fisica | amenaza de agresion | bajo
+te voy a partir la cara # amenaza fisica | amenaza de agresion | bajo
+te voy a partir las piernas # amenaza fisica | amenaza de lesion | bajo
+te voy a dar una paliza # amenaza fisica | amenaza de agresion | bajo
+te voy a moler a golpes # amenaza fisica | amenaza de agresion | bajo
+te voy a dejar en el hospital # amenaza fisica | amenaza de lesion; posible lectura literal | medio
+te voy a pegar # amenaza fisica | probable amenaza; tambien verbo polisemico | medio
+te voy a quemar viva # amenaza grave | amenaza de violencia dirigida | bajo
+te voy a quemar vivo # amenaza grave | amenaza de violencia dirigida | bajo
+te voy a reventar # amenaza fisica | amenaza posible o hiperbole en deporte/juego | medio
+vas a acabar muerta # amenaza/deseo | intimidacion posible o relato de advertencia | medio
+vas a acabar muerto # amenaza/deseo | intimidacion posible o relato de advertencia | medio
+ojala te mueras # deseo de dano | desea la muerte de una persona | bajo
+ojala te maten # deseo de dano | desea que otra persona cometa homicidio | bajo
+ojala te violen # deseo de dano sexual | desea una agresion sexual | bajo
+mereces que te violen # apologia de dano sexual | justifica una agresion sexual | bajo
+ojala te den una paliza # deseo de dano | desea una agresion fisica | bajo
+ojala te pegue tu novio # deseo de violencia de pareja | desea una agresion en la pareja | bajo
+te voy a violar # amenaza sexual | amenaza de violacion | bajo
+te vamos a violar # amenaza sexual | amenaza de agresion grupal | bajo
+te voy a obligar a tener sexo # amenaza sexual | anuncia coaccion sexual | bajo
+te voy a tocar aunque no quieras # amenaza sexual | anuncia contacto no consentido | bajo
+si no eres mia no seras de nadie # coaccion/amenaza | posesion y amenaza implicita de alto interes para 25n | bajo
+si me dejas te mato # coaccion/amenaza | amenaza de homicidio por ruptura | bajo
+si me dejas me mato # coaccion/crisis | amenaza de autolesion ligada al control; escalar sin publicarla | bajo
+si hablas te mato # coaccion/amenaza | amenaza vinculada a imposicion de silencio | bajo
+si denuncias te mato # coaccion/amenaza | amenaza vinculada a denuncia | bajo
+si cuentas algo te mato # coaccion/amenaza | imposicion de silencio con amenaza | bajo
+si me bloqueas publico tus fotos # coaccion sexual/digital | amenaza de divulgar fotos | bajo
+voy a publicar tus fotos intimas # coaccion sexual/digital | amenaza de difusion de contenido intimo | bajo
+voy a filtrar tus nudes # coaccion sexual/digital | amenaza de difusion de contenido intimo | bajo
+voy a hacer que te violen # amenaza sexual | anuncia agresion por terceros | bajo
+vais a morir todas # amenaza colectiva | puede ser intimidacion hacia mujeres u otro grupo | bajo
+matad a esas putas # incitacion | orden de matar con agravio sexual | bajo
+pegale hasta que aprenda # incitacion | avala agresion disciplinaria | bajo
+matate de una vez # incitacion a autolesion | insta al suicidio de otra persona | bajo
+tira por la ventana a tu mujer # incitacion violenta | orden violenta contra la pareja | bajo
+#? se donde vives # amenaza contextual | priorizar si hay hostigamiento, objetivo o dato privado; tambien literal | alto
+#? te estoy esperando fuera # amenaza contextual | puede ser cita intimidatoria o coordinacion inocente | alto
+#? te voy a encontrar # amenaza contextual | posible acecho o frase neutra | alto
+#? cuidado cuando salgas # amenaza contextual | posible intimidacion o aviso protector | alto
+#? vas a pagar # amenaza contextual | represalia, broma o pago literal | alto
+#? te tengo fichada # hostigamiento contextual | posible intimidacion o expresion coloquial | alto
+#? "matate" # autolesion/insulto contextual | imperativo de autolesion; distinguir citas y sentidos figurados | medio
+#? me quiero morir # crisis/contexto | peticion de ayuda, desesperacion o hiperbole; canal privado si hay riesgo | alto
+#? me esta amenazando # testimonio/seguridad | denuncia de amenaza; evaluar si hay riesgo inmediato o identificacion | alto
+
+# siglas y abreviaturas: espanol, frances e ingles
+# [Wiktionnaire, argot de internet](https://fr.wiktionary.org/wiki/Annexe:Liste_de_termes_d%E2%80%99argot_Internet) | [Wiktionary, internet slang](https://en.wiktionary.org/wiki/Appendix:Internet_slang)
+"hijuep" # sigla/es | abreviacion coloquial de hijueputa | bajo
+"ctmare" # sigla/es | contraccion digital de conchetumadre o concha de tu madre | bajo
+"ctmr" # sigla/es | concha de tu madre; tambien puede ser exabrupto | medio
+"stfu" # sigla/en | shut the fuck up: callate de modo agresivo | bajo
+"kys" # sigla/en/autolesion | kill yourself: instigacion dirigida al suicidio; tambien se cita y puede ser otra sigla | medio
+"gtfo" # sigla/en | get the fuck out: largate; tambien expresa incredulidad | medio
+"foad" # sigla/en/dano | fuck off and die: largate y muerete | bajo
+"esad" # sigla/en/dano | eat shit and die: come mierda y muerete | medio
+"diaf" # sigla/en/dano | die in a fire: deseo de muerte | medio
+"idgaf" # sigla/en | i don't give a fuck: me importa una mierda | medio
+"ftg" # sigla/fr | ferme ta gueule: callate, vulgar | medio
+"vtfe" # sigla/fr | va te faire enculer: rechazo genital vulgar dirigido | bajo
+"vtff" # sigla/fr | va te faire foutre: vete a la mierda | bajo
+"osefdtv" # sigla/fr | on s'en fout de ta vie: no nos importa un carajo tu vida | bajo
+#? "hdp" # sigla/es | hijo o hija de puta; tambien sigla politica o tecnica | medio
+#? "hjp" # sigla/es | hijo o hija de puta abreviado; puede ser iniciales | alto
+#? "hijuep*" # sigla/es | posible prefijo de insulto; reservar para prefijos con pruebas | medio
+#? "lpm" # sigla/es | la puta madre; tambien litros por minuto | alto
+#? "lptm" # sigla/es | la puta madre o la puta que te pario, segun uso; tambien iniciales | medio
+#? "lpqtp" # sigla/es | la puta que te pario; agravio o exabrupto | medio
+#? "ctm" # sigla/es | concha de tu madre o chinga tu madre; tambien sigla sindical o tecnica | alto
+#? "cdtm" # sigla/es | concha de tu madre; tambien sigla ajena a insultos | medio
+#? "chsm" # sigla/es | chinga su madre; puede ser exabrupto | medio
+#? "ptm" # sigla/es | puta madre o puta tu madre segun contexto; tambien sigla tecnica | alto
+#? "ptmdre" # sigla/es | puta madre; tambien exabrupto no dirigido | medio
+#? "qtp" # sigla/es | que te pario solo dentro de expresion; tambien que te pasa | alto
+#? "dlv" # sigla/es | de la verga: muy mal; tambien iniciales | alto
+#? "alv" # sigla/es | a la verga: rechazo o sorpresa; tambien iniciales | alto
+#? "atm" # sigla/es/en | a toda madre, vulgar positivo; tambien cajero o at the moment | alto
+#? "nmms" # sigla/es | no mames: incredulidad, protesta o enfado | medio
+#? "nmm" # sigla/es | no mames en determinados contextos; otras siglas posibles | alto
+#? "pvt" # sigla/es/en | truncamiento de puta o puto; tambien private o siglas | alto
+#? puta mdre # sigla/es | puta madre abreviado; exabrupto o agravio | medio
+#? "fdp" # sigla/fr | fils o fille de pute; tambien frais de port o partido aleman | alto
+#? "ntm" # sigla/fr | nique ta mere; tambien nombre del grupo supreme ntm | alto
+#? "ptn" # sigla/fr | putain: exabrupto; en otros ambitos es una sigla | alto
+#? "tg" # sigla/fr | ta gueule: callate; tambien trigliceridos, nombre de servicio o sigla | alto
+#? "pd" # sigla/fr | pede cuando es agresivo; en espanol posdata | alto
+#? "fpc" # sigla/fr | fais pas chier: no jodas; tambien iniciales | alto
+#? "fdg" # sigla/fr | foutage de gueule: burla o tomadura de pelo; tambien sigla medica | alto
+#? "tdc" # sigla/fr | trou du cul o tete de cul; tambien sigla tecnica | alto
+#? "tdf" # sigla/fr | tete de fion; tambien tour de france | alto
+#? "dtc" # sigla/fr | dans ton cul: respuesta vulgar; tambien sigla tecnica | alto
+#? "dmc" # sigla/fr | dans mon cul; tambien sigla o nombre de empresa | alto
+#? "dsc" # sigla/fr | dans son cul; tambien sigla tecnica | alto
+#? "cmb" # sigla/fr | comme ma bite; tambien otras expansiones | alto
+#? "ctb" # sigla/fr | comme ta bite; tambien c'etait bien | alto
+#? "osef" # sigla/fr | on s'en fout: no nos importa; a veces desden dirigido | medio
+#? "jmef" # sigla/fr | je m'en fous: me da igual de modo vulgar | medio
+#? "raf" # sigla/fr | rien a foutre; tambien royal air force y otras siglas | alto
+#? "tgv" # sigla/fr | ta gueule victime en argot; normalmente tren de alta velocidad | alto
+#? "wtf" # sigla/en | what the fuck: sorpresa o enfado; por si sola no es amenaza ni insulto | alto
+#? "smd" # sigla/en/sexual | suck my dick: insulto sexual; tambien designacion electronica | alto
+#? "wth" # sigla/en | what the hell: exclamacion habitualmente no dirigida | alto
+#? "ffs" # sigla/en | for fuck's sake: exasperacion; tambien sigla medica | alto
+#? "fml" # sigla/en | fuck my life: frustracion propia; no equivale a amenaza | alto
+#? "af" # sigla/en | as fuck: intensificador; tambien iniciales | alto
+#? "fu" # sigla/en | fuck you; tambien nombre, iniciales o elemento de kung fu | alto
+#? f u # sigla/en | fuck you con letras separadas; tambien dos iniciales | alto
+#? "fyu" # sigla/en | fuck you en algunos chats; tambien otras siglas | alto
+#? "gfy" # sigla/en | go fuck yourself o good for you; sentidos opuestos | alto
+#? "pos" # sigla/en | piece of shit; en espanol pos coloquial y en ingles point of sale | alto
+#? "sob" # sigla/en | son of a bitch; tambien palabra inglesa para sollozar | alto
+#? "omfg" # sigla/en | oh my fucking god: exclamacion, a menudo inocua | alto
+#? "lmfao" # sigla/en | laughing my fucking ass off: risa vulgar, a veces burla | alto
+#? "pmsl" # sigla/en | pissing myself laughing: risa vulgar, frecuente en registro britanico | alto
+#? "fubar" # sigla/en | fucked up beyond all recognition o repair: muy deteriorado | alto
+#? "rtfm" # sigla/en | read the fucking manual o read the fine manual; puede ser desprecio | alto
+
+# grafias, particiones, transposiciones, inversion y mezcla de idiomas
+# [Pruebas de MultiHateCheck](https://ar5iv.labs.arxiv.org/html/2206.09917) | [Larousse, verlan](https://www.larousse.fr/dictionnaires/francais/verlan/81556) | [Wiktionary, tepu](https://en.wiktionary.org/wiki/tepu)
+# grafias de prueba: las transformaciones mecanicas son ejemplos para comprobar la cobertura, no afirmaciones de frecuencia.
+"pvta" # variante/es | puta con v en lugar de u | bajo
+"pvto" # variante/es | puto con v en lugar de u; puede ser intensificador | medio
+"putah" # variante/es | puta con h final | bajo
+"putaaa" # variante/es | puta alargada | medio
+"puttta" # variante/es | puta con t repetida | bajo
+pu ta # variante/es | fragmentacion en dos bloques | medio
+p u t a # variante/es | fragmentacion letra a letra | medio
+"hijueputa" # variante/es | contraccion fonetica regional de hijo de puta | bajo
+"hijueput*" # variante/es | familia que incluye hijueputa e hijueputada | bajo
+"hijuepvta" # variante/es | hijueputa con v | bajo
+"jueputa" # variante/es | contraccion de hijueputa documentada en america | bajo
+"joputa" # variante/es | contraccion de hijo de puta | bajo
+"japuta" # variante/es | contraccion de hija de puta | bajo
+"ijodeputa" # variante/es | hijo de puta unido y sin h | bajo
+"hijodeputa" # variante/es | locucion unida | bajo
+"hijadeputa" # variante/es | locucion unida | bajo
+hijo puta # variante/es | omision de la preposicion | bajo
+hijo de pvta # variante/es | hijo de puta con v | bajo
+hiju eputa # variante/es | fragmentacion interior mecanica | bajo
+"marikon" # variante/es | maricon con k | bajo
+"marika" # variante/es | marica con k; posible reapropiacion | medio
+"maricn" # variante/es | maricon con vocal omitida | bajo
+"marricon" # variante/es | maricon con r repetida | bajo
+m a r i c o n # variante/es | separacion letra a letra | bajo
+"gilipoyas" # variante/es | grafia fonetica por yeismo | bajo
+"jilipoyas" # variante/es | grafia fonetica con j e y | bajo
+"gilipollaz" # variante/es | grafia con z final | bajo
+"gillipollas" # variante/es | grafia con l duplicada | bajo
+gili pollas # variante/es | separacion interna | bajo
+"kapullo" # variante/es | capullo con k | medio
+"cabronn" # variante/es | cabron con n duplicada | bajo
+"mierdda" # variante/es | mierda con d duplicada | bajo
+"miedra" # variante/es | transposicion mecanica de mierda | medio
+"mierd@" # variante/es | grafia con simbolo final; usar limite adaptado al simbolo | medio
+"konchetumadre" # variante/es | conchetumadre con k | bajo
+"conchatvmadre" # variante/es | conchatumadre con v | bajo
+"tevoiamatar" # variante/es | amenaza unida, con i en lugar de y | bajo
+"tevoyamatar" # variante/es | amenaza sin espacios | bajo
+te voi a matar # variante/es | amenaza con i en lugar de y | bajo
+te voy a ma tar # variante/es | amenaza con separacion interna | bajo
+te voy a biolar # variante/es | amenaza sexual con b en lugar de v | bajo
+"phuck" # variante/en | fuck con ph | bajo
+"fuk" # variante/en | fuck con c omitida; tambien codigo aeroportuario | medio
+f u c k # variante/en | separacion letra a letra | medio
+"shyt" # variante/en | shit con y por i | medio
+"enculerr" # variante/fr | enculer con r repetida | bajo
+"putainn" # variante/fr | putain con n repetida | medio
+"konnard" # variante/fr | connard con k | bajo
+"taggle" # variante/fr | ta gueule contraido en jerga digital | medio
+f i l s d e p u t e # variante/fr | insulto completo separado letra a letra | bajo
+"tepu" # variante/fr/verlan | pute con silabas invertidas | medio
+sale tepu # variante/fr/verlan | insulto sexual intensificado | bajo
+fuck you cabron # variante/mezcla | insulto ingles y espanol combinados | bajo
+shut up puta # variante/mezcla | mandato en ingles e insulto en espanol | bajo
+stfu puta # variante/mezcla | mandato abreviado ingles e insulto en espanol | bajo
+tg puta # variante/mezcla | ta gueule abreviado y agravio en espanol | bajo
+#? sale puta # variante/mezcla | posible mezcla del adjetivo despectivo frances con el sustantivo espanol; tambien sale es verbo en espanol | alto
+#? mari con # variante/es | separacion interna; mari puede ser nombre y con preposicion | alto
+#? "fcuk" # variante/en | fuck transpuesto; tambien marca comercial | alto
+#? "atup" # variante/inversion | puta al reves; tambien posibles siglas | alto
+#? "nociram" # variante/inversion | maricon al reves; ejemplo de prueba mecanica | medio
+#? "adreim" # variante/inversion | mierda al reves; ejemplo de prueba mecanica | medio
+#? "emratam" # variante/inversion | matarme al reves; puede expresar crisis o ser cita, no asumir amenaza | alto
+#? "рuta" # variante/es | primera letra cirilica visualmente parecida a p; ejemplo mecanico | medio
+#? "m·a·r·i·c·o·n" # variante/es | punto medio como separador; prueba para sistema existente | medio
+#? "mari​con" # variante/es | separador invisible u+200b; usar solo en vista auxiliar | medio
+#? "meuf" # variante/fr/verlan | femme: mujer; jerga no insultante por si sola | alto
+#? "rebeu" # variante/fr/verlan | joven de origen magrebi; jerga no insultante por si sola | alto
+#? "renoi" # variante/fr/verlan | noir: persona negra; jerga no insultante por si sola | alto
+
+# frances complementario: francia, belgica, quebec y muestra francofona africana
+# [LDNOOBW francés](https://raw.githubusercontent.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words/master/fr) | [Usito](https://usito.usherbrooke.ca/articles/th%C3%A9matiques/vincent_1) | [Le Vif](https://www.levif.be/belgique/serie-3-5-ket-fieu-peye-dou-viennent-ces-mots-typiquement-belges/) | [Wiktionnaire, gaou](https://fr.wiktionary.org/wiki/gaou)
+"connard" # insulto/fr | imbecil vulgar | bajo
+"connasse" # insulto/fr | imbecil en femenino, vulgar | bajo
+"salope" # misoginia/fr | insulto vulgar sexualizado | bajo
+"pouffiasse" # misoginia/fr | insulto despectivo sexualizado | bajo
+"grogniasse" # insulto sexista/fr | insulto despectivo dirigido a una mujer | bajo
+"salaud" # insulto/fr | canalla | medio
+"salopard" # insulto/fr | canalla despreciable | bajo
+"encule" # insulto sexual/fr | agravio vulgar; sale de un verbo sexual | bajo
+"enfoire" # insulto/fr | insulto vulgar o nombre artistico si aparece en contexto musical | medio
+"branleur" # insulto/fr | vago o insulto vulgar sexual | medio
+#? "putain" # vulgaridad/fr | exabrupto; no necesariamente dirigido | medio
+#? "merde" # vulgaridad/fr | exabrupto; no necesariamente dirigido | medio
+fils de pute # insulto/fr | hijo de puta | bajo
+fille de pute # insulto/fr | hija de puta | bajo
+sale pute # misoginia/fr | insulto sexual intensificado | bajo
+va te faire foutre # insulto/fr | vete a la mierda | bajo
+va te faire enculer # insulto/fr | insulto sexual dirigido | bajo
+ferme ta gueule # insulto/fr | callate la boca de modo agresivo | bajo
+nique ta mere # insulto/fr | agravio sexual contra la madre | bajo
+nique ta race # insulto/fr | agravio vulgar que puede ser racista segun objetivo | bajo
+trou du cul # insulto/fr | idiota de modo vulgar; tambien sentido anatomico | bajo
+sale type # insulto/fr | tipo despreciable | medio
+"fiotte" # homofobia/fr | agravio homofobico o estereotipo de cobardia | bajo
+tapette de merde # homofobia/fr | agravio dirigido; tapette sola tiene otros usos | bajo
+sale pede # homofobia/fr | agravio dirigido a un hombre gay o percibido como tal | bajo
+sale gouine # lesbofobia/fr | agravio dirigido a una lesbiana | bajo
+sale negre # racismo/fr | agravio racial dirigido | bajo
+sale bougnoule # racismo/fr | agravio racial dirigido | bajo
+"bougnoule" # racismo/fr | insulto racista hacia personas magrebies y otros grupos | bajo
+"bicot" # racismo/fr | insulto racista hacia personas magrebies | bajo
+sale arabe # racismo/fr | agravio racializado | bajo
+sale juif # antisemitismo/fr | agravio antijudio | bajo
+sale musulman # islamofobia/fr | agravio antimusulman | bajo
+attarde mental # capacitismo/fr | insulto o terminologia obsoleta citada | medio
+handicape de merde # capacitismo/fr | agravio contra persona con discapacidad | bajo
+je vais te tuer # amenaza/fr | te voy a matar | bajo
+je vais te violer # amenaza/fr | te voy a violar | bajo
+je vais te casser la gueule # amenaza/fr | te voy a partir la cara | bajo
+je vais te buter # amenaza/fr | te voy a matar, coloquial | bajo
+tu merites de crever # deseo de dano/fr | mereces morir | bajo
+va te pendre # incitacion a autolesion/fr | orden dirigida de ahorcarse | bajo
+suce ma bite # acoso/insulto sexual/fr | orden sexual dirigida | bajo
+"tabarnak" # vulgaridad/fr-ca | exabrupto quebeques de tabernacle | medio
+"tabarnac" # vulgaridad/fr-ca | grafia alternativa de tabarnak | medio
+"calisse" # vulgaridad/fr-ca | exabrupto quebeques de calice | medio
+"ostie" # vulgaridad/fr-ca | exabrupto relacionado con hostie | medio
+bout de criss # vulgaridad/fr-ca | compuesto de sacre quebeques | medio
+ostie toastee # vulgaridad/fr-ca | compuesto de sacre quebeques | medio
+#? "conne" # insulto/fr | tonta, vulgar | medio
+#? "bite" # vulgaridad/fr | pene en frances; mordisco o morder en ingles | alto
+#? "pute" # sexualizacion/fr | denominacion o insulto sexual; priorizar formas dirigidas como sale pute | medio
+#? "pede" # homofobia/fr | insulto homofobico o reapropiacion | medio
+#? "gouine" # lesbofobia/fr | insulto o reapropiacion | medio
+#? "tapette" # homofobia/fr | insulto tambien usado para trampa o matamoscas | alto
+#? "negre" # racismo/fr | agravio o cita historica; tambien significa negro en catalan | alto
+#? "beurette" # racismo/sexualizacion/fr | puede ser etiqueta racial sexualizante; uso depende del contexto | alto
+#? "criss" # vulgaridad/fr-ca | exabrupto relacionado con christ; tambien nombre | alto
+#? "esti" # vulgaridad/fr-ca | variante del exabrupto hostie; tambien iniciales o colision multilingue | alto
+#? "hostie" # vulgaridad/fr-ca | exabrupto con grafia religiosa; tambien sacramento | alto
+#? "baraki" # insulto clasista/fr-be | denigra modales o aspecto percibidos como vulgares; tambien etiqueta resignificada | medio
+#? "baraqueresse" # insulto clasista/fr-be | forma femenina de baraki | medio
+#? "gaou" # insulto/fr-ci | persona ingenua en nouchi de costa de marfil; tambien nombre de cria de nu | alto
+#? "gawase" # insulto/fr-ci | forma femenina de gaou; no es violencia por si sola | medio
+
+# ingles complementario: estados unidos, reino unido y australia
+# [Ofcom, lenguaje ofensivo](https://www.ofcom.org.uk/tv-radio-and-on-demand/broadcast-standards/offensive-language) | [Cambridge](https://dictionary.cambridge.org/us/dictionary/english/cunt) | [Merriam-Webster](https://www.merriam-webster.com/dictionary/slut) | [Macquarie](https://www.macquariedictionary.com.au/step-through-the-bogan-gate/)
+"bitch" # misoginia/insulto/en | agravio frecuentemente sexista; tambien perra literal o uso reivindicado | medio
+"slut" # misoginia/en | insulta por conducta sexual atribuida | bajo
+"skank" # misoginia/en | agravio sexualizado; tambien termino de musica y baile | medio
+"whore" # misoginia/en | insulto sexual; puede aparecer en citas o reapropiacion | medio
+"cunt" # misoginia/vulgaridad/en | genital vulgar o insulto intenso; fuerza variable segun region y grupo | medio
+"motherfuck*" # insulto/en | familia de motherfucker y motherfucking | bajo
+"asshole" # insulto/en | insulto de desprecio; tambien anatomia vulgar | bajo
+"arsehole" # insulto/en-gb/au | variante de asshole | bajo
+"shithead" # insulto/en | insulto general vulgar | bajo
+"dickhead" # insulto/en | insulto vulgar a la inteligencia | bajo
+"wanker" # insulto/en-gb/au | idiota despreciable; de uso tipicamente britanico | bajo
+"twat" # insulto/en-gb | insulto vulgar o referencia genital | bajo
+"tosser" # insulto/en-gb/au | insulto coloquial vulgar | medio
+"douchebag" # insulto/en-us | insulto de desprecio; tambien termino literal | medio
+"fuckwad" # insulto/en | insulto vulgar de desprecio | bajo
+go fuck yourself # insulto/en | rechazo vulgar dirigido | bajo
+fuck off # insulto/en | rechazo vulgar o incredulidad; segun contexto | medio
+shut the fuck up # insulto/en | mandato agresivo de callar | bajo
+son of a bitch # insulto/en | hijo de puta o exabrupto | medio
+piece of shit # insulto/en | pedazo de mierda; una cosa tambien puede ser el objeto | medio
+go back to your country # xenofobia/en | orden de expulsion por origen percibido | medio
+"faggot" # homofobia/en | insulto homofobo; tambien haz de ramas o plato britanico | medio
+"tranny" # transfobia/en | insulto antitrans; tambien jerga tecnica para transmision | medio
+you fucking dyke # lesbofobia/en | agravio dirigido; dyke sola tiene otros usos | bajo
+those queers should die # incitacion contra personas lgtbi/en | desea la muerte por identidad u orientacion | bajo
+"nigger" # racismo/en | insulto antinegro grave; citas y referencias historicas existen | bajo
+"nigga" # racismo/en | variante con reapropiacion; no asumir intencion automaticamente | medio
+"chink" # racismo/en | insulto antiasiatico; tambien grieta o tintineo | medio
+"wetback" # racismo/en-us | insulto contra personas mexicanas o latinoamericanas | bajo
+"raghead" # racismo/en | insulto racista o antimusulman | bajo
+sand nigger # racismo/en | insulto racial contra personas arabes o percibidas como tales | bajo
+"pikey" # racismo/en-gb | insulto antigitano o contra travellers | medio
+"coon" # racismo/en | insulto antinegro; tambien apodo de mapache o nombre propio | medio
+"retard" # capacitismo/en | insulto a discapacidad intelectual; tambien verbo tecnico retardar | medio
+you fucking retard # capacitismo/en | agravio dirigido | bajo
+go kill yourself # incitacion a autolesion/en | insta a otra persona al suicidio | bajo
+i will kill you # amenaza/en | te matare; puede ser hiperbole o cita | medio
+im going to kill you # amenaza/en | te voy a matar sin apostrofo | medio
+i'm going to kill you # amenaza/en | te voy a matar | medio
+i will rape you # amenaza sexual/en | te violare | bajo
+i hope you get raped # deseo de dano sexual/en | deseo de agresion sexual | bajo
+send nudes # acoso sexual/en | pide imagenes intimas; puede ser cita | medio
+#? "slag" # misoginia/en-gb | insulto sexual; tambien escoria industrial o verbo criticar | alto
+#? "fag" # homofobia/en-us | agravio; tambien cigarrillo en ingles britanico | alto
+#? "dyke" # lesbofobia/en | insulto o identidad reivindicada; tambien dique | alto
+#? "spastic" # capacitismo/en | insulto o adjetivo medico; fuerza regional desigual | alto
+#? "spaz" # capacitismo/en | agravio o uso coloquial; valorar region y destinatario | medio
+#? "paki" # racismo/en-gb | insulto racial en reino unido; puede ser nombre o iniciales en otros entornos | alto
+#? "kike" # antisemitismo/en | insulto antijudio en ingles; en espanol es nombre o apodo | alto
+#? "wog" # racismo/en-au/gb | insulto etnico; tambien otros usos regionales y reapropiacion | alto
+#? "bogan" # insulto clasista/en-au | estereotipo clasista, etiqueta amistosa o toponimo | alto
+#? "drongo" # insulto/en-au | tonto en australia; tambien tipo de ave | alto
+#? "boofhead" # insulto/en-au | tonto o de cabeza grande; tambien vocativo afectivo | medio
+#? "redneck" # insulto clasista/en-us | etiqueta despectiva o reivindicada; tambien descriptiva | alto
+
+# numeros, siglas de odio y simbolos: conservar tokens originales sin sustitucion numerica
+# [ADL, Hate on Display](https://www.adl.org/resources/hate-symbols/search) | [ADL, 1488](https://www.adl.org/resources/hate-symbol/1488) | [ADL, esvástica](https://dc.adl.org/resources/hate-symbol/swastika) | [Merriam-Webster, sixty-nine](https://www.merriam-webster.com/dictionary/sixty-nine)
+"1488" # codigo neonazi | combina lema supremacista y heil hitler; retener, no descartar; tambien anio o identificador | medio
+"14/88" # codigo neonazi | grafia separada de 1488; tambien fecha abreviada o referencia | medio
+"14-88" # codigo neonazi | grafia separada de 1488; tambien intervalo o marcador | medio
+"8814" # codigo neonazi | variante documentada de 1488; tambien puede ser identificador | medio
+"卐" # simbolo contextual | esvastica: significado nazi, religioso o cultural segun contexto; revisar | medio
+"卍" # simbolo contextual | manji, esvastica de giro contrario; tambien usos religiosos, cartograficos o culturales | medio
+heil hitler # exaltacion nazi/contextual | saludo nazi; tambien cita historica o critica | medio
+sieg heil # exaltacion nazi/contextual | saludo nazi; tambien cita historica o critica | medio
+white power # supremacismo/contextual | consigna supremacista blanca; tambien puede ser cita | medio
+white power 88 # supremacismo | combinacion explicita de consigna y codigo | bajo
+combat 18 # codigo neonazi | nombre de un grupo neonazi; revisar citas e historia | medio
+blood and honour # codigo neonazi | nombre de una red supremacista; tambien posible frase literal | medio
+"6mwe" # codigo antisemita | six million wasn't enough, apologia antisemita del genocidio | bajo
+#? "271k" # codigo antisemita | alusion negacionista en contexto del holocausto; tambien cifra de dinero o visualizaciones | alto
+#? "271,000" # codigo antisemita | cifra usada en negacionismo; tambien numero o cantidad, sin sentido hostil por si sola | alto
+#? "271" # codigo antisemita contextual | variante del mismo codigo; normalmente numero ordinario | alto
+#? "14" # codigo supremacista | referencia a lema de catorce palabras; numero comun | alto
+#? "18" # codigo neonazi | a y h: iniciales de adolf hitler; edad o numero comun | alto
+#? "28" # codigo neonazi | b y h: blood and honour; edad, dia o codigo comun | alto
+#? "88" # codigo neonazi | h y h: heil hitler; edad, anio abreviado o numero casual | alto
+#? "311" # codigo racista | tres veces k: referencia al ku klux klan; tambien numero de servicio o nombre | alto
+#? "109/110" # codigo antisemita | alude a un relato de expulsiones de personas judias; tambien fraccion o intervalo | alto
+#? "13/52" # codigo racista | cifra usada para propaganda racista estadounidense; tambien fraccion | alto
+#? "13/90" # codigo racista | variante de propaganda racista estadounidense; tambien fraccion | alto
+#? "12" # codigo supremacista | ab: aryan brotherhood en concreto contexto estadounidense; numero comun | alto
+#? "13" # codigo supremacista | ac: aryan circle en concreto contexto estadounidense; numero comun | alto
+#? "zog" # codigo antisemita | zionist occupied government: tropo conspirativo; tambien nombre | alto
+#? "kkk" # codigo racista | ku klux klan; tambien risa escrita en portugues brasileno o cita historica | alto
+#? "ss" # sigla/simbolo contextual | schutzstaffel con iconografia nazi; tambien seguridad social u otras iniciales | alto
+#? "666" # numero contextual | connotacion religiosa o metal; no acredita odio ni amenaza | alto
+#? "69" # codigo sexual | referencia a practica sexual; tambien numero, edad, curso o deporte | alto
+#? "69er" # codigo sexual/en | puede aludir a practica sexual; tambien apodo o nombre de modelo | alto
+#? "34" # codigo pornografico/contextual | solo asociado a rule 34 o menciones equivalentes; numero comun | alto
+#? rule 34 # jerga pornografica | meme sobre pornografiar cualquier tema; tambien alusion literal a una regla | medio
+#? regla 34 # jerga pornografica | version espanola del meme; tambien numero real de una regla | alto
+#? "r34" # jerga pornografica | abrevia rule 34; tambien modelo de coche y otros identificadores | alto
+#? "18+" # clasificacion de edad | contenido adulto o restriccion etaria; no equivale a sexo explicito | alto
+#? "xxx" # etiqueta sexual | puede designar pornografia, besos, numeracion romana o marcador | alto
+
+# lista inicial del equipo: t03, terminos que el lexico no recogia
+# [bd/filtros_iniciales.txt original] | criterio del equipo para el 25n
+"hembrista" # hostigamiento antifeminista | equipara feminismo con supremacia femenina | medio
+"cabrona" # insulto general | femenino de cabron | medio
+"furcia" # misoginia/sexualizacion | insulto sexual | bajo
+de mierda # insulto general | intensificador de cualquier insulto dirigido (gay de mierda, moro de mierda...) | medio
+se lo merecia # culpabilizacion | justifica una agresion | medio
+algo habra hecho # culpabilizacion | culpa a la victima | medio
+algo habria hecho # culpabilizacion | culpa a la victima | medio
+a fregar # misoginia/estereotipo | mandato de rol domestico | medio
+a la cocina # misoginia/estereotipo | mandato de rol domestico; tambien literal | medio
+te mato # amenaza letal | amenaza directa; puede ser cita o testimonio | medio
+os mato # amenaza letal | amenaza colectiva directa | medio
+#~ "negrat*" # racismo/prefijo | familia de negrata y negratas; ver regla contextual negrata | medio
+#~ "retrasad*" # capacitismo/prefijo | colisiona con retraso ordinario (la clase va retrasada) | alto
+
+# falsos positivos: subcadenas, homografos y reutilizacion legitima
+# [Multilingual HateCheck](https://ar5iv.labs.arxiv.org/html/2206.09917) | [Unicode UAX #29](https://www.unicode.org/reports/tr29/) | [ASALE, joto](https://www.asale.org/damer/joto)
+#! "con" # homografo es/fr | preposicion espanola; solo es insulto en determinados contextos franceses, con el sentido de tonto | alto
+#! puta caso # homografo/it | expresion italiana registrada por treccani: supongamos; solo aplicar en contexto italiano | alto
+#! "putacaso" # subcadena/it | misma expresion italiana en una palabra; no usar puta* | alto
+#! "computadora" # subcadena | contiene puta; palabra informatica | alto
+#! "computacion" # subcadena | contiene puta; palabra informatica | alto
+#! "computar" # subcadena | contiene puta; operacion de computo | alto
+#! "disputa" # subcadena | contiene puta; desacuerdo | alto
+#! "disputar" # subcadena | contiene puta; disputar un partido o un asunto | alto
+#! "diputada" # subcadena | contiene puta; cargo publico | alto
+#! "diputacion" # subcadena | contiene puta; institucion | alto
+#! "reputacion" # subcadena | contiene puta; prestigio o fama | alto
+#! "imputar" # subcadena | contiene puta; verbo juridico o contable | alto
+#! "amputacion" # subcadena | contiene puta; termino medico | alto
+#! "esputar" # subcadena | contiene puta; termino medico | alto
+#! "esputo" # subcadena | contiene puto; secrecion | alto
+#! "emputar" # contexto regional | verbo vulgar de enfadar, no necesariamente ataque sexual | alto
+#! "maricarmen" # prefijo | nombre propio que colisiona con maric* | alto
+#! "maricruz" # prefijo | nombre propio que colisiona con maric* | alto
+#! "maricela" # prefijo | nombre propio que colisiona con maric* | alto
+#! "maricielo" # prefijo | nombre propio que colisiona con maric* | alto
+#! "marichalar" # prefijo | apellido que colisiona con maric* | alto
+#! "maricultura" # prefijo | cultivo marino; colisiona con maric* | alto
+#! "maricultor" # prefijo | oficio; colisiona con maric* | alto
+#! "maricultora" # prefijo | oficio; colisiona con maric* | alto
+#! "mariconera" # prefijo/contexto | bolso en ciertos usos; tambien puede ser alusion peyorativa | alto
+#! "mariquita" # palabra distinta | normalmente insecto, apelativo o posible insulto; no usar mari* | alto
+#! "cabroncillo" # contexto | diminutivo que puede ser amistoso o insultante; no usar cabr* | alto
+#! "cabrero" # prefijo excesivo | oficio o apellido; no usar cabr* | alto
+#! "cabrito" # prefijo excesivo | animal, alimento o diminutivo; no usar cabr* | alto
+#! "transexual" # prefijo excesivo | descriptor de identidad; no inferir agravio de trans* | alto
+#! "transporte" # prefijo excesivo | actividad o servicio; no usar trans* | alto
+#! "transversal" # prefijo excesivo | adjetivo ordinario; no usar trans* | alto
+#! polla de agua # homografo | denominacion de ave; no castigar polla aislada | alto
+#! pinche de cocina # homografo | profesion | alto
+#! vieja amiga # homografo | amistad de larga duracion | alto
+#! jota aragonesa # homografo | baile o cancion | alto
+#! mono de trabajo # homografo | prenda | alto
+#! cono de seguridad # plegado de virgulilla | objeto geometrico; no confundir con la vulgaridad | alto
+#! ano academico # plegado de virgulilla | ano con virgulilla significa curso o periodo | alto
+#! judia verde # homografo | legumbre; no inferir destinataria judia | alto
+#! piel negra # mencion legitima | descripcion; no es ataque por si sola | alto
+#! persona gitana # mencion legitima | identidad etnica; no es agravio | alto
+#! origen magrebi # mencion legitima | origen geografico; no es agravio | alto
+#! "scunthorpe" # subcadena/en | localidad con cunt dentro | alto
+#! university of sussex # subcadena/en | universidad; sex aparece dentro de sussex | alto
+#! "essex" # subcadena/en | condado con sex dentro | alto
+#! "class" # subcadena/en | clase con ass dentro | alto
+#! "assistant" # subcadena/en | asistente con ass dentro | alto
+#! "passage" # subcadena/en | paso con ass dentro | alto
+#! "assessment" # subcadena/en | evaluacion con ass dentro | alto
+#! "dickinson" # subcadena/en | apellido con dick dentro | alto
+#! "cocktail" # subcadena/en | bebida con cock dentro | alto
+#! "butterfly" # subcadena/en | mariposa con butt dentro | alto
+#! "rapeseed" # subcadena/en | semilla de colza contiene rape | alto
+#! rape survivor # 25n legitimo/en | superviviente de violacion; no confundir nombrar con amenazar | alto
+#! "grape" # subcadena/en | uva contiene rape; tambien puede ser eufemismo en contexto | alto
+#! "therapist" # subcadena/en | profesional de terapia contiene rapist | alto
+#! "computer" # subcadena/fr/en | contiene pute; palabra informatica inglesa | alto
+#! "depute" # subcadena/fr | cargo publico; contiene pute al quitar tildes | alto
+#! "puteaux" # subcadena/fr | toponimo frances que empieza por pute | alto
+#! bite into an apple # homografo/en/fr | morder una manzana en ingles | alto
+#! "merci" # distribucion | palabra francesa comun; no unir indiscriminadamente bordes con palabras vecinas | alto
+#! hola kike # homografo/es-en | ejemplo del apodo espanol de enrique; no extrapolar agravio antisemita del ingles | alto
+#! todas las personas son iguales # control de frase | referencia a igualdad; no usar plantillas de grupo sin predicado hostil | alto
+#! tengo 18 anos # codigo numerico | edad; no deducir simpatia neonazi | alto
+#! curso 88 # codigo numerico | identificador o anio; no deducir simpatia neonazi | alto
+#! pagina 69 # codigo numerico | numero de pagina; no deducir connotacion sexual | alto
+#! "016" # servicio publico | telefono de informacion y atencion en espana | alto
+#! "112" # servicio publico | emergencias; no tratar como codigo extremista | alto
+#! 600 000 016 # servicio publico | whatsapp oficial del 016; excepcion especifica a detector de telefonos | alto
+
+# falsos positivos: vocabulario necesario para el 25n, no bloquear aislado
+# [EXIST, UNED](https://nlp.uned.es/exist2024/) | [Delegación del Gobierno contra la Violencia de Género](https://violenciagenero.igualdad.gob.es/) | [Política de odio de YouTube](https://support.google.com/youtube/answer/2801939?hl=en)
+#! "violacion" # 25n legitimo | nombre de la agresion; puede emplearse en testimonio, informacion o condena | alto
+#! "violador" # 25n legitimo | posible referencia o acusacion; revisar solo si identifica a alguien o hay otro riesgo | alto
+#! "violar" # 25n legitimo | verbo sobre agresion o infraccion; amenaza depende de frase | alto
+#! "maltrato" # 25n legitimo | palabra necesaria para nombrar la violencia | alto
+#! "maltratador" # 25n legitimo | descripcion o potencial acusacion; no retener si no hay identificacion ni otra senal | alto
+#! "victima" # 25n legitimo | palabra para describir a quien sufre una agresion | alto
+#! "superviviente" # 25n legitimo | identidad o descripcion legitima | alto
+#! "acoso" # 25n legitimo | palabra necesaria para nombrar la conducta | alto
+#! "acosador" # 25n legitimo | descripcion o acusacion; el posible objetivo identificable se evalua aparte | alto
+#! "abuso" # 25n legitimo | hablar del dano no lo promueve | alto
+#! agresion sexual # 25n legitimo | descripcion, testimonio o material educativo | alto
+#! violencia sexual # 25n legitimo | termino de prevencion y sensibilizacion | alto
+#! violencia de genero # 25n legitimo | tema central de la campana | alto
+#! violencia machista # 25n legitimo | tema central de la campana | alto
+#! "feminicidio" # 25n legitimo | describe asesinato por razones de genero | alto
+#! "femicidio" # 25n legitimo | variante empleada en varios paises de america | alto
+#! "feminismo" # 25n legitimo | movimiento, teoria o postura politica | alto
+#! "feminista" # 25n legitimo | identificacion personal, politica o academica | alto
+#! "machismo" # 25n legitimo | nombra el prejuicio o la desigualdad | alto
+#! "misoginia" # 25n legitimo | nombra una forma de hostilidad | alto
+#! "misandria" # 25n legitimo | nombra una forma de hostilidad; no constituye ataque por si sola | alto
+#! "patriarcado" # 25n legitimo | termino sociopolitico | alto
+#! "consentimiento" # 25n legitimo | concepto central de prevencion | alto
+#! "denuncia" # 25n legitimo | consulta, relato o actuacion juridica | alto
+#! denuncias falsas # 25n legitimo/contexto | debate juridico o refutacion; no equiparar mencion con culpabilizacion | alto
+#! "prostitucion" # 25n legitimo | termino valido para analisis o relato | alto
+#! "prostituta" # 25n legitimo/contexto | ocupacion atribuida o insulto segun destinataria; no activar sola | alto
+#! explotacion sexual # 25n legitimo | descripcion o denuncia legitima | alto
+#! "sexo" # 25n legitimo | termino de educacion, identidad o salud | alto
+#! "vulva" # 25n legitimo | anatomia, salud y educacion | alto
+#! "pene" # 25n legitimo | anatomia, salud y educacion | alto
+#! "suicidio" # 25n legitimo/contexto | prevencion, duelo o riesgo; no bloquear la palabra | alto
+#! salud mental # 25n legitimo | ayuda o educacion, no agravio | alto
+#! "autismo" # mencion legitima | diagnostico o neurodivergencia; no agravio aislado | alto
+#! "autista" # mencion legitima | identidad o descripcion clinica; solo hostil en contexto | alto
+#! sindrome de down # mencion legitima | diagnostico o referencia a derechos; no es agravio | alto
+#! "discapacidad" # mencion legitima | descripcion o defensa de derechos | alto
+#! "gay" # mencion legitima | orientacion o identidad; no es insulto sola | alto
+#! "lesbiana" # mencion legitima | orientacion o identidad; no es insulto sola | alto
+#! "bisexual" # mencion legitima | orientacion o identidad; no es insulto sola | alto
+#! "trans" # mencion legitima | identidad o adjetivo; no es insulto solo | alto
+#! "travesti" # mencion legitima | identidad reivindicada o descripcion segun region | alto
+#! "lgtbi" # mencion legitima | sigla de identidades | alto
+#! "queer" # mencion legitima | identidad y termino academico; no bloquear solo | alto
+#! no es no # lema 25n | mensaje de defensa del consentimiento | alto
+#! solo si es si # lema 25n | mensaje de defensa del consentimiento | alto
+#! nos queremos vivas # lema 25n | consigna contra la violencia | alto
+#! ni una menos # lema 25n | consigna contra la violencia | alto
+#! hermana yo si te creo # lema 25n | apoyo a testimonios | alto
+
+# tabla aparte: emojis y secuencias
+# emoji | nombre corto unicode cldr | motivo | a/b/c
+# a = nunca publicar directamente por el emoji solo; ninguno recomendado sin excepcion contextual
+# b = retener si hay objetivo, acto, lenguaje o combinacion compatible con el abuso; c = marca no decisoria para la forma aislada
+# los nombres de secuencias no rgi son concatenaciones de los nombres de sus componentes, no nombres oficiales nuevos
+# [Unicode Emoji 17.0](https://www.unicode.org/emoji/charts-17.0/full-emoji-list.html) | [Oversight Board](https://www.oversightboard.com/decision/bun-rahty4f1/) | [Women's Health, usos sexuales](https://www.womenshealthmag.com/sex-and-love/g28008142/sexting-emoji/)
+# 🖕 | middle finger | gesto convencionalmente insultante si se dirige a alguien; una cita, un rechazo al maltrato o un gesto aislado ambiguo no se equiparan a acoso | b
+# 🖕🏿 | middle finger: dark skin tone | mismo criterio para cualquiera de los cinco tonos; el tono no aumenta por si solo la gravedad | b
+# 🖕🖕 | middle finger + middle finger | gesto repetido; retener si va dirigido o si es el unico contenido visible y la pantalla excluye groserias aisladas | b
+# 🍑 | peach | fruta, comida o referencia a gluteos segun compania | c
+# 🍆 | eggplant | verdura; puede representar un pene | c
+# 💦 | sweat droplets | agua, sudor, deporte o fluidos segun contexto | c
+# 🍌 | banana | fruta; posible doble sentido sexual o uso racistamente dirigido | c
+# 🍒 | cherries | fruta; posible doble sentido corporal | c
+# 🌶️ | hot pepper | picante literal, enfasis o doble sentido | c
+# 🍌🐒 | banana + monkey | posible deshumanizacion racista si se dirige a una persona negra; tambien comentario sobre fauna | b
+# 🍌🐵 | banana + monkey face | mismo indicio cuando hay un objetivo humano racializado | b
+# 🐒 | monkey | animal, broma, reapropiacion o comparacion racista dirigida | c
+# 🐵 | monkey face | animal o comparacion degradante segun destinatario | c
+# 🦍 | gorilla | fauna, deporte o comparacion racialmente degradante | c
+# 🦧 | orangutan | fauna o deshumanizacion dirigida | c
+# 🐒🐒🐒 | monkey + monkey + monkey | repeticion hacia persona negra puede funcionar como agravio aunque no haya texto | b
+# 🐒👉🏿 | monkey + backhand index pointing right: dark skin tone | evaluar si el dedo y el contexto senalan a una persona; el tono no es evidencia suficiente | b
+# 👩🏿🐒 | woman: dark skin tone + monkey | si se propone una equiparacion racial, retener; tambien podria ser descripcion no hostil de una escena | b
+# 🐷 | pig face | animal; posible deshumanizacion o agravio religioso si hay objetivo | c
+# 🐀 | rat | animal o comparacion degradante segun objetivo | c
+# 💩 | pile of poo | escatologia o broma; puede ser desprecio dirigido | c
+# 🤡 | clown face | circo, humor o burla; retener por hostigamiento, no por el simbolo aislado | c
+# 😂 | face with tears of joy | risa comun; junto a un relato de agresion puede ridiculizar | c
+# 🤣 | rolling on the floor laughing | risa comun; requiere objetivo y contexto para atribuir burla | c
+# 🍆🍑 | eggplant + peach | posible insinuacion sexual o acoso si va dirigida; tambien lista de alimentos | b
+# 🍆💦 | eggplant + sweat droplets | posible insinuacion de eyaculacion | b
+# 🍆🍑💦 | eggplant + peach + sweat droplets | combinacion sexual documentada; retener si es mensaje grafico dirigido o se entiende como explicitud | b
+# 👉👌 | backhand index pointing right + OK hand | gesto combinado que puede simular penetracion | b
+# 👉🏽👌🏻 | backhand index pointing right: medium skin tone + OK hand: light skin tone | misma combinacion sexual potencial con tonos distintos | b
+# 👉🍑 | backhand index pointing right + peach | alusion sexual posible si apunta a una persona o a su cuerpo | b
+# 👅🍑 | tongue + peach | combinacion sexual posible; criterio contextual para pantalla | b
+# 👅💦 | tongue + sweat droplets | insinuacion posible o alusion literal a beber y sed | b
+# 🤏🍆 | pinching hand + eggplant | burla corporal posible; tambien literal al hablar de comida | b
+# 👌 | OK hand | acuerdo habitual; puede tener uso supremacista segun contexto, no por si solo | c
+# 👉 | backhand index pointing right | senalamiento; el objetivo importa | c
+# 🤏 | pinching hand | pequeno o poco; posible burla corporal dirigida | c
+# 👅 | tongue | comida, gesto divertido o insinuacion segun contexto | c
+# 👄 | mouth | anatomia, maquillaje o insinuacion | c
+# 💋 | kiss mark | afecto, maquillaje o contacto sexual no deseado segun contexto | c
+# 👀 | eyes | atencion, sorpresa o vigilancia; no es amenaza aislado | c
+# 🔥 | fire | aprobacion, energia o fuego literal; puede acompanar una amenaza | c
+# 🔪 | kitchen knife | utensilio, cocina o amenaza segun el predicado | c
+# 🗡️ | dagger | ficcion, historia o amenaza segun objetivo | c
+# 🔫 | water pistol | el nombre cldr dice pistola de agua; puede usarse para amenazar | c
+# 🪢 | knot | nudo, manualidades o posible alusion a suicidio o linchamiento segun contexto | c
+# 🪓 | axe | herramienta, crucigrama o amenaza segun contexto | c
+# 🩸 | drop of blood | salud, donacion, menstruacion o violencia | c
+# 💀 | skull | risa, halloween, muerte o amenaza | c
+# ☠️ | skull and crossbones | peligro, piratas, humor o amenaza | c
+# 💣 | bomb | juego, elogio o amenaza; requiere contexto | c
+# 🔪🩸 | kitchen knife + drop of blood | posible violencia grafica o amenaza si va dirigida | b
+# 🔫💀 | water pistol + skull | posible amenaza si hay objetivo humano; tambien juego o ficcion | b
+# 🪢💀 | knot + skull | posible incitacion, amenaza o crisis; evaluar destinatario y tono, no proyectar alerta de crisis | b
+# 🔥🏠 | fire + house | puede contar un incendio o expresar amenaza contra un domicilio; buscar contexto | b
+# 🏳️‍🌈 | rainbow flag | identidad, orgullo o apoyo; no es una senal de odio por si sola | c
+# 🏳️‍⚧️ | transgender flag | identidad, orgullo o apoyo; no es una senal de odio por si sola | c
+# 🚫🏳️‍🌈 | prohibited + rainbow flag | posible exclusion antilgtbi; confirmar orientacion del mensaje y si es cita | b
+# 🚫🏳️‍⚧️ | prohibited + transgender flag | posible exclusion antitrans; confirmar si se denuncia o promueve | b
+# 💜 | purple heart | apoyo habitual en campanas 25n; no retener solo | c
+
+# fuentes y atribuciones
+# [LDNOOBW](https://github.com/LDNOOBW/List-of-Dirty-Naughty-Obscene-and-Otherwise-Bad-Words), Shutterstock, Inc., 2012-2020; CC BY 4.0. Seleccion, normalizacion y comentarios adaptados; no se importa el listado entero.
+# [HurtLex, artículo y metodología](https://books.openedition.org/aaccademia/3085) y [repositorio primario](https://github.com/valeriobasile/hurtlex).
+# [Hatebase, ficha histórica UNESCO](https://www.unesco.org/en/world-media-trends/hatebase) y [sitio del proyecto](https://hatebase.org/). No se obtuvo un volcado activo del sitio; no se atribuyen entradas a Hatebase.
+# [Diccionario de americanismos, ASALE](https://www.asale.org/damer/puto), [joto](https://www.asale.org/damer/joto), [maricón](https://www.asale.org/damer/maric%C3%B3n), [conchetumadre](https://www.asale.org/damer/conchetumadre), [Wikcionario, regionalismos](https://es.wiktionary.org/wiki/Ap%C3%A9ndice:ES:Insultos_regionales).
+# [ASALE, hijueputa](https://www.asale.org/damer/hijueputa), [playo](https://www.asale.org/damer/playo), [maje](https://www.asale.org/damer/maje), [cerote](https://www.asale.org/damer/cerote), [carepicha](https://www.asale.org/damer/carepicha), [mamahuevo](https://www.asale.org/damer/mamahuevo).
+# [DLE, sudaca](https://dle.rae.es/sudaca), [maricultura](https://dle.rae.es/maricultura), [mariconera](https://dle.rae.es/mariconera), [Treccani, putacaso](https://www.treccani.it/vocabolario/putacaso/).
+# [EXIST 2024, UNED](https://nlp.uned.es/exist2024/) y [EXIST 2025, UNED](https://evall.uned.es/en/dataset/exist-2025).
+# [OBERAXE, informe anual 2025](https://www.inclusion.gob.es/web/oberaxe/w/el-oberaxe-publica-el-informe-anual-de-2025-de-monitorizacion-del-discurso-de-odio-en-redes-sociales), [FARO](https://inclusion.gob.es/documents/d/oberaxe/nota-metodologica-sistema-faro), [ALRECO](https://www.inclusion.gob.es/oberaxe/alreco/ficheros/PROTOCOLO-ALRECO.pdf).
+# [HateCheck](https://aclanthology.org/2021.acl-long.4/) y [Multilingual HateCheck](https://anthology.aclweb.org/2022.woah-1.15/), [tabla de funcionalidades](https://ar5iv.labs.arxiv.org/html/2206.09917).
+# [Estudio sobre troleo antifeminista](https://dialnet.unirioja.es/descarga/articulo/7739317.pdf) y [estudio de desinformación de género](https://portalinvestigacion.um.es/documentos/65aec6908becc03e1dc2700f).
+# [Fiscalía, memoria de 2026: violencia sobre la mujer](https://www.fiscal.es/memorias/memoria2026/FISCALIA_SITE/capitulo_III/cap_III_1_4.html).
+# [COCEMFE, lenguaje inclusivo](https://www.cocemfe.es/wp-content/uploads/2022/12/cocemfe-manual-lenguaje-inclusivo-discapacidad.pdf).
+# [Wiktionnaire, argot digital](https://fr.wiktionary.org/wiki/Annexe:Liste_de_termes_d%E2%80%99argot_Internet), [Wiktionary, argot digital](https://en.wiktionary.org/wiki/Appendix:Internet_slang), [Larousse, verlan](https://www.larousse.fr/dictionnaires/francais/verlan/81556), [Wiktionary, tepu](https://en.wiktionary.org/wiki/tepu).
+# [Usito, sacres quebequeses](https://usito.usherbrooke.ca/articles/th%C3%A9matiques/vincent_1), [Le Vif, francés belga](https://www.levif.be/belgique/serie-3-5-ket-fieu-peye-dou-viennent-ces-mots-typiquement-belges/), [Wiktionnaire, gaou](https://fr.wiktionary.org/wiki/gaou).
+# [Ofcom](https://www.ofcom.org.uk/tv-radio-and-on-demand/broadcast-standards/offensive-language), [Cambridge, wanker](https://dictionary.cambridge.org/us/dictionary/english/wanker), [Merriam-Webster, slut](https://www.merriam-webster.com/dictionary/slut), [Macquarie, bogan](https://www.macquariedictionary.com.au/step-through-the-bogan-gate/).
+# [ADL, repertorio](https://www.adl.org/resources/hate-symbols/search), [1488](https://www.adl.org/resources/hate-symbol/1488), [88](https://www.adl.org/resources/hate-symbol/88), [311](https://www.adl.org/resources/hate-symbol/311), [esvástica](https://dc.adl.org/resources/hate-symbol/swastika).
+# [ADL, 14](https://www.adl.org/resources/hate-symbol/14), [18](https://www.adl.org/resources/hate-symbol/18), [28](https://www.adl.org/resources/hate-symbol/28), [13/52 y 13/90](https://www.adl.org/resources/hate-symbol/1352-1390), [gesto de OK](https://education.adl.org/resources/hate-symbol/okay-hand-gesture).
+# [ADL, 6MWE](https://extremismterms.adl.org/glossary/6-million-wasnt-enough-6mwe), [271k](https://www.adl.org/resources/hate-symbol/271k) y [ZOG](https://www.adl.org/resources/hate-symbol/zog).
+# [Merriam-Webster, sixty-nine](https://www.merriam-webster.com/dictionary/sixty-nine) y [Dictionary.com, Rule 34](https://www.dictionary.com/culture/slang/rule-34).
+# [Unicode, nombres cortos CLDR](https://www.unicode.org/emoji/charts-17.0/full-emoji-list.html), [UAX #29](https://www.unicode.org/reports/tr29/), [UTS #39](https://www.unicode.org/reports/tr39/).
+# [Oversight Board, emojis dirigidos a personas negras](https://www.oversightboard.com/decision/bun-rahty4f1/), [Women’s Health, connotaciones sexuales de emojis](https://www.womenshealthmag.com/sex-and-love/g28008142/sexting-emoji/).
+# [YouTube, política de odio](https://support.google.com/youtube/answer/2801939?hl=en), [YouTube, política de acoso](https://support.google.com/youtube/answer/2802268?hl=en), [Delegación del Gobierno, 016 y 112](https://violenciagenero.igualdad.gob.es/informacion-3/recursos/telefono016/).

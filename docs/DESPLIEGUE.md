@@ -56,6 +56,8 @@ cd <carpeta> && bash deploy/actualizar.sh https://thedevhub.santiagof.dev/colabo
 - [ ] Sin `<script>` ni `<style>` en línea ni atributos `onclick=`/`style=`: la cabecera CSP del servidor puede bloquearlos.
 - [ ] Sin colores sueltos en CSS/JS: todo sale de `static/css/paleta.css`, y
       `python herramientas/comprobar_contraste.py` termina sin errores.
+- [ ] Si toca el filtro o el léxico de moderación: `python herramientas/generar_filtros.py --comprobar`
+      y `python herramientas/probar_filtro.py` terminan sin errores.
 - [ ] Usa los nombres de endpoint del README.
 - [ ] Textos visibles traducibles (`_()` en plantillas y Python, `data-textos` en JS) y
       `pybabel compile -d traducciones --statistics` al 100 % (ver README, «Idiomas»).

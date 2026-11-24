@@ -1,53 +1,481 @@
-# T03 — Lista inicial del filtro. Se carga UNA vez, la primera vez que arranca el servidor.
-# Después se gestiona desde el panel (/admin, «Filtro automático»); cambiar este archivo ya no tiene efecto.
+# Lista inicial del filtro. Se carga UNA vez, la primera vez que arranca el servidor.
+# Después se gestiona desde el panel (/admin, «Filtro automático»); cambiar este archivo ya no tiene efecto
+# (para llevarlo a una base de datos que ya existe: python herramientas/generar_filtros.py --bd).
+#
+# NO EDITAR A MANO: se genera con `python herramientas/generar_filtros.py` a partir de
+# docs/moderacion/lexico_25n.txt (español, francés e inglés). Para añadir o quitar términos,
+# edita el léxico y vuelve a generar. Cómo hacerlo: docs/moderacion/README.md
 #
 # Una línea por término. Sin tildes ni mayúsculas (da igual cómo lo escriban).
-#   palabra     la palabra entera, con plural y escrita con trucos (p.u.t.a, z0rra, zorraaa)
-#   palabra*    cualquier palabra que empiece así
+#   palabra       retener: la palabra entera, con plural y escrita con trucos (p.u.t.a, z0rra, zorraaa)
+#   palabra*      cualquier palabra que empiece así
 #   dos palabras  expresión completa
+#   1488, 🍆🍑    emojis, números y símbolos: tal cual (da igual el tono de piel o los espacios entre emojis)
+#   ~palabra      cuarentena: también se retiene, pero avisando de que puede ser un falso positivo
+#   !palabra      excepción: nunca cuenta como coincidencia (maricarmen frente a ~maric*)
 #
 # Ojo: palabras como "violencia", "violación", "matar" o "maltrato" aparecen en mensajes
 # legítimos del 25N. No las pongas solas; usa expresiones concretas ("te voy a matar").
 
-# Insultos machistas
+# Espanol: machismo, misoginia y sexualizacion
 puta
-puto
+putita
+putona
+puton
+putangona
 zorra
+zorrona
+zorrupia
 guarra
-perra
+guarrona
+puerca
 golfa
-furcia
+fulana
 ramera
-feminazi*
-hembrista
+buscona
+mujerzuela
+pilingui
+lagartona
+macizorra
+marimandona
+malfollada
+malcogida
+calientapollas
+calientahuevos
+calientabraguetas
+perra asquerosa
+eres una perra
+mujer al volante peligro constante
+calladita te ves mas bonita
+deberias estar fregando
+las mujeres no sirven para
+las mujeres son inferiores
+las mujeres no merecen vivir
+hay que matar a todas las mujeres
+las mujeres son propiedad
+solo sirven para parir
+te pego porque te quiero
+te hace falta una buena follada
+te falta pene
+abrete de piernas
+manda nudes
+manda pack
+ensena las tetas
+pasame tus nudes
+te voy a coger a la fuerza
+~perra
 
-# Homofobia y tránsfobia
-maric*
-bollera
-tortillera
+# Espanol: agresiones dirigidas contra hombres
+cornudo
+cuck
+braguetero
+pichacorta
+todos los hombres son basura
+los hombres son escoria
+los hombres no valen nada
+los hombres son inferiores
+los hombres no merecen vivir
+hay que matar a todos los hombres
+ojala se mueran todos los hombres
+si lloras no eres hombre
+no eres un hombre de verdad
+
+# Espanol: homofobia, lesbofobia, bifobia y transfobia
+mariconazo
+mariconada
+mariconeria
+maricon
+marica
+mariposon
+trabelo
 travelo
+travestolo
+lesbiana asquerosa
+puto trans
+que asco los gays
+no deberian existir los gays
+hay que curar a los gays
+ser gay es una enfermedad
+ser trans es una enfermedad
+los trans son monstruos
+las trans no son mujeres
+disfrazado de mujer
+es una fase por ser bisexual
+eres un puto
+~maric*
+~puto
+~tortillera
+~bollera
 
-# Racismo y otros insultos
-sudaca
-negrat*
-de mierda
+# Espanol: racismo, xenofobia, antisemitismo, islamofobia y antigitanismo
+sudaca*
+sudako
+sudaka
+sudacucho
+moromierda
+moraco
+negro asqueroso
+gitanos ladrones
+putos chinos
+putos judios
+los judios controlan el mundo
+el holocausto nunca ocurrio
+el holocausto es un invento
+los musulmanes son terroristas
+parasitos extranjeros
+plaga de inmigrantes
+volvete a tu pais
+vuelvete a tu pais
+vete a tu pais
+fuera de nuestro pais
+limpieza etnica ya
+
+# Espanol: capacitismo y estigma de salud
 subnormal
-retrasad*
-gilipollas
-imbecil
-cabron
-cabrona
+retrasado mental
+retrasada mental
+deficiente mental
+tarado
+mongolico
+puto retrasado
+eres un retrasado
+pareces autista
+pareces un down
 
-# Culpar a la víctima y machismo
+# Espanol: insultos generales, vulgaridad fuerte y sexual explicito
+gilipoll*
+jilipollas
+soplapollas
+chupapollas
+comepollas
+tocapelotas
+tontopollas
+capullo
+~imbecil
+gilipichis
+soplagaitas
+lameculos
+hijaputa
+hijoput*
+malparido
+pendejo
+pelotudo
+boludo
+cagapalos
+careverga
+carepicha
+careculo
+carechimba
+tetrahijueputa
+triplehijueputa
+mamaguevo
+mamahuevo
+mameguevo
+mamabicho
+comemierda
+comemonda
+chupaverga
+chupasangres
+culero
+mierdoso
+cabron
+cabronazo
+conchetumadre
+conchatumadre
+reconchatumadre
+reconchetumadre
+chingatumadre
+chingada
+chingadera
+pendejada
+follar
+correrte en la cara
+metete la polla
+chinga tu madre
+me cago en tu madre
+me cago en tus muertos
+me cago en dios
+vete a tomar por culo
+que te den por culo
+vete a la mierda
+chupame la polla
+chupame la verga
+mamame el huevo
+la reconcha de tu madre
+la concha de tu madre
+metetelo por el culo
+eres un maje
+anda a cagar
+come mierda
+maldito desgraciado
+
+# Espanol: negacion, burla, culpabilizacion y hostigamiento antifeminista
+feminazi*
+feminacis
+femiloca
+stopfeminazis
+las feministas necesitan una violacion
+hay que matar a las feministas
+la violencia de genero es un invento
+la violencia machista no existe
+la violencia de genero no existe
+el machismo ya no existe
+el 25n es un chiste
+denuncian para cobrar
+denuncian para quitarte la casa
+todas las denuncias son falsas
+las mujeres mienten cuando denuncian
+las victimas se lo inventan
+se lo busco por vestir asi
+si no queria que no hubiera bebido
+si no queria no tenia que salir
+si no denuncia es porque le gusta
+no es violacion si
+si no dice que no es un si
+si es tu esposa no es violacion
+pegar a tu mujer es normal
+la mate porque era mia
+~se lo busco
+
+# Espanol: amenazas, deseos de dano, coaccion y hostigamiento
+te voy a matar
+te voy a asesinar
+te voy a hacer desaparecer
+te voy a degollar
+te voy a apunalar
+te voy a acuchillar
+te voy a disparar
+te voy a romper la cara
+te voy a partir la cara
+te voy a partir las piernas
+te voy a dar una paliza
+te voy a moler a golpes
+te voy a dejar en el hospital
+te voy a pegar
+te voy a quemar viva
+te voy a quemar vivo
+te voy a reventar
+vas a acabar muerta
+vas a acabar muerto
+ojala te mueras
+ojala te maten
+ojala te violen
+mereces que te violen
+ojala te den una paliza
+ojala te pegue tu novio
+te voy a violar
+te vamos a violar
+te voy a obligar a tener sexo
+te voy a tocar aunque no quieras
+si no eres mia no seras de nadie
+si me dejas me mato
+si me bloqueas publico tus fotos
+voy a publicar tus fotos intimas
+voy a filtrar tus nudes
+voy a hacer que te violen
+vais a morir todas
+pegale hasta que aprenda
+matate de una vez
+tira por la ventana a tu mujer
+
+# Siglas y abreviaturas: espanol, frances e ingles
+hijuep
+ctmare
+ctmr
+stfu
+kys
+gtfo
+foad
+esad
+diaf
+idgaf
+ftg
+vtfe
+vtff
+osefdtv
+
+# Grafias de prueba: las transformaciones mecanicas son ejemplos para comprobar la cobertura, no afirmaciones de frecuencia.
+pvta
+pvto
+putah
+pu ta
+hijueput*
+hijuepvta
+jueputa
+joputa
+japuta
+ijodeputa
+hijodeputa
+hijadeputa
+hiju eputa
+marikon
+marika
+maricn
+gilipoyas
+jilipoyas
+gili pollas
+kapullo
+mierdda
+miedra
+mierd0
+konchetumadre
+conchatvmadre
+tevoiamatar
+tevoyamatar
+te voi a matar
+te voy a ma tar
+te voy a biolar
+phuck
+fuk
+fuck
+shyt
+enculerr
+putainn
+konnard
+taggle
+filsdepute
+tepu
+
+# Frances complementario: francia, belgica, quebec y muestra francofona africana
+connard
+connasse
+salope
+pouffiasse
+grogniasse
+salaud
+salopard
+encule
+enfoire
+branleur
+fils de pute
+fille de pute
+sale pute
+va te faire foutre
+va te faire enculer
+ferme ta gueule
+nique ta mere
+nique ta race
+trou du cul
+sale type
+fiotte
+tapette de merde
+sale pede
+sale gouine
+sale negre
+bougnoule
+bicot
+sale arabe
+sale juif
+sale musulman
+attarde mental
+handicape de merde
+je vais te tuer
+je vais te violer
+je vais te casser la gueule
+je vais te buter
+tu merites de crever
+va te pendre
+suce ma bite
+tabarnak
+tabarnac
+calisse
+ostie
+bout de criss
+
+# Ingles complementario: estados unidos, reino unido y australia
+bitch
+slut
+skank
+whore
+cunt
+motherfuck*
+asshole
+arsehole
+shithead
+dickhead
+wanker
+twat
+tosser
+douchebag
+fuckwad
+piece of shit
+go back to your country
+faggot
+tranny
+you fucking dyke
+those queers should die
+nigger
+nigga
+chink
+wetback
+raghead
+pikey
+coon
+retard
+go kill yourself
+i will kill you
+im going to kill you
+i will rape you
+i hope you get raped
+send nudes
+
+# Numeros, siglas de odio y simbolos: conservar tokens originales sin sustitucion numerica
+1488
+14/88
+14-88
+8814
+卐
+卍
+heil hitler
+sieg heil
+white power
+combat 18
+blood and honour
+6mwe
+
+# Lista inicial del equipo: t03, terminos que el lexico no recogia
+hembrista
+cabrona
+furcia
+de mierda
 se lo merecia
-se lo busco
 algo habra hecho
 algo habria hecho
 a fregar
 a la cocina
-
-# Amenazas
-te voy a matar
-te voy a violar
 te mato
 os mato
+~negrat*
+~retrasad*
+
+# Tabla aparte: emojis y secuencias
+~🖕
+~🍌🐒
+~🍌🐵
+~🐒🐒🐒
+~🐒👉
+~👩🐒
+~🍆🍑
+~🍆💦
+~👉👌
+~👉🍑
+~👅🍑
+~👅💦
+~🤏🍆
+~🔪🩸
+~🔫💀
+~🪢💀
+~🔥🏠
+~🚫🏳‍🌈
+~🚫🏳‍⚧
+
+# Excepciones: palabras que nunca se retienen aunque otro término las cubra
+!maricarmen
+!maricruz
+!maricela
+!maricielo
+!marichalar
+!maricultura
+!maricultor
+!maricultora
+!mariconera

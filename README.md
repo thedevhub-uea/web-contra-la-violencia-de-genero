@@ -21,7 +21,7 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 │   ├── db.py               Acceso a la base de datos (todas las consultas)
 │   ├── schema.sql          Tablas mural y foro (+ avisos, filtros y ajustes de T03)
 │   ├── filtro.py           T03 · filtro automático de palabras y datos personales
-│   └── filtros_iniciales.txt  T03 · lista de palabras con la que arranca el filtro
+│   └── filtros_iniciales.txt  T03/#34 · lista con la que arranca el filtro (generada, no editar a mano)
 ├── templates/              Plantillas Jinja (HTML)
 │   ├── participa.html      T06 · formulario público
 │   ├── gracias.html        T06 · confirmación
@@ -56,11 +56,14 @@ Cada archivo ya existe con un comentario que indica qué tarea lo rellena.
 ├── deploy/                 T05 · scripts y plantillas de despliegue
 ├── docs/
 │   ├── tareas/             Enunciado de cada tarea (T01–T10)
+│   ├── moderacion/         #34 · léxico de moderación (fuente del filtro), guía y cómo añadir términos
 │   ├── t10/                T10 · vista previa de estilos.css y lista de pruebas en móviles
 │   └── DESPLIEGUE.md       T05 · guía de despliegue y checklist de PRs
 ├── herramientas/
 │   ├── generar_qr.py       T10 · regenera static/img/qr.png (sin dependencias)
-│   └── comprobar_contraste.py  T13 · comprueba el contraste de los pares de paleta.css (sin dependencias)
+│   ├── comprobar_contraste.py  T13 · comprueba el contraste de los pares de paleta.css (sin dependencias)
+│   ├── generar_filtros.py  #34 · genera bd/filtros_iniciales.txt desde el léxico (--bd: lo importa en una BD existente)
+│   └── probar_filtro.py    #34 · pruebas positivas y negativas del filtro (sin dependencias)
 ├── datos/                  Se crea solo: aquí vive 25n.db (no se sube a git)
 ├── requirements.txt
 └── .env.example            Variables de entorno (copiar a .env)
@@ -153,6 +156,11 @@ y `admin.html`. **Ninguna hoja de estilos ni JS lleva colores sueltos** (`#hex`,
   tildes, plurales, mayúsculas y trucos (`z0rra`, `p.u.t.a`, `p4ta`: un número o símbolo en lugar de una vocal vale por cualquier vocal); con `*` al final cubre todo lo que
   empiece igual. La lista y las reglas se cambian desde el panel; la primera vez se carga
   `bd/filtros_iniciales.txt`. El filtro **no** detecta nombres ni lugares.
+  Los términos ambiguos (`puto`, `maric*`…) van en **cuarentena**: también se retienen, pero el
+  panel avisa de que pueden ser un falso positivo; las **excepciones** (`maricarmen`) nunca se retienen.
+  También admite **emojis, números y símbolos** (`👉👌`, `1488`, `卐`), sin importar el tono de piel.
+  La lista inicial (español, francés e inglés) se **genera** desde el léxico de
+  `docs/moderacion/`: cómo añadir términos y probarlos en [`docs/moderacion/README.md`](docs/moderacion/README.md).
 - **Avisos del público** (`/avisar`, enlazado desde `/participa` y `/gracias`): quien vea algo
   inapropiado en la pantalla lo marca y aparece en «Avisos del público» del panel. Por defecto
   **no retiran nada solos**. La retirada automática al llegar a N avisos es un ajuste opcional y

@@ -119,7 +119,7 @@ _AVISOS_PANEL = {
     ("foro", "borrar"): _l("Reflexión #%(id)s borrada."),
     ("filtro", "anadido"): _l("Añadido al filtro: «%(termino)s».%(retirados)s"),
     ("filtro", "quitado"): _l("Término quitado del filtro."),
-    ("filtro", "invalido"): _l("No se ha añadido: usa solo letras y espacios (de 2 a 60), con * al final si quieres."),
+    ("filtro", "invalido"): _l("No se ha añadido: usa letras y espacios (de 2 a 60, con * al final si quieres) o emojis, números y símbolos (como 🍆🍑 o 1488)."),
     ("filtro", "repetido"): _l("Ese término ya estaba en el filtro."),
     ("ajustes", "guardados"): _l("Ajustes guardados.%(retirados)s"),
     ("participacion", "abrir"): _l("«%(vista)s» vuelve a admitir envíos nuevos."),
@@ -268,6 +268,7 @@ _TEXTOS_BD = {texto: traducido for texto, traducido in (
     ("Otro motivo", _l("Otro motivo")),
 )}
 _MOTIVO_PALABRA = re.compile(r"^Palabra filtrada: «(.*)»$")
+_MOTIVO_CUARENTENA = re.compile(r"^Cuarentena: «(.*)»$")
 _MOTIVO_AVISOS = re.compile(r"^Retirado automáticamente al recibir (\d+) avisos$")
 
 
@@ -287,6 +288,9 @@ def _motivo(texto):
     palabra = _MOTIVO_PALABRA.match(texto)
     if palabra:
         return _("Palabra filtrada: «%(termino)s»", termino=palabra.group(1))
+    cuarentena = _MOTIVO_CUARENTENA.match(texto)
+    if cuarentena:
+        return _("Cuarentena (puede ser un falso positivo): «%(termino)s»", termino=cuarentena.group(1))
     avisos = _MOTIVO_AVISOS.match(texto)
     if avisos:
         return _("Retirado automáticamente al recibir %(num)s avisos", num=avisos.group(1))
@@ -559,7 +563,7 @@ def create_app():
     @requiere_rol("admin")
     def admin_filtro_anadir():
         _comprobar_csrf()
-        id_, error = db.anadir_filtro(request.form.get("termino", ""))
+        id_, error = db.anadir_filtro(request.form.get("termino", ""), request.form.get("tipo", "bloqueo"))
         if error:
             return _volver_al_panel("filtro", error)
         return _volver_al_panel("filtro", "anadido", id_, db.revisar_publicados(),
