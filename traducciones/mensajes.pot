@@ -295,7 +295,7 @@ msgid "Discontinuo"
 msgstr ""
 
 msgid ""
-"Duración de la portada entre vistas, con su cuenta atrás. De 1 a 60. "
+"Duración de la portada entre vistas, con su cuenta atrás. Desde 1, sin máximo (900 = 15 min). "
 "Recomendado: 15."
 msgstr ""
 

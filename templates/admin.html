@@ -364,8 +364,8 @@
             </label>
           {% endfor %}
             <label class="adm-tiempo">
-              <span class="adm-tiempo-nombre">{{ _('Transición') }} {{ info(_('Duración de la portada entre vistas, con su cuenta atrás. De 1 a 60. Recomendado: 15.')) }}</span>
-              <span class="adm-unidad"><input type="number" name="transicion_seg" min="1" max="60" step="0.5" inputmode="decimal" required value="{{ transicion.seg | round(1) | string | replace('.0', '') }}"><span>s</span></span>
+              <span class="adm-tiempo-nombre">{{ _('Transición') }} {{ info(_('Duración de la portada entre vistas, con su cuenta atrás. Desde 1, sin máximo (900 = 15 min). Recomendado: 15.')) }}</span>
+              <span class="adm-unidad"><input type="number" name="transicion_seg" min="1" step="0.5" inputmode="decimal" required value="{{ transicion.seg | round(1) | string | replace('.0', '') }}"><span>s</span></span>
             </label>
             <label class="adm-tiempo">
               <span class="adm-tiempo-nombre">{{ _('Vida de un mensaje') }} {{ info(_('La vida de un mensaje cuenta desde que se envía; al caducar deja de salir en el mural y en el foro, pero no se borra: sigue en «Publicaciones» como «Caducado». Las reflexiones no caducan. 0 = no caducan.')) }}</span>

@@ -93,7 +93,7 @@ AJUSTES_POR_DEFECTO = {
     "tiempo_refresco_seg": "10",     # cada cuánto pide la pantalla los mensajes nuevos
     # CONECTA: transición entre vistas de /pantalla (portada de fondo + etiqueta «Siguiente»).
     "transicion_activa": "1",
-    "transicion_seg": "15",          # duración total, en segundos (de 1 a 60)
+    "transicion_seg": "15",          # duración total, en segundos (mínimo 1, sin máximo)
     "trans_mural_es": "Mural", "trans_mural_en": "Mural",
     "trans_video_es": "Vídeo", "trans_video_en": "Video",
     "trans_foro_es": "Foro de reflexión", "trans_foro_en": "Reflection forum",
@@ -545,7 +545,7 @@ def tiempos_pantalla():
     return tiempos
 
 
-TRANSICION_LIMITES = (1.0, 60.0)
+TRANSICION_LIMITES = (1.0, float("inf"))  # sin máximo: 900 s = 15 min, por ejemplo
 
 
 def transicion():
